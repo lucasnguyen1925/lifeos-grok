@@ -1,0 +1,99 @@
+# LifeOS — file cấu hình MẪU.
+# Khi cài, Tiko chép file này thành /workspace/lifeos/config.toml rồi hỏi Khôi để điền thông tin thật.
+# File thật nằm trên máy bot, KHÔNG BAO GIỜ đưa lên GitHub. Không ghi mật khẩu vào đây (mật khẩu ở Vault).
+
+[owner]
+name = "Khôi"
+timezone = "Asia/Ho_Chi_Minh"   # các script luôn dùng UTC+7
+
+# ---------- Người quan trọng (luật 🔴: hỏi trực tiếp, chưa trả lời > 12 giờ) ----------
+# name/aliases: chỉ cần một phần tên xuất hiện trong người gửi là khớp (không phân biệt hoa thường).
+[[people.vip]]
+name = "Quản lý"
+aliases = ["quản lý", "sếp"]
+group = "congty"
+
+[[people.vip]]
+name = "Giảng viên"
+aliases = ["thầy", "cô"]
+group = "hoctap"
+
+[[people.vip]]
+name = "Gia đình"
+aliases = ["mẹ", "ba", "bố"]
+group = "canhan"
+
+# ---------- Luật ----------
+[rules]
+urgent_keywords = ["hoãn thi", "nghỉ học", "đổi phòng", "đổi lịch thi", "khẩn", "hoãn", "huỷ", "hủy"]
+stale_hours = 14          # file mảng cũ hơn chừng này giờ thì báo "dữ liệu cũ"
+
+[alerts]
+quiet_hours = ["23:00", "06:00"]   # không nhắn cảnh báo trong khoảng này
+
+# ---------- Lịch & khung trống (quy tắc R1, R2) ----------
+[schedule]
+active_from = "07:00"
+active_to = "23:00"
+travel_minutes = 30
+travel_kinds = ["class", "exam", "work_shift"]
+focus_default_minutes = 30
+reminder_lead_minutes = 5        # nhắc sau khi tan học/tan làm bao nhiêu phút
+
+[[schedule.protected]]
+from = "11:30"
+to = "12:30"
+label = "ăn trưa"
+
+[[schedule.protected]]
+from = "18:30"
+to = "19:30"
+label = "ăn tối"
+
+# ---------- Nhịp chạy (Tiko dùng để biết bot nào trễ) ----------
+[health]
+grace_minutes = 45
+source_red_hours = 36
+
+[health.expected]   # giờ các lần chạy ĐẦY ĐỦ của từng bot
+zalo = ["05:10", "20:10"]
+hoctap = ["05:30", "20:30"]
+congty = ["05:30", "20:30"]
+canhan = ["05:30", "20:30"]
+lifeos = ["06:00", "21:00"]
+
+[scan]
+full = ["05:30", "20:30"]
+light = ["11:30", "14:30", "17:30"]
+
+# ---------- Lưu trữ (ngày & tuần 90 ngày, Zalo thô 7 ngày, tháng giữ lâu dài) ----------
+[retention]
+daily_days = 90
+weekly_days = 90
+zalo_raw_days = 7
+
+[dashboard]
+chromium = ""     # để trống = tự tìm. Tiko điền đường dẫn nếu không tự tìm được.
+page_title = "LifeOS · Hiệu suất"
+
+# ---------- Nguồn từng mảng (Tiko hỏi Khôi để điền) ----------
+[sources.hoctap]
+gmail_account = "Mail trường"
+calendar = "trường"
+lms_course_ids = []          # ví dụ [123456, 234567]
+mybk_pages = ["dkmh", "lich-thi", "thoi-khoa-bieu", "bang-diem", "hoc-phi", "hoat-dong"]
+aao_url = ""
+
+[sources.congty]
+mail = "trình duyệt (SSO công ty)"
+calendar_days_ahead = 14
+
+[sources.canhan]
+gmail_accounts = ["Mail cá nhân", "Mail cá nhân chính"]
+calendars = ["cá nhân", "cá nhân chính"]
+reminders_list = "To-do list"
+
+[zalo]
+tags = { "Công việc" = "congty", "Trường học" = "hoctap", "Bạn bè" = "canhan", "Gia đình" = "canhan" }
+restore_unread = true       # đọc xong đánh dấu lại "chưa đọc" nếu trước đó đang chưa đọc
+max_login_attempts = 1
