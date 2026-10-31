@@ -7,7 +7,7 @@ description: Mẫu và quy trình viết báo cáo LifeOS gửi Khôi — báo c
 
 ## Nguyên tắc
 
-- **Dữ liệu chỉ lấy từ `digest.json`** (và `health.json`, `context/`). Không tự đọc file mảng, không tự đoán.
+- **Dữ liệu chỉ lấy từ `digest.json`** (và `health.json`, `context/`, sổ nhớ `brain`). Không tự đọc file mảng, không tự đoán.
 - **Thứ/ngày lấy nguyên văn** từ các trường `*_label` hoặc lệnh `date`. Không tự suy.
 - Ngắn: ≤ 25 dòng. 🔴 luôn hiện đủ (trong kế hoạch hoặc mục 3 ngày tới); 🟡 và ⚪ gom thành "Xa hơn: N việc".
 - Việc trong `done.json` không bao giờ xuất hiện (script đã loại). Khôi nói "xong rồi" → chạy `done` ngay.
@@ -19,6 +19,7 @@ description: Mẫu và quy trình viết báo cáo LifeOS gửi Khôi — báo c
 cd /workspace/lifeos-grok
 python3 -m lifeos digest
 python3 -m lifeos health      # đọc health.json
+python3 -m lifeos brain core  # hồ sơ ngắn: người quen, thói quen, việc đang dở (skill lifeos-tri-nho)
 ```
 
 Sau khi gửi xong: `python3 -m lifeos mark-reported` (để không bắn lại cảnh báo cho việc đã báo), rồi `status lifeos --type report --ok`.
@@ -31,7 +32,7 @@ Sau khi gửi xong: `python3 -m lifeos mark-reported` (để không bắn lại 
 - Giờ và thứ tự do script xếp (thang ưu tiên, giờ dậy/ngủ, giới hạn giờ mỗi ngày) — **không tự đổi giờ**. Khôi muốn đổi thì `plan edit` / `free`.
 - Việc công ty trong `at_office` → ghi dưới dòng 🏢: "· việc công ty: …". Không xếp ô riêng.
 - `unplaced` → một dòng: "Không đủ giờ cho X — dời mai hay bỏ bớt Y?". `overload: true` → "Hôm nay quá tải, mai mình xếp nhẹ lại".
-- **Mỗi việc chỉ xuất hiện một lần.** Lời khuyên thêm tối đa 1 dòng 💡.
+- **Mỗi việc chỉ xuất hiện một lần.** Lời khuyên thêm tối đa 1 dòng 💡 — được dùng điều trong sổ nhớ ("💡 Tuần trước Khôi nói muốn thử học buổi sáng — mai 7:00–8:30 trống đó"), không thêm dòng mới.
 
 ## ☀️ Báo cáo sáng (05:30)
 
@@ -52,7 +53,7 @@ Sau khi gửi xong: `python3 -m lifeos mark-reported` (để không bắn lại 
 
 ## 🌙 Báo cáo tối (21:00)
 
-1. `digest` → `nightly --png` → `plan timeline --for today` (đối chiếu hôm nay) → `plan suggest --for mai`.
+1. `digest` → `nightly --png` → `plan timeline --for today` (đối chiếu hôm nay) → `plan suggest --for mai` → `brain report` (khối 🧠).
 2. Gửi:
 ```
 🌙 Thứ 2, 02/11 · xong 3/4 việc trong kế hoạch 👏
@@ -72,8 +73,15 @@ Không đủ giờ cho "Báo cáo dài" — để T4 nhé?
 
 📌 Mới hoặc đổi hôm nay: …
 🗒️ Tự khai (tùy chọn): "năng lượng 1–5"
+
+🧠 Nhớ thêm: tháng 12 về quê · thích học buổi sáng
+❓ Ghi vào sổ không?
+   a. Bạn A là trưởng nhóm BTL môn X (Học tập · Zalo nhóm lớp)
+   b. Nhóm X họp thứ 5 hằng tuần (Công ty · Mail)
+   → "ghi a" · "bỏ b" · "ghi hết"
 ```
-3. Ngay khi gửi: lưu từng ô 📝 bằng `plan add --for mai …` (chưa chốt). Việc Khôi chọn "dời mai" → `plan suggest` xếp ưu tiên (đã nằm trong candidates).
+   Khối 🧠 chép **nguyên văn** `text` của `brain report` (rỗng → bỏ cả khối). Ngày cuối tháng nó có thêm tối đa 5 câu "🔎 Còn đúng không?".
+3. Ngay khi gửi: lưu từng ô 📝 bằng `plan add --for mai …` (chưa chốt). Việc Khôi chọn "dời mai" → `plan suggest` xếp ưu tiên (đã nằm trong candidates). Rồi `brain report --mark` → `brain page` → cập nhật Grok Page "LifeOS · Trí nhớ" từ `dashboard/tri_nho.md`.
 4. Chủ nhật/cuối tháng: gửi kèm **ảnh dashboard** + 3 dòng nhận xét. Ghi nhận xét vào file `context/…md`.
 
 ## Khôi trả lời kế hoạch (sáng, tối)
@@ -84,12 +92,13 @@ Không đủ giờ cho "Báo cáo dài" — để T4 nhé?
 | "đổi 2 sang 15h" / "bỏ 3" | Kiểm giờ bằng `free` → `plan edit 2 --at 15:00` / `plan edit 3 --remove` → gửi lại phần 🎯 rút gọn. Đã chốt trước đó → sửa luôn Reminder/báo thức/sự kiện LifeOS (lấy id từ `calmap get`). |
 | "thêm <việc> lúc <giờ>" | `plan add …` → gửi lại phần 🎯 rút gọn. |
 | "xong 2" / "xong <việc>" | `done "<việc>"` + `plan result 2 done` → `page`. |
+| "ghi a" · "bỏ b" · "ghi hết" · "đúng d" · "sai e" · "quên f" | Sổ nhớ — skill `lifeos-tri-nho` mục 3. **Chữ = sổ nhớ, số = kế hoạch.** |
 | Im lặng (tối) | 22:00 nhắc 1 dòng + báo thức "Xem kế hoạch mai · 1 phút". 23:00: `plan confirm --for mai --auto` + nhắc + lịch LifeOS, không nhắn. |
 | Im lặng (sáng, khi có đề xuất chen việc) | 07:00: tự áp dụng như "ok", không nhắn. |
 
 ## 📅 Kế hoạch tuần (Chủ nhật 20:00)
 
-1. `digest` → `week propose` (cho tuần bắt đầu Thứ 2 tới) → đọc `history`/`context` tuần này cho phần tổng kết.
+1. `digest` → `week propose` (cho tuần bắt đầu Thứ 2 tới) → đọc `history`/`context` tuần này cho phần tổng kết. Rồi gộp điều trùng trong sổ nhớ: `brain dupes` → cặp nào cùng một ý → `brain merge <giữ> <bỏ>` (không hỏi Khôi, không nhắc trong tin).
 2. Gửi:
 ```
 📅 Tuần 2–7/11 · tuần này xong 18/22 việc (82%) · ảnh dashboard ⬇️
@@ -136,6 +145,7 @@ Chủ nhật 20:00, trước khi gửi kế hoạch tuần: chạy `nightly --pn
 
 1. Đọc `context/weekly/<năm>-W<tuần>.md` (hoặc `context/monthly/…`) + kỳ trước.
 2. **Viết vào mục "Nhận xét của LifeOS"** trong file .md: 3 điểm sáng · 3 điểm cần cải thiện · 3 đề xuất cho kỳ tới · việc lớn đang dở. Dựa trên số liệu và lý do bỏ kế hoạch Khôi đã nói — không bịa.
+   Báo cáo tháng: viết thêm mục **"Chuyện đã nói trong tháng"** — gom `brain journal show --month <YYYY-MM>` thành 3–6 dòng (nhật ký ngày chỉ giữ 90 ngày, mục này giữ lâu dài; chuyện riêng chỉ ghi "có nói chuyện riêng").
 3. Trong tin: **1 dòng tổng kết** ("tuần này xong 18/22 việc (82%)") + **ảnh dashboard**. Khôi muốn đọc thêm → gửi phần nhận xét.
 4. Chủ nhật: kèm câu hỏi WOOP (skill `lifeos-chong-tri-hoan`, R10) ở cuối tin kế hoạch tuần.
 

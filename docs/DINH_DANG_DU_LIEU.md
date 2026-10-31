@@ -98,3 +98,8 @@ cd /workspace/lifeos-grok && python3 -m lifeos validate data/<mảng>.json
 ## File Zalo (`data/zalo.json`)
 
 Chỉ bot Zalo ghi; định dạng trong skill `lifeos-zalo`. Bot mảng đọc các hội thoại có `domain` của mình và chuyển tin đáng chú ý thành item `kind: "message"`.
+
+## Sổ nhớ (`/workspace/lifeos/brain/`)
+
+**Không ghi tay.** Mọi thay đổi đi qua lệnh `python3 -m lifeos brain …` (skill `lifeos-tri-nho`): lệnh tự khóa file khi nhiều bot cùng ghi, tự bỏ trùng, giữ lịch sử "trước đây", và khi "quên" thì xóa cả lịch sử. Các file: `so_nho.json` (điều đáng nhớ, mã `m…`), `de_xuat.json` (đề xuất của bot quét nguồn, mã `d…`), `kho.json` (mã `k…`), `nhat_ky/<ngày>.json` (mã `nk<ngày>-<n>`), `trang_thai.json`, `da_quen.jsonl` (chỉ mã + giờ).
+

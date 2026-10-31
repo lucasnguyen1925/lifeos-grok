@@ -118,6 +118,18 @@ light = ["11:30", "14:30", "17:30"]
 daily_days = 90
 weekly_days = 90
 zalo_raw_days = 7
+journal_days = 90          # nhật ký chuyện đã nói (sổ nhớ). Sổ nhớ và kho giữ lâu dài.
+
+# ---------- Sổ nhớ (SPEC §5c) ----------
+[brain]
+core_limits = { ve_khoi = 8, muc_tieu = 5, nguoi_quen = 10, cach_lam_viec = 7, dang_do = 6, tranh = 4 }   # ~40 dòng
+stale_days = 180           # điều lâu hơn chừng này không ai nhắc → báo cáo tháng hỏi "còn đúng không?"
+stale_per_month = 5
+proposals_per_night = 3    # đề xuất của bot quét nguồn mỗi tối
+proposal_max_asks = 2      # hỏi lần đầu + hỏi lại 1 lần, vẫn im lặng thì bỏ
+report_max_new = 5         # dòng 🧠 hiện tối đa chừng này điều mới, còn lại xem Page
+page_recent_days = 7
+page_kho_items = 10
 
 [dashboard]
 chromium = ""     # để trống = tự tìm. Tiko điền đường dẫn nếu không tự tìm được.

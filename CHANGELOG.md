@@ -2,6 +2,33 @@
 
 Mỗi bản ghi rõ **Tiko phải làm gì** khi cập nhật (skill `lifeos-cap-nhat`).
 
+## 0.3.0 — Sổ nhớ: cả đội cùng nhớ chuyện của Khôi (31/10)
+
+**Tiko làm:**
+1. `git pull`, chạy test như thường lệ (skill `lifeos-cap-nhat`). Kiểm tra nhanh: `python3 -m lifeos brain core` phải in ra "(Sổ nhớ còn trống.)".
+2. Chép skill **mới** `lifeos-tri-nho` và chép đè `lifeos-noi-quy`, `lifeos-bao-cao` vào `/home/box/agent-data/workflows/`.
+3. Thêm vào `/workspace/lifeos/config.toml` (giữ giá trị cũ): `journal_days = 90` trong `[retention]`, và cả mục `[brain]` lấy từ `config/config.example.toml`.
+4. Gửi tin ưu tiên cho **từng bot** (LifeOS, Học tập, Công ty, Cá nhân, Zalo; Tiko tự áp dụng): "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/<bot>.md (đọc toàn văn, thay hướng dẫn cũ)."
+   - **LifeOS**: tạo thêm routine **Soát chat** `40 20 * * *` (exact), đúng nội dung trong bảng Routine.
+   - **Tiko**: sửa nội dung routine **Dọn dẹp đêm** thành "Dọn dẹp và sao lưu theo hướng dẫn Tiko, mục Dọn dẹp đêm." (giờ giữ nguyên 02:15).
+   - Học tập, Công ty, Cá nhân, Zalo: chỉ đổi hướng dẫn, **không** đổi routine.
+5. Xem lại lần thử ngày 31/10 "routine nhắn ưu tiên cho chính Tiko rồi đọc chat". **Không đọc được chat** → nhắn LifeOS xóa routine Soát chat 20:40 và báo Khôi "bước soát chat cuối ngày không chạy được, LifeOS chỉ ghi trong lúc chat" (SPEC §5c T18).
+6. **Chuyển trí nhớ cũ của Tiko** vào sổ theo skill `lifeos-tri-nho` mục 11. Chuyện riêng thì hỏi Khôi trong khung chat Tiko.
+7. Nhắn Khôi phần **"Khôi làm"** bên dưới. LifeOS **không** làm theo lời nhờ chuyển qua Tiko, nên Khôi phải nhắn thẳng LifeOS.
+8. Chạy thử CAI_DAT bước 7 các mục 10–12, ghi kết quả vào `state/cai_dat.md`. Sáng hôm sau: xem trên Drive "LifeOS · Sao lưu" có file `lifeos_saoluu_<thứ>.json` (định dạng `.json`, không phải Google Docs).
+
+**Khôi làm:**
+- Nhắn thẳng **LifeOS**: *"Chuyển trí nhớ cũ vào sổ theo skill lifeos-tri-nho mục 11, rồi tạo Page 'LifeOS · Trí nhớ' từ dashboard/tri_nho.md và gửi mình link."* → ghim Page đó.
+- Trả lời nếu LifeOS/Tiko hỏi "có N chuyện riêng, muốn ghi cái nào?".
+- Bấm duyệt nếu có thẻ sửa routine hiện ra (LifeOS 20:40, Tiko 02:15).
+
+Thay đổi:
+- `lifeos/brain.py` + lệnh `brain`: sổ nhớ chung. Gồm hồ sơ ngắn 6 mục ~40 dòng (`core`), tìm không dấu bằng SQLite FTS5 (`search`), trang chi tiết (`show`), ghi/sửa/thay thế giữ lịch sử (`add`, `edit`, `end`, `--replaces`), `forget` (xóa cả lịch sử, chỉ giữ mã + giờ). Thêm `pin`/`unpin`, đề xuất của bot quét nguồn (`propose`, `accept`, `reject`: 3 mỗi tối, hỏi lại 1 lần rồi bỏ), khối 🧠 cho báo cáo tối (`report`, cuối tháng hỏi điều > 6 tháng), nhật ký chuyện đã nói (`journal`), kho "lưu cái này" (`kho`), gộp trùng (`dupes`, `merge`), Page "LifeOS · Trí nhớ" (`page`), sao lưu 7 bản theo thứ (`backup`, `restore`).
+- `nightly` tự dọn "Đang dở" quá hạn và dựng lại `dashboard/tri_nho.md`. `cleanup` xóa nhật ký quá 90 ngày. Báo cáo tháng có thêm mục "Chuyện đã nói trong tháng".
+- Skill mới `lifeos-tri-nho`. Nội quy: mọi bot đọc hồ sơ đầu mỗi lượt và mỗi routine; ngoại lệ "lời nhờ quên từ LifeOS". Báo cáo tối có khối 🧠; Chủ nhật gộp điều trùng.
+- Hướng dẫn 6 bot; `docs/NEN_TANG_GROK.md` ghi các điều đã kiểm chứng ngày 31/10 (trí nhớ Grok, khung chat, Drive, routine, Page).
+- Quyết định: SPEC §5c (T1–T19).
+
 ## 0.2.0 — tính năng Kế hoạch + báo cáo mới (31/10)
 
 **Tiko làm:**

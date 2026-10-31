@@ -49,7 +49,7 @@ done
 ls /home/box/agent-data/workflows
 ```
 
-Phải thấy 6 skill: `lifeos-noi-quy`, `lifeos-dang-nhap-lai`, `lifeos-zalo`, `lifeos-bao-cao`, `lifeos-chong-tri-hoan`, `lifeos-cap-nhat`.
+Phải thấy 7 skill: `lifeos-noi-quy`, `lifeos-dang-nhap-lai`, `lifeos-zalo`, `lifeos-bao-cao`, `lifeos-chong-tri-hoan`, `lifeos-cap-nhat`, `lifeos-tri-nho`.
 
 ## Bước 4 — Tạo bot Zalo
 
@@ -86,6 +86,9 @@ Làm từng mục, ghi kết quả vào `state/cai_dat.md`:
 | 7 | Grok Page | LifeOS tạo Page "LifeOS · Hiệu suất" từ `dashboard/page.md`, gửi Khôi link |
 | 8 | Nhắc | LifeOS: `remind-at` cho 3 phút sau → tạo Reminder + báo thức "Test LifeOS" → Khôi xác nhận báo thức reo |
 | 9 | Báo cáo | Nhắn LifeOS "làm thử báo cáo tối" → đúng mẫu, thứ/ngày đúng |
+| 10 | Sổ nhớ | Khôi kể LifeOS một điều thử ("bạn thử nghiệm C là bạn cùng phòng") → hỏi **Tiko** "bạn thử nghiệm C là ai?" → Tiko trả lời đúng. Rồi Khôi nói LifeOS "quên giúp bạn thử nghiệm C" → các bot trả lời "đã xóa/không có" |
+| 11 | Page Trí nhớ | LifeOS `brain page`, tạo Page "LifeOS · Trí nhớ" từ `dashboard/tri_nho.md`, gửi Khôi link để ghim |
+| 12 | Sao lưu | Tiko `brain backup`, tải lên Drive "LifeOS · Sao lưu" → file trên Drive vẫn là `.json` (không thành Google Docs) |
 
 Mục 6 không đạt (routine chỉ gửi được chữ) → không sao: báo cáo tuần gửi link Page thay cho ảnh.
 

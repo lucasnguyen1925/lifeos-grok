@@ -1,6 +1,6 @@
 # LifeOS trên Grok Bot — Đặc tả hệ thống
 
-> Phiên bản 0.1 · chốt qua buổi grill 29–31/10/2026.
+> Phiên bản 0.1 · chốt qua buổi grill 29–31/10/2026. Bổ sung §5b Kế hoạch (0.2.0) và §5c Trí nhớ (0.3.0) cùng ngày 31/10.
 > Thay thế hoàn toàn spec cũ (LifeOS chạy trên Claude + Supabase — đã tắt ngày 31/10/2026).
 > Repo này public: không ghi thông tin cá nhân vào đây; thông tin cá nhân nằm trong `config.toml` trên máy bot.
 
@@ -13,6 +13,7 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 3. **Giúp làm, không chỉ nhắc**: chống trì hoãn theo bộ quy tắc riêng của Khôi (§10).
 4. **Nhìn lại được**: chỉ số hiệu suất, báo cáo tuần/tháng, dashboard (§11).
 5. **Ít phải động tay**: tự đăng nhập lại, tự theo dõi sức khỏe; Khôi phải can thiệp ≤ 1 lần/tuần.
+6. **Nhớ chuyện của Khôi** (§5c): Khôi kể một lần, **cả đội bot** cùng biết — hỏi bot nào cũng trả lời được, không phải kể lại.
 
 ## 2. Nguyên tắc thiết kế
 
@@ -26,6 +27,7 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 | P6 | **Không lách lớp bảo mật — trừ CAPTCHA trên tài khoản cá nhân** | Zalo và SSO HCMUT: bot được tự giải CAPTCHA tối đa 1 lần/lượt (Khôi cho phép 31/10). Xác minh 2 bước, cảnh báo bất thường, CAPTCHA ở tài khoản công ty → dừng, chuyển Khôi |
 | P7 | **Một bot giữ một phiên dễ vỡ** | Chỉ bot Zalo mở Zalo Web |
 | P8 | **Repo là sổ tay, không phải nơi chạy** | Không có job nào chạy trên GitHub. Bot `git pull` rồi làm theo |
+| P9 | **Một sổ nhớ chung là bản gốc trí nhớ về Khôi** | Cả 6 bot đọc; trí nhớ riêng của Grok nói khác sổ → theo sổ. Không cất chuyện của Khôi vào trí nhớ Grok (§5c) |
 
 ## 3. Nền tảng (đã kiểm tra thực tế 29–31/10/2026)
 
@@ -34,7 +36,8 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 - Routine: cron giờ VN, có chế độ **exact**; mỗi bot chỉ xem/sửa routine của chính nó; routine **không điền login từ Vault được**, lượt chat thường thì được; routine chuyển việc cho bot chính bằng tin nhắn ưu tiên.
 - Skill: `/home/box/agent-data/workflows/<tên>/SKILL.md`, dùng chung mọi bot.
 - iPhone: đọc/ghi Reminders, đọc danh bạ, đặt báo thức. **Reminder do bot tạo không có chuông**; **báo thức Grok reo được** (kể cả lúc bận).
-- Grok **Page**: trang riêng tư xem trên điện thoại, link cố định, bot cập nhật nội dung (không nhận nguyên file HTML).
+- Grok **Page**: trang riêng tư xem trên điện thoại, link cố định, bot cập nhật nội dung (không nhận nguyên file HTML). Tạo được nhiều Page; bot không xóa được Page.
+- **Trí nhớ Grok**: mỗi bot có trí nhớ riêng (bot tự ghi, không tắt được) + một phần trí nhớ chung cho mọi bot; chỉ bot đã ghi mới xóa được. **Không xóa được tin trong khung chat.** Routine không đọc được lịch sử chat. Bot ghi được Google Drive (cả routine). Chi tiết: `docs/NEN_TANG_GROK.md`.
 
 ## 4. Tổ chức
 
@@ -70,8 +73,9 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 | 07:00 | LifeOS | Khôi chưa trả lời việc chen buổi sáng → tự áp dụng |
 | **CN 20:00** | **LifeOS** | **Kế hoạch tuần** + tổng kết tuần (ảnh dashboard) |
 | **21:00** | **LifeOS** | **Báo cáo tối** — tổng kết hôm nay, chốt sổ ngày, kế hoạch mai (dòng thời gian) |
+| 20:40 | LifeOS | Soát chat cả ngày → bổ sung sổ nhớ + nhật ký bị sót (§5c) |
 | 22:00 · 23:00 | LifeOS | Nhắc xem kế hoạch mai · tự áp dụng nếu Khôi im lặng (CN 23:00: tự áp dụng kế hoạch tuần, trừ lịch công ty) |
-| 02:15 | Tiko | Dọn dữ liệu quá hạn |
+| 02:15 | Tiko | Dọn dữ liệu quá hạn + **sao lưu** sổ nhớ lên Drive (§5c) |
 | CN 10:00 | Tiko | Báo cáo hệ thống tuần |
 | Ngày cuối tháng 21:00 | LifeOS | Báo cáo tháng + ảnh dashboard |
 
@@ -93,6 +97,36 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 | K12 | **Grok Page "LifeOS"**: Hôm nay · Tuần này · Hiệu suất — một link cố định, cập nhật sau mỗi lần kế hoạch đổi |
 | K13 | Trả lời một chữ: "ok" · "đổi 2 sang 15h" · "bỏ 3" · "xong 1" · "mai không lên công ty" |
 
+## 5c. Trí nhớ (chốt 31/10/2026)
+
+Khôi hỏi: "chat với LifeOS thì nó có nhớ không?" Trước 0.3.0: chỉ nhớ chắc những gì nằm trong file (việc, kế hoạch, sổ ngày/tuần/tháng, `notes.md` khi Khôi nói "nhớ giúp"); chuyện kể khi chat thường thì chỉ còn trong khung chat hoặc trong trí nhớ riêng của từng bot Grok — bot này biết, bot kia không. Thiết kế mượn ý tưởng của mem0 (rút điều đáng nhớ → thêm/sửa/bỏ, không trùng), Letta (hồ sơ luôn đọc + kho tìm khi cần), Zep (nhớ có mốc thời gian), Obsidian (mỗi người/môn/dự án một trang) — nhưng **không cài** chúng (cần pip + gửi dữ liệu cho dịch vụ AI bên ngoài). Chỉ Python chuẩn + SQLite FTS5 có sẵn trên máy bot.
+
+| # | Quyết định |
+|---|---|
+| T1 | Bản này làm kỹ phần **LifeOS hiểu Khôi**; kho **"lưu cái này"** (kiểu Obsidian) làm bản nhẹ |
+| T2 | **Một sổ nhớ chung** (`/workspace/lifeos/brain/`) là **bản gốc**, **cả 6 bot đọc**, Khôi kể cho bot nào thì bot đó ghi. Grok tự ghi trí nhớ riêng và không tắt được → **sổ khác trí nhớ riêng thì theo sổ** |
+| T3 | Bot **tự ghi lặng lẽ** điều đáng nhớ; báo cáo 21:00 có dòng **"🧠 Nhớ thêm: …"** (dồn nếu lần trước lỡ). "nhớ giúp" vẫn dùng, trả lời "✅ Nhớ rồi". Đáng nhớ: về Khôi · mục tiêu · người quen · thói quen/sở thích · lời hứa/dự định · điều tránh. Không ghi: chuyện phiếm, deadline/lịch (bot mảng lo), mật khẩu |
+| T4 | **Giữ lịch sử**: điều không còn đúng → "trước đây (tới MM/YYYY)", không hiện trên hồ sơ nhưng hỏi "hồi trước…" vẫn trả lời được. Ghi **sai** thì sửa thẳng, không giữ bản sai |
+| T5 | **Chuyện nhạy cảm** (sức khỏe · tình cảm · tiền nong, nợ · chuyện riêng gia đình · chuyện riêng người khác kể): không tự ghi; chỉ khi Khôi nói "nhớ giúp" + bot hỏi lại 1 lần ("cả đội bot đọc được, vẫn ghi nhé?"). Không tự lên hồ sơ (trừ khi Khôi ghim), Page và dòng 🧠 chỉ hiện "🔒 chuyện riêng". Nhật ký chỉ ghi "có nói chuyện riêng" |
+| T6 | Bot **Học tập, Công ty, Cá nhân, Zalo chỉ đề xuất**, không ghi thẳng |
+| T7 | Đề xuất hiện trong báo cáo tối, **tối đa 3/tối**, trả lời "ghi a" · "bỏ b" · "ghi hết". **Im lặng → tối sau hỏi lại 1 lần → vẫn im thì bỏ** (không đề xuất lại). Không đề xuất chuyện nhạy cảm, nội dung tài liệu công ty |
+| T8 | **Chuyển trí nhớ có sẵn** của LifeOS và Tiko (+ `notes.md`) vào sổ một lần; nhạy cảm hỏi riêng; Khôi soát danh sách trên Page. Trí nhớ riêng chỉ tìm được theo từ khóa (≤ 50 kết quả/lần) → chuyển được phần lớn, có thể sót. **Không xóa** trí nhớ riêng sau khi chuyển |
+| T9 | Lời hứa/dự định **có ngày** → hỏi ngay "Thêm vào việc cần làm không?" → Reminder. Sở thích **đụng cách xếp lịch** → hỏi trước khi sửa `config.toml`, không bao giờ tự đổi. Nhắc chủ động chỉ trong dòng 💡 sẵn có |
+| T10 | Soát sổ trong chat + **Grok Page "LifeOS · Trí nhớ"** (hồ sơ ngắn · nhớ thêm 7 ngày · đang chờ duyệt · 10 món kho gần đây · toàn bộ sổ kèm mã để "sửa m12", "quên m12") |
+| T11 | **Hồ sơ ngắn** 6 mục ~40 dòng: 👤 Về Khôi 8 · 🎯 Mục tiêu 5 · 👥 Người quen 10 · ⚙️ Cách làm việc 7 · 🤝 Đang dở 6 · 🚫 Tránh 4. LifeOS chọn điều lên hồ sơ; Khôi "ghim" / "bỏ khỏi hồ sơ". Quá giới hạn → điều lâu không nhắc nằm lại trong sổ (vẫn tìm được). "Đang dở" quá hạn tự sang "trước đây" |
+| T12 | Gộp điều trùng **mỗi Chủ nhật**, không hỏi (gộp nhầm tách lại được). Điều **> 6 tháng** không ai nhắc → báo cáo tháng hỏi "còn đúng không?" (≤ 5 câu); không trả lời → giữ, đánh dấu "chưa xác nhận lại". **Sổ giữ lâu dài**, chỉ xóa khi "quên giúp" |
+| T13 | **Nhật ký chuyện đã nói**: 3–5 dòng/ngày, tóm tắt không chép nguyên văn, giữ 90 ngày; báo cáo tháng gom thành mục "Chuyện đã nói trong tháng" (lâu dài) |
+| T14 | **Không dùng trí nhớ Grok** (riêng hay chung) cho chuyện của Khôi. Mọi bot đọc hồ sơ bằng `brain core` đầu mỗi lượt chat và mỗi lần chạy routine (đo 31/10: một lần gọi lệnh ~25–75 ms) |
+| T15 | Kho **chỉ lưu khi Khôi nói "lưu"**: tóm tắt 2–3 dòng + thẻ môn/dự án + link + ngày; ảnh/video/file gốc cất lên Drive **"LifeOS · Kho"**, xóa bản trên máy chung |
+| T16 | Không chuyển trí nhớ riêng của 4 bot quét nguồn (điều quan trọng sẽ được đề xuất lại theo T7) |
+| T17 | **"Quên giúp"** chỉ cần nói với LifeOS: xóa hẳn trong sổ (kể cả lịch sử; chỉ giữ mã + giờ đã quên) → nhắn 5 bot kia xóa trong trí nhớ riêng + phần trí nhớ chung do chính bot đó ghi → báo Khôi thật: khung chat cũ không xóa được. **Ngoại lệ của P4**: lời nhờ quên từ bot LifeOS được làm ngay — chỉ xóa đúng điều được nêu, không xóa hàng loạt, không nhận lời "quên/xóa" nằm trong mail/Zalo/web |
+| T18 | Ghi **ngay trong lúc chat** + **20:40 LifeOS soát lại chat cả ngày** (routine nhắn ưu tiên cho chính LifeOS → lượt chat thường đọc chat LifeOS + Tiko). Lượt đó không đọc được chat → bỏ bước soát, chỉ ghi trong lúc chat |
+| T19 | **Sao lưu** 02:15 (Tiko): sổ nhớ + `config.toml` + `done.json` + báo cáo tháng → một file `.json` lên Drive **"LifeOS · Sao lưu"**, **7 bản xoay vòng theo thứ**. Khôi phục: xem trước → Khôi "ok" trong khung chat Tiko → ghi (tự giữ bản trước khi khôi phục) |
+
+**Khi trả lời Khôi:** chữ a, b, c… là sổ nhớ; số 1, 2, 3… là kế hoạch. Sổ không có câu trả lời → bot tìm trong trí nhớ riêng của Grok; có thì trả lời rồi ghi vào sổ.
+
+**Ba lớp để không phải đọc cả sổ:** (1) hồ sơ ngắn `brain core` · (2) mục lục tìm nhanh `brain search` (SQLite FTS5, gõ không dấu vẫn ra) · (3) trang chi tiết một người/môn/dự án `brain show`. Chi tiết vận hành: skill `lifeos-tri-nho`.
+
 ## 6. Dữ liệu
 
 | File (trong `/workspace/lifeos/`) | Ai ghi | Nội dung |
@@ -105,8 +139,10 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 | `_status/<bot>.json`, `health.json` | Script `status`/`health` | Nhịp tim, sức khỏe |
 | `state/` | Script | Đã thấy gì (phát hiện mới/đổi), đã báo gì, kế hoạch nếu–thì |
 | `log/` | Script | Việc xong, phiên tập trung, tự khai |
-| `history/daily/`, `context/weekly/`, `context/monthly/` | Script + LifeOS viết nhận xét | Sổ ngày, tóm tắt tuần/tháng (trí nhớ dài hạn của LifeOS) |
-| `dashboard/` | Script | `index.html`, `page.md`, `dashboard.png` |
+| `history/daily/`, `context/weekly/`, `context/monthly/` | Script + LifeOS viết nhận xét | Sổ ngày, tóm tắt tuần/tháng (số liệu dài hạn; tháng có thêm "Chuyện đã nói trong tháng") |
+| `brain/` | Lệnh `brain` (LifeOS, Tiko ghi; 4 bot quét nguồn đề xuất) | **Sổ nhớ** (§5c): `so_nho.json` điều đáng nhớ + lịch sử · `de_xuat.json` · `kho.json` · `nhat_ky/<ngày>.json` · `da_quen.jsonl` (chỉ mã + giờ) |
+| `backup/` | Lệnh `brain backup` (Tiko) | Bản sao lưu theo thứ, tải đè lên Drive "LifeOS · Sao lưu" |
+| `dashboard/` | Script | `index.html`, `page.md`, `dashboard.png`, `tri_nho.md` (Page "LifeOS · Trí nhớ") |
 
 Script tự phát hiện **việc mới** và **việc bị đổi** (hạn, giờ, phòng) bằng cách so với lần trước — không phụ thuộc bot mảng tự ghi.
 
@@ -166,7 +202,7 @@ Quyền thường trực của LifeOS: tự đặt Reminder + báo thức khi Kh
 | G. Chống trì hoãn | % kế hoạch nếu–thì làm được · phút/phiên tập trung · số lần bị kéo đi · giờ từ lúc thấy tới lúc xong · ngày có tin quan trọng chờ > 24h |
 | F. Tự khai | Phút tiếng Pháp · năng lượng 1–5 (một dòng trong báo cáo tối) |
 
-**Vòng đời dữ liệu:** 21:00 chốt sổ ngày → Chủ nhật chốt tuần → ngày cuối tháng chốt tháng (script tính số, LifeOS viết nhận xét: 3 điểm sáng, 3 cần cải thiện, 3 đề xuất). Giữ: ngày + tuần **90 ngày**, Zalo thô **7 ngày**, tháng **lâu dài**.
+**Vòng đời dữ liệu:** 21:00 chốt sổ ngày → Chủ nhật chốt tuần → ngày cuối tháng chốt tháng (script tính số, LifeOS viết nhận xét: 3 điểm sáng, 3 cần cải thiện, 3 đề xuất). Giữ: ngày + tuần + nhật ký chuyện đã nói **90 ngày**, Zalo thô **7 ngày**, tháng + sổ nhớ + kho **lâu dài**.
 
 **Dashboard:** script dựng HTML + SVG (Python thuần) → Grok Page "LifeOS · Hiệu suất" cập nhật mỗi tối + ảnh PNG gửi kèm báo cáo tuần/tháng.
 
@@ -182,6 +218,9 @@ Quyền thường trực của LifeOS: tự đặt Reminder + báo thức khi Kh
 | Nộp bài, làm quiz, đăng ký, thanh toán, xóa | ✘ | ✘ | ✘ |
 | Mở Zalo | ✘ | Chỉ bot Zalo | ✘ |
 | Sửa `config.toml` | Theo lời Khôi | ✘ | Theo lời Khôi |
+| Ghi sổ nhớ | ✔ chuyện Khôi kể (nhạy cảm: hỏi lại) | Chỉ đề xuất | ✔ chuyện Khôi kể |
+| Xóa trong trí nhớ riêng của mình theo "quên giúp" | ✔ | ✔ khi bot LifeOS nhắn | ✔ khi bot LifeOS nhắn |
+| Tải file lên Google Drive | Khi Khôi nói "lưu" (thư mục "LifeOS · Kho") | ✘ | Sao lưu 02:15 ("LifeOS · Sao lưu") |
 
 ## 13. Cập nhật & mở rộng
 
@@ -198,6 +237,10 @@ Quyền thường trực của LifeOS: tự đặt Reminder + báo thức khi Kh
 - Người gửi tin Zalo riêng thấy "Đã xem" khi bot đọc.
 - Báo thức Grok có thể reo cả lúc máy im lặng → luật "không nhắc trong giờ học/làm" là bắt buộc.
 - Việc 🔴 phát sinh sau 17:30 chỉ được bắt ở lần quét 20:30.
+- **Sổ nhớ nằm trên máy chung**: bot nào cũng đọc được (đó là mục đích), nên chuyện nhạy cảm chỉ ghi khi Khôi đồng ý (T5).
+- **"Quên giúp" không xóa được sạch hoàn toàn**: tin cũ trong khung chat Grok không xóa được; file bỏ thùng rác Drive còn ~30 ngày.
+- Grok tự ghi trí nhớ riêng, không tắt được → trí nhớ riêng có thể lệch sổ; luật "theo sổ" chỉ là hướng dẫn, bot có thể quên làm.
+- Bot tự nhận ra điều đáng nhớ là việc của AI, không đảm bảo đủ; lần soát 20:40 là lưới đỡ (nếu nền tảng cho đọc chat).
 
 ## 15. Chưa kiểm chứng — Tiko chạy khi cài (CAI_DAT.md bước 7)
 
@@ -206,6 +249,11 @@ Quyền thường trực của LifeOS: tự đặt Reminder + báo thức khi Kh
 3. Vòng tự đăng nhập SSO chạy trọn không cần Khôi.
 4. Routine gửi được ảnh (nếu không: báo cáo tuần gửi link Page thay ảnh).
 5. Grok Page tạo và cập nhật được từ `page.md`.
+6. (0.3.0) Lượt chat được routine đánh thức bằng tin ưu tiên có đọc được chat hôm nay của LifeOS và Tiko không (quyết định giữ bước soát 20:40).
+7. (0.3.0) Bot có đều đặn đọc hồ sơ (`brain core`) mỗi lượt, và có tự nhận ra đủ điều đáng nhớ không.
+8. (0.3.0) Các bot có làm theo ngoại lệ "quên" đều đặn không (Tiko làm 1 lần ngày 31/10 nhưng nói "lẽ ra nên hỏi Khôi").
+9. (0.3.0) Grok Page chứa được bao dài (Page Trí nhớ có mục "Toàn bộ sổ").
+10. (0.3.0) Sao lưu đêm đầu: file trên Drive vẫn là `.json`, không bị đổi sang Google Docs.
 
 ## 16. Tiêu chí thành công
 

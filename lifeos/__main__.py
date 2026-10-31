@@ -11,7 +11,7 @@ import sys
 from datetime import date, timedelta
 from pathlib import Path
 
-from . import dashboard, digest, health, history, tracking
+from . import brain, dashboard, digest, health, history, tracking
 from .common import load_config, now, parse_dt, path, read_json, vn_date
 from .schema import validate_domain_file
 
@@ -159,6 +159,8 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("dashboard", help="Dựng dashboard (HTML, nội dung Page, PNG)")
     s.add_argument("--png", action="store_true")
 
+    _brain_parser(sub)
+
     a = p.parse_args(argv)
 
     if a.cmd == "validate":
@@ -281,12 +283,170 @@ def main(argv: list[str] | None = None) -> int:
         if history.is_last_day_of_month(t.date()):
             out["month"] = history.close_month()["period"]
         out["dashboard"] = dashboard.build(png=a.png, cfg=cfg)
+        out["brain"] = {"tidy": brain.tidy(), "page": brain.page(cfg)}
         _print(out)
+    elif a.cmd == "brain":
+        try:
+            _print(_brain_run(a, cfg))
+        except ValueError as exc:
+            _print({"ok": False, "why": str(exc)})
+            return 1
     elif a.cmd == "cleanup":
         _print({"removed": history.cleanup(cfg=cfg), "done_pruned": tracking.prune_done()})
     elif a.cmd == "dashboard":
         _print(dashboard.build(png=a.png, cfg=cfg))
     return 0
+
+
+def _brain_parser(sub) -> None:
+    s = sub.add_parser("brain", help="Sổ nhớ chung: hồ sơ ngắn, tìm, ghi, quên, đề xuất, nhật ký, kho, sao lưu")
+    bs = s.add_subparsers(dest="action", required=True)
+    bs.add_parser("core", help="Hồ sơ ngắn ~40 dòng — đọc đầu MỖI lượt chat / mỗi lần chạy routine")
+    x = bs.add_parser("search", help="Tìm trong sổ + kho + nhật ký (gõ không dấu cũng được)")
+    x.add_argument("query", nargs="+")
+    x.add_argument("--limit", type=int, default=8)
+    x = bs.add_parser("show", help="Trang chi tiết của một người / môn / dự án")
+    x.add_argument("name", nargs="+")
+    x = bs.add_parser("add", help="Ghi một điều đáng nhớ (LifeOS, Tiko)")
+    x.add_argument("--section", required=True, help="ve_khoi · muc_tieu · nguoi_quen · cach_lam_viec · dang_do · tranh · khac")
+    x.add_argument("--text", required=True)
+    x.add_argument("--subject", help="Người/môn/dự án mà điều này nói về (để mở trang chi tiết)")
+    x.add_argument("--tag", action="append", default=[])
+    x.add_argument("--due", help="Hạn (mục dang_do): YYYY-MM-DD")
+    x.add_argument("--core", action="store_true", help="Đưa lên hồ sơ ngắn")
+    x.add_argument("--pin", action="store_true", help="Khôi nói 'ghim'")
+    x.add_argument("--sensitive", action="store_true", help="Chuyện nhạy cảm (chỉ khi Khôi nói 'nhớ giúp' và đã xác nhận)")
+    x.add_argument("--by", default="lifeos")
+    x.add_argument("--origin", default="chat", help="chat · soat_chat · grok · notes")
+    x.add_argument("--replaces", help="Mã điều cũ không còn đúng (giữ lại làm 'trước đây')")
+    x = bs.add_parser("edit", help="Sửa vì ghi SAI")
+    x.add_argument("id")
+    x.add_argument("--text")
+    x.add_argument("--section")
+    x.add_argument("--subject")
+    x.add_argument("--due")
+    x = bs.add_parser("end", help="Không còn đúng / đã xong → 'trước đây'")
+    x.add_argument("id")
+    x.add_argument("--note")
+    x = bs.add_parser("forget", help="Quên giúp: xóa hẳn khỏi sổ (kể cả lịch sử)")
+    x.add_argument("ids", nargs="+")
+    x = bs.add_parser("confirm", help="Khôi nói 'đúng' cho điều cũ")
+    x.add_argument("ids", nargs="+")
+    for name, hlp in (("pin", "Ghim lên hồ sơ"), ("promote", "LifeOS đưa lên hồ sơ"), ("unpin", "Bỏ khỏi hồ sơ")):
+        x = bs.add_parser(name, help=hlp)
+        x.add_argument("id")
+    x = bs.add_parser("propose", help="Bot quét nguồn đề xuất một điều (Khôi duyệt trong báo cáo tối)")
+    x.add_argument("--by", required=True)
+    x.add_argument("--text", required=True)
+    x.add_argument("--source", required=True, help="Thấy ở đâu, ví dụ 'Zalo nhóm học'")
+    x.add_argument("--section", default="khac")
+    x.add_argument("--subject")
+    x = bs.add_parser("report", help="Khối 🧠 cho báo cáo 21:00 (--mark sau khi đã gửi)")
+    x.add_argument("--mark", action="store_true")
+    x = bs.add_parser("accept", help='Khôi: "ghi a" / "ghi hết"')
+    x.add_argument("ids", nargs="+")
+    x = bs.add_parser("reject", help='Khôi: "bỏ b"')
+    x.add_argument("ids", nargs="+")
+    x = bs.add_parser("journal", help="Nhật ký chuyện đã nói")
+    js = x.add_subparsers(dest="jaction", required=True)
+    j = js.add_parser("add")
+    j.add_argument("--by", default="lifeos")
+    j.add_argument("--text")
+    j.add_argument("--private", action="store_true", help="Chuyện nhạy cảm: chỉ ghi 'có nói chuyện riêng'")
+    j = js.add_parser("show")
+    j.add_argument("--date")
+    j.add_argument("--days", type=int)
+    j.add_argument("--month", help="YYYY-MM")
+    j = js.add_parser("replace", help="Gộp nhật ký một ngày còn 3–5 dòng")
+    j.add_argument("--date", default="today")
+    j.add_argument("--text", action="append", required=True)
+    j.add_argument("--by", default="lifeos")
+    x = bs.add_parser("kho", help='Kho "lưu cái này"')
+    ks = x.add_subparsers(dest="kaction", required=True)
+    k = ks.add_parser("add")
+    k.add_argument("--title", required=True)
+    k.add_argument("--summary")
+    k.add_argument("--tag", action="append", default=[])
+    k.add_argument("--url")
+    k.add_argument("--drive", help="Link file gốc trên Drive (thư mục 'LifeOS · Kho')")
+    k.add_argument("--kind", default="link", help="link · anh · video · file · ghi_chu")
+    k.add_argument("--by", default="lifeos")
+    k = ks.add_parser("list")
+    k.add_argument("--tag")
+    k.add_argument("--limit", type=int, default=10)
+    bs.add_parser("dupes", help="Cặp điều có vẻ trùng (Chủ nhật)")
+    x = bs.add_parser("merge", help="Gộp: giữ KEEP, gộp DROP vào")
+    x.add_argument("keep")
+    x.add_argument("drop")
+    x = bs.add_parser("unmerge", help="Gộp nhầm → tách lại")
+    x.add_argument("id")
+    bs.add_parser("tidy", help="'Đang dở' quá hạn → 'trước đây' (nightly tự chạy)")
+    bs.add_parser("page", help="Dựng dashboard/tri_nho.md cho Grok Page 'LifeOS · Trí nhớ'")
+    bs.add_parser("stats", help="Đếm số điều theo mục / nguồn")
+    bs.add_parser("backup", help="Gói bản sao lưu theo thứ (Tiko 02:15)")
+    x = bs.add_parser("restore", help="Khôi phục từ bản sao lưu (mặc định chỉ xem trước)")
+    x.add_argument("file")
+    x.add_argument("--apply", action="store_true")
+
+
+def _brain_run(a, cfg) -> dict:
+    act = a.action
+    if act == "core":
+        return brain.core(cfg)
+    if act == "search":
+        return brain.search(" ".join(a.query), a.limit)
+    if act == "show":
+        return brain.show(" ".join(a.name))
+    if act == "add":
+        return brain.add(a.section, a.text, subject=a.subject, tags=a.tag, due=a.due, core=a.core, pin=a.pin,
+                         sensitive=a.sensitive, by=a.by, origin=a.origin, replaces=a.replaces)
+    if act == "edit":
+        return brain.edit(a.id, text=a.text, section=a.section, subject=a.subject, due=a.due)
+    if act == "end":
+        return brain.end(a.id, a.note)
+    if act == "forget":
+        return brain.forget(a.ids)
+    if act == "confirm":
+        return brain.confirm(a.ids)
+    if act == "pin":
+        return brain.set_flags(a.id, pin=True, core=True)
+    if act == "promote":
+        return brain.set_flags(a.id, core=True)
+    if act == "unpin":
+        return brain.set_flags(a.id, pin=False, core=False)
+    if act == "propose":
+        return brain.propose(a.by, a.text, a.source, a.section, a.subject)
+    if act == "report":
+        return brain.report(cfg, mark=a.mark)
+    if act == "accept":
+        return brain.accept(a.ids)
+    if act == "reject":
+        return brain.reject(a.ids)
+    if act == "journal":
+        if a.jaction == "add":
+            return brain.journal_add(a.by, a.text, a.private)
+        if a.jaction == "replace":
+            return brain.journal_replace(_day(a.date), a.text, a.by)
+        return brain.journal_show(_day(a.date) if a.date else None, a.days, a.month)
+    if act == "kho":
+        if a.kaction == "add":
+            return brain.kho_add(a.title, a.summary, a.tag, a.url, a.drive, a.kind, a.by)
+        return brain.kho_list(a.tag, a.limit)
+    if act == "dupes":
+        return brain.dupes()
+    if act == "merge":
+        return brain.merge(a.keep, a.drop)
+    if act == "unmerge":
+        return brain.unmerge(a.id)
+    if act == "tidy":
+        return brain.tidy()
+    if act == "page":
+        return brain.page(cfg)
+    if act == "stats":
+        return brain.stats()
+    if act == "backup":
+        return brain.backup()
+    return brain.restore(a.file, a.apply)
 
 
 def _brief(item: dict) -> dict:

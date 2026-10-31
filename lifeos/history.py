@@ -249,6 +249,13 @@ def _write_period(kind: str, key: str, title: str, days: list[dict[str, Any]], p
         "<!-- LifeOS viết vào đây: 3 điểm sáng, 3 điểm cần cải thiện, 3 đề xuất cho kỳ tới, việc đang dở cần nhớ. -->",
         "",
     ]
+    if kind == "monthly":
+        md += [
+            "## Chuyện đã nói trong tháng",
+            f"<!-- LifeOS gom nhật ký tháng (`brain journal show --month {key}`) thành 3–6 dòng. "
+            "Nhật ký ngày chỉ giữ 90 ngày, phần này giữ lâu dài. Chuyện riêng chỉ ghi 'có nói chuyện riêng'. -->",
+            "",
+        ]
     write_text(path("context", kind, f"{key}.md"), "\n".join(md))
     return record
 
@@ -283,6 +290,7 @@ def cleanup(t: datetime | None = None, cfg: dict[str, Any] | None = None) -> dic
         (path("history", "daily"), keep.get("daily_days", 90)),
         (path("context", "weekly"), keep.get("weekly_days", 90)),
         (path("history", "zalo"), keep.get("zalo_raw_days", 7)),
+        (path("brain", "nhat_ky"), keep.get("journal_days", keep.get("daily_days", 90))),
     ]
     removed: dict[str, int] = {}
     today = t.date()

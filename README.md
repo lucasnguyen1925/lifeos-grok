@@ -27,6 +27,10 @@ Bộ cài cho đội bot LifeOS chạy trên **Grok Bot**: sổ tay hướng d�
 | Cá nhân | 2 Gmail, lịch cá nhân, Reminders, Zalo bạn bè/gia đình | [bots/canhan.md](bots/canhan.md) |
 | Zalo | Bot duy nhất mở Zalo Web, đọc tin cho cả đội | [bots/zalo.md](bots/zalo.md) |
 
+## Sổ nhớ — cả đội cùng nhớ chuyện của Khôi
+
+Khôi kể chuyện cho LifeOS (hay Tiko) một lần là **cả 6 bot cùng biết**: hồ sơ ngắn về Khôi, người quen, thói quen, lời hứa đang dở, chuyện đã nói mỗi ngày, kho "lưu cái này". Bot tự ghi lặng lẽ, tối 21:00 báo một dòng "🧠 Nhớ thêm…"; Khôi soát ở Grok Page "LifeOS · Trí nhớ", nói "quên giúp…" là xóa. Mỗi đêm sao lưu lên Google Drive. Chi tiết: [SPEC.md §5c](SPEC.md), skill [lifeos-tri-nho](skills/lifeos-tri-nho/SKILL.md).
+
 ## Lịch một ngày
 
 | Giờ | Việc |
@@ -38,8 +42,10 @@ Bộ cài cho đội bot LifeOS chạy trên **Grok Bot**: sổ tay hướng d�
 | 07:00 | Tự áp dụng việc chen buổi sáng nếu Khôi chưa trả lời |
 | 11:30 · 14:30 · 17:30 | Quét nhẹ nguồn hay có việc gấp → có việc 🔴 mới thì LifeOS báo ngay |
 | **Chủ nhật 20:00** | **Kế hoạch tuần**: văn phòng T2–T7 (ghi Office lên lịch công ty khi Khôi "ok"), buổi tập, việc lớn + ảnh dashboard |
-| **21:00** | **LifeOS báo cáo tối** — tổng kết hôm nay + kế hoạch mai (dòng thời gian có giờ) |
+| 20:40 | LifeOS soát lại chat cả ngày, bổ sung sổ nhớ |
+| **21:00** | **LifeOS báo cáo tối** — tổng kết hôm nay + kế hoạch mai (dòng thời gian có giờ) + 🧠 nhớ thêm |
 | 22:00 / 23:00 | Nhắc / tự áp dụng kế hoạch ngày mai nếu Khôi chưa trả lời |
+| 02:15 | Tiko dọn dữ liệu cũ, sao lưu sổ nhớ lên Drive |
 
 ## Cài đặt
 

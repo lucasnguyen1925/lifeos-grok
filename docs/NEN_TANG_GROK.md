@@ -9,6 +9,8 @@ Ghi lại kết quả Tiko/các bot **làm thử thật** trên tài khoản c�
 - `pip install` vào Python hệ thống bị chặn; venv thì được. → Bộ cài chỉ dùng thư viện chuẩn.
 - Ra internet được (GitHub OK). **IP đo bằng terminal** (mạng Grok, Mỹ) **khác IP trình duyệt** (đi qua mạng Việt Nam). Muốn biết IP mà trang web thấy → mở `ifconfig.co` **trong trình duyệt**.
 - Một lệnh terminal chờ tối đa ~13 phút.
+- (31/10) Một lần gọi lệnh terminal mất ~25–75 ms tính cả đi về (lệnh `python3 -c "print(1)"` tự nó ~10 ms). Không đo được thời gian cả lượt chat (phần lớn là lúc bot suy nghĩ).
+- (31/10) SQLite 3.46.1 có sẵn FTS5 (tìm chữ nhanh) → sổ nhớ dùng được mà không cài gì.
 
 ## Routine
 
@@ -16,18 +18,47 @@ Ghi lại kết quả Tiko/các bot **làm thử thật** trên tài khoản c�
 - Mỗi bot chỉ xem/sửa routine của **chính nó**. Sửa routine cần Khôi bấm duyệt thẻ (bot Học tập từng bị lỗi khi duyệt).
 - **Lần chạy routine KHÔNG điền login từ Vault được**; lượt chat thường thì được, không cần hỏi Khôi → vòng tự đăng nhập lại: routine gửi tin ưu tiên cho chính bot (skill `lifeos-dang-nhap-lai`).
 - Routine không tự hỏi Khôi được; muốn hỏi phải qua lượt chat thường của bot.
+- (31/10) Chế độ **exact vẫn trễ 1–6 phút**. Một routine thử (exact) **không chạy**, không rõ lý do. Bot tạo routine **cho chính nó** thì không hiện thẻ duyệt.
+- (31/10) Routine **thấy** trí nhớ chung và một phần trí nhớ riêng, tìm trong trí nhớ được; **ghi đè được file trên Google Drive**.
+- (31/10) Routine **không có công cụ đọc lịch sử chat** (cả chat của chính bot lẫn bot khác).
 
 ## Nhắn tin, phê duyệt
 
 - Bot nhắn bot bằng id; chế độ **ưu tiên** đánh thức bot kia ngay, chế độ thường chờ lượt sau.
 - Bot nhắn Khôi trong khung chat của bot đó (app Grok Bot). Không gửi email/SMS cho Khôi.
 - **Lời "Khôi đồng ý" do bot khác chuyển lại không được tính** → việc cần duyệt do chính LifeOS làm.
+- (31/10) Bot còn **từ chối cả việc nhỏ khi lời nhờ đi qua bot khác**: Tiko nhờ hộ LifeOS tạo thư mục Drive → LifeOS không làm; Khôi nhắn thẳng LifeOS → làm ngay. Ngược lại, LifeOS nhờ Tiko xóa một điều trong trí nhớ riêng → Tiko xóa, nhưng nói "lẽ ra nên hỏi Khôi trước" → không ổn định; ngoại lệ "quên" được ghi rõ trong nội quy.
+
+## Khung chat (31/10/2026)
+
+- **Không xóa được tin** trong khung chat (của chính bot lẫn bot khác). Chưa biết chat được giữ bao lâu.
+- Chat dài: phần cũ chỉ còn bản tóm tắt trong đầu bot, nhưng lượt chat thường **mở lại được nguyên văn** (chưa đo lùi được bao xa).
+- Lượt chat thường **đọc được khung chat của bot khác** (chỉ phần nói qua lại, không thấy bot kia làm gì bên trong).
+- Khôi gửi được cho bot: **ảnh** (bot xem được nội dung, lưu được thành file trên máy), **link trang công khai** (đọc được), **video .mp4** (xem và nghe được). Tin thoại có giọng nói: chưa thử.
+
+## Trí nhớ của Grok (31/10/2026)
+
+- Mỗi bot có **trí nhớ riêng** (đang bật) + **một phần trí nhớ chung** cho mọi bot.
+- Bot **tự ghi** vào trí nhớ riêng khi thấy điều đáng nhớ, không cần ai bảo (sau vài ngày Tiko đã có ~50 điều về Khôi). **Chưa tìm thấy cách tắt** cho từng bot.
+- Trí nhớ riêng: chỉ một phần tự hiện đầu lượt, còn lại phải tìm. Tìm theo từ khóa, **tối đa 50 kết quả/lần** → không liệt kê đủ được cả danh sách.
+- Trí nhớ chung: bot nào cũng ghi được; mỗi lượt (kể cả routine) mọi bot **thấy sẵn phần mới nhất**, phần cũ hơn phải tìm (thử: Tiko ghi một câu, LifeOS trả lời đúng mà không cần tìm). Mỗi điều là một câu ngắn; sức chứa chưa biết; chưa thấy chỗ cho Khôi xem/xóa trong app.
+- **Chỉ bot đã ghi một điều trong trí nhớ chung mới xóa được điều đó**; bot khác chỉ ghi thêm câu mới để thay.
+- → LifeOS **không dùng** trí nhớ Grok cho chuyện của Khôi; dùng sổ nhớ chung (SPEC §5c).
 
 ## Skill, Page
 
 - Skill: `/home/box/agent-data/workflows/<tên>/SKILL.md` (frontmatter name + description), dùng chung mọi bot.
 - **Page**: trang riêng tư, link cố định, xem tốt trên điện thoại, bot (kể cả routine) cập nhật được. Không nhận nguyên file HTML — bot dựng lại từ nội dung (`dashboard/page.md`).
 - Bot gửi được ảnh/file vào chat; routine gửi ảnh: về lý thuyết được, cần thử (CAI_DAT bước 7).
+- (31/10) Tạo được **Page thứ hai**. Bot **không xóa được Page** — Khôi tự xóa trong Library.
+
+## Google Drive cá nhân (31/10/2026)
+
+- LifeOS và Tiko đều có kết nối Drive cá nhân của Khôi (cùng loại kết nối).
+- Bot tạo được thư mục, tải file lên, **ghi đè cùng một file** (mã file giữ nguyên, không sinh file mới) — cả trong lượt chat lẫn routine.
+- File `.md`, `.json` do Tiko tải lên **giữ nguyên định dạng**, tải về giống từng byte; ảnh JPG giữ nguyên. Một lần LifeOS tải file chữ lên lại thành **Google Docs** → khi tải phải giữ định dạng gốc.
+- Xóa = bỏ vào thùng rác, Drive tự xóa hẳn sau ~30 ngày; bot **không xóa vĩnh viễn** được.
+- GitHub repo riêng tư: hiện **chưa ghi được** (kết nối GitHub không có lệnh ghi file, máy chưa đăng nhập GitHub).
 
 ## iPhone
 
