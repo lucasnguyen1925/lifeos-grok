@@ -11,7 +11,7 @@ Chỉ bot **Zalo** làm việc này. Các bot khác lấy phần của mình tro
 
 1. Đọc `/workspace/lifeos/config.toml` mục `[zalo]`: danh sách thẻ → mảng, `restore_unread`.
 2. Đọc `/workspace/lifeos/state/zalo.json` (nếu có): lần trước đã đọc tới tin nào ở từng hội thoại.
-3. Mở `chat.zalo.me` trong **một** tab duy nhất. Kẹt ở "Đang đăng nhập..." quá 60 giây → tải lại trang một lần. Vẫn kẹt hoặc thấy trang đăng nhập → làm theo skill `lifeos-dang-nhap-lai` (tối đa 1 lần đăng nhập).
+3. Mở `chat.zalo.me` trong **một** tab duy nhất. Kẹt ở "Đang đăng nhập..." quá 60 giây → tải lại trang một lần. Vẫn kẹt hoặc thấy trang đăng nhập (kể cả trang chỉ có mã QR) → làm theo skill `lifeos-dang-nhap-lai`: đăng nhập bằng mật khẩu qua **menu ☰ → "Đăng nhập với mật khẩu"**, tối đa 1 lần.
 4. Danh sách chat trống / "Chưa có tin nhắn" → lịch sử chưa đồng bộ. **Không bấm "Đồng bộ ngay"** (cần Khôi xác nhận trên điện thoại). Ghi `"status": "needs_sync"` và báo Tiko.
 
 ## Với mỗi thẻ (Công việc, Trường học, Bạn bè, Gia đình)

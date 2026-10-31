@@ -53,7 +53,7 @@ Phải thấy 6 skill: `lifeos-noi-quy`, `lifeos-dang-nhap-lai`, `lifeos-zalo`, 
 
 ## Bước 4 — Tạo bot Zalo
 
-Nhờ Khôi tạo bot mới tên **Zalo** (Tiko không tự tạo được bot). Khi có, gửi bot Zalo:
+Tiko tạo bot mới tên **Zalo** (không tạo được thì nhờ Khôi). Khi có, gửi bot Zalo:
 "Đọc toàn văn /workspace/lifeos-grok/bots/zalo.md, dùng làm hướng dẫn hệ thống của bạn, rồi tạo routine đúng như bảng Routine trong đó (chế độ exact)."
 
 ## Bước 5 — Cập nhật từng bot

@@ -2,6 +2,16 @@
 
 Mỗi bản ghi rõ **Tiko phải làm gì** khi cập nhật (skill `lifeos-cap-nhat`).
 
+## 0.1.1 — sửa sau lần chạy đầu tiên (31/10)
+
+**Tiko làm:** chép đè 2 skill `lifeos-dang-nhap-lai` và `lifeos-zalo` vào `/home/box/agent-data/workflows/`. Không phải sửa hướng dẫn bot hay routine.
+
+- Zalo: trang đăng nhập mặc định chỉ hiện QR — hướng dẫn bot vào menu ☰ → "Đăng nhập với mật khẩu".
+- Google công ty: "Verify it's you" chỉ có nút Next là tự làm được; chỉ dừng khi đòi điện thoại/mã.
+- Đăng nhập lại xong phải quét lại ngay, kịp trước giờ báo cáo.
+- Ghi IP trình duyệt (đo trong trình duyệt, không đo bằng terminal) mỗi lần đăng nhập lại.
+- CAI_DAT bước 4: Tiko tự tạo được bot Zalo.
+
 ## 0.1.0 — bản đầu tiên
 
 Cài mới theo [CAI_DAT.md](CAI_DAT.md) (không phải cập nhật).

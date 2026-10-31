@@ -18,9 +18,12 @@ description: Quy trình tự đăng nhập lại khi một nguồn LifeOS (SSO H
 
 1. Mở trang đăng nhập của nguồn, dùng login đã lưu trong Vault.
 2. Riêng **MyBK**: nếu trang SSO báo đã đăng nhập nhưng MyBK vẫn coi là chưa đăng nhập → bấm **"Tài khoản HCMUT"** rồi đăng nhập lại. Link MyBK cũ dạng `/app/sinh-vien/...` bị đá về trang đăng nhập → vào từ trang chủ MyBK rồi bấm menu.
-3. Tick **"Ghi nhớ đăng nhập"** nếu trang có.
-4. Đăng nhập được → quét lại phần của nguồn đó, cập nhật file mảng, `validate`, `digest`, `alerts`, `status … --source <nguồn>=ok`.
-5. **Dừng ngay và báo Tiko** (tin thường, không ưu tiên) nếu gặp bất kỳ thứ nào dưới đây — KHÔNG tìm cách vượt:
+3. Riêng **Zalo** (chỉ bot Zalo): trang `id.zalo.me` mặc định **chỉ hiện mã QR — đừng dừng ở đó**. Bấm menu **☰ ở góc phải → "Đăng nhập với mật khẩu"**, rồi điền login Zalo trong Vault.
+4. Riêng **Google công ty**: trang **"Verify it's you" chỉ có nút Next** là bước xác nhận lại bình thường → bấm Next, đăng nhập SSO bằng Vault. Chỉ dừng khi Google đòi bấm trên điện thoại, nhập mã, hoặc chọn cách xác minh khác.
+5. Tick **"Ghi nhớ đăng nhập"** nếu trang có.
+6. Đăng nhập được → **quét lại ngay** phần của nguồn đó, cập nhật file mảng, `validate`, `digest`, `alerts`, `status … --source <nguồn>=ok`. Đang trước giờ báo cáo 06:00/21:00 thì phải xong bước này **trước giờ báo cáo**, để báo cáo không ghi nhầm là còn lỗi.
+7. Ghi lại **IP trình duyệt** lúc đăng nhập (mở `https://ifconfig.co/json` trong **trình duyệt**, không đo bằng terminal) vào `--note` của lệnh `status`. Lần sau có lỗi thì so được.
+8. **Dừng ngay và báo Tiko** (tin thường, không ưu tiên) nếu gặp bất kỳ thứ nào dưới đây — KHÔNG tìm cách vượt:
    - CAPTCHA
    - mã OTP / xác minh 2 bước / xác nhận trên điện thoại
    - cảnh báo đăng nhập bất thường, tài khoản bị khóa
@@ -40,5 +43,5 @@ Không nhắn lại cùng nội dung trong 12 giờ. Báo cáo của LifeOS sẽ
 | Nguồn | Tối đa | Ghi chú |
 |---|---|---|
 | SSO HCMUT | 1 lần mỗi lượt | Không CAPTCHA/OTP theo kiểm tra 30/10 — tự động được |
-| Google công ty | 1 lần mỗi lượt | Hỏi xác minh 2 bước → dừng, cần Khôi |
-| Zalo | 1 lần mỗi lượt quét, chỉ bot Zalo | Có cảnh báo bất thường / đòi xác minh qua điện thoại → dừng ngay. Zalo bị khóa phiền hơn nhiều so với thiếu dữ liệu một buổi |
+| Google công ty | 1 lần mỗi lượt | "Verify it's you" chỉ có Next → tự làm được (31/10). Đòi điện thoại/mã → dừng, cần Khôi |
+| Zalo | 1 lần mỗi lượt quét, chỉ bot Zalo | Đăng nhập bằng mật khẩu qua menu ☰ (bước 3). CAPTCHA, cảnh báo bất thường, đòi xác minh qua điện thoại → dừng ngay. Zalo bị khóa phiền hơn nhiều so với thiếu dữ liệu một buổi |
