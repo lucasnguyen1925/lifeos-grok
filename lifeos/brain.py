@@ -416,8 +416,12 @@ def _neg_time(value: str | None) -> float:
     return -dt.timestamp() if dt else 0.0
 
 
-def core(cfg: dict[str, Any] | None = None, t: datetime | None = None, hint: bool = True) -> dict[str, Any]:
-    """Hồ sơ ngắn (~40 dòng). Mỗi mục có giới hạn; quá giới hạn thì điều lâu không nhắc nằm lại trong sổ."""
+def core(cfg: dict[str, Any] | None = None, t: datetime | None = None, hint: bool = True,
+         extras: bool = True) -> dict[str, Any]:
+    """Hồ sơ ngắn (~40 dòng). Mỗi mục có giới hạn; quá giới hạn thì điều lâu không nhắc nằm lại trong sổ.
+
+    extras: kèm việc đang chờ bot khác trả lời + bản đồ phân công (SPEC §5e) — mọi bot đọc mỗi lượt.
+    """
     t = t or now()
     s = _settings(cfg)
     facts = _load_facts()["facts"]
@@ -436,6 +440,12 @@ def core(cfg: dict[str, Any] | None = None, t: datetime | None = None, hint: boo
     total = sum(1 for f in facts if f["status"] == "current")
     if shown == 0:
         lines.append("(Sổ nhớ còn trống.)")
+    if extras:
+        from . import bando
+        waiting = bando.render_waiting(t)
+        if waiting:
+            lines.append(waiting)
+        lines.append(bando.render(cfg))
     if hint:
         lines.append(f"Sổ có {total} điều đang đúng. Câu hỏi về chuyện cũ / người quen / sở thích → "
                      "python3 -m lifeos brain search \"<từ khóa>\" trước khi trả lời. Sổ khác trí nhớ riêng → theo sổ.")
@@ -902,7 +912,9 @@ def page(cfg: dict[str, Any] | None = None, t: datetime | None = None) -> dict[s
              f"_Cập nhật {vn_datetime(t)} · {st['current']} điều đang đúng · {st['past']} điều trước đây · "
              f"{st['kho']} món trong kho_", "",
              "Sai thì nhắn LifeOS: \"sửa m12: …\" · \"quên m12\" · \"ghim m12\" · \"bỏ m12 khỏi hồ sơ\"", ""]
-    lines += ["## Hồ sơ ngắn", "", core(cfg, t, hint=False)["text"].split("\n", 1)[-1], ""]
+    lines += ["## Hồ sơ ngắn", "", core(cfg, t, hint=False, extras=False)["text"].split("\n", 1)[-1], ""]
+    from . import bando
+    lines += ["## Bản đồ phân công", "", bando.render(cfg).split("\n", 1)[-1], ""]
 
     since = t - timedelta(days=s["page_recent_days"])
     recent = [f for f in facts if f["status"] == "current" and f["origin"] not in MIGRATED

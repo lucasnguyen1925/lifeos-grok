@@ -44,6 +44,7 @@ cd /workspace/lifeos-grok && python3 -m lifeos <lệnh>
 | `brain core` | Đầu **mỗi** lượt chat với Khôi và **mỗi** lần chạy routine (mục 8) |
 | `brain search "<từ khóa>"` | Trước khi trả lời/xử lý chuyện về Khôi, người quen, sở thích, chuyện cũ |
 | `brain propose --by <bot> …` | Bot quét nguồn thấy điều lâu dài đáng nhớ (skill `lifeos-tri-nho` mục 6) |
+| `bando show` · `bando ai "<nguồn>"` | Xem bản đồ phân công · nguồn này bot nào lo (mục 11) |
 
 Mọi lệnh in JSON. Đọc kết quả, đừng đoán.
 
@@ -128,4 +129,12 @@ Email, số điện thoại, tên người, ngày giờ, phòng, link, số ti�
 - Trước khi dùng một địa chỉ/số để liên lạc → `brain search "<địa chỉ>"`: nằm ở "trước đây" (ví dụ bị trả về) hoặc mục Tránh → **không dùng**.
 - Ghi dữ kiện vào sổ nhớ → kèm `--source "<lấy từ đâu>"`.
 - Kiến thức chung (khái niệm, cách dùng một dịch vụ…) không cần nguồn, nhưng không chắc thì nói là không chắc.
+
+## 11. Bản đồ phân công — ai lo việc gì (SPEC §5e)
+
+`brain core` in kèm **bản đồ phân công** (mảng nào, nguồn nào, việc gì → bot nào) và **kết nối** đang có. Kết nối cài chung cho cả tài khoản Grok, nên về kỹ thuật bot nào cũng vào được — nhưng **việc của mảng nào thì bot đó làm**.
+
+- **Nhận việc LifeOS giao** (tin bắt đầu bằng `[g<số>]`): việc đọc / tìm / quét lại → làm ngay. Xong → trả lời **LifeOS** (không nhắn Khôi) gồm mã `g…`, kết quả, **nguồn** (mục 10). Không vào được nguồn → nói rõ không vào được và vì sao (chưa kết nối, hết phiên…), đừng đi tìm vòng sang nguồn khác. Việc gửi / sửa / xóa vẫn cần Khôi duyệt trong khung chat của bot làm (mục 4).
+- Khôi hỏi **bạn** việc thuộc mảng bot khác → nói Khôi bot nào lo, hoặc chuyển cho LifeOS giao.
+- Thấy nguồn hỏng, hết phiên, hay mới kết nối → báo Tiko để Tiko sửa phần kết nối của bản đồ.
 

@@ -56,9 +56,17 @@ Ghi lại kết quả Tiko/các bot **làm thử thật** trên tài khoản c�
 - Bot gửi được ảnh/file vào chat; routine gửi ảnh: về lý thuyết được, cần thử (CAI_DAT bước 7).
 - (31/10) Tạo được **Page thứ hai**. Bot **không xóa được Page** — Khôi tự xóa trong Library.
 
+## Kết nối (31/10/2026)
+
+- Kết nối (Gmail, Drive, Lịch, Slides…) **cài chung cho cả tài khoản Grok**, không gắn riêng bot nào: bấm thẻ kết nối trong chat một bot (LifeOS) là bot khác (Tiko, Học tập) dùng được ngay, không phải bấm lại.
+- Đang có (tối 31/10): 2 Gmail cá nhân, Gmail trường, 2 lịch cá nhân, lịch trường, Drive cá nhân, **Drive trường** (mới kết nối). Chưa cài: Sheets, Docs. Mail/lịch công ty không có kết nối — bot Công ty dùng trình duyệt (SSO công ty).
+- Kết nối **Drive đọc được nội dung Google Sheet** (từng tab, dòng, ô). Muốn **sửa** ô thì mới cần cài kết nối Sheets.
+- Trình duyệt chung (tối 31/10): **không** đăng nhập sẵn tài khoản Google nào; tài khoản công ty đang ở trạng thái đã đăng xuất.
+- Tìm trong Drive trường chỉ thấy file đã chia sẻ cho mail trường; sheet của nhóm chưa chia sẻ thì không thấy → xin link.
+
 ## Google Drive cá nhân (31/10/2026)
 
-- LifeOS và Tiko đều có kết nối Drive cá nhân của Khôi (cùng loại kết nối).
+- LifeOS và Tiko đều dùng kết nối Drive cá nhân của Khôi (kết nối chung của tài khoản).
 - Bot tạo được thư mục, tải file lên. Ghi đè: chiều 31/10 Tiko thử ghi đè một file chữ được (mã file giữ nguyên, cả trong routine); **tối 31/10 Tiko báo công cụ tải file `.json` lại KHÔNG ghi đè được** — mỗi lần tải là thêm một file mới cùng tên. Có thể là hai cách tải khác nhau, chưa rõ → quy trình sao lưu: tải bản mới lên trước, rồi bỏ file cũ cùng tên vào thùng rác.
 - File `.md`, `.json` do Tiko tải lên **giữ nguyên định dạng**, tải về giống từng byte; ảnh JPG giữ nguyên. Một lần LifeOS tải file chữ lên lại thành **Google Docs** → khi tải phải giữ định dạng gốc.
 - Xóa = bỏ vào thùng rác, Drive tự xóa hẳn sau ~30 ngày; bot **không xóa vĩnh viễn** được.

@@ -2,6 +2,36 @@
 
 Mỗi bản ghi rõ **Tiko phải làm gì** khi cập nhật (skill `lifeos-cap-nhat`).
 
+## 0.4.0 — Bản đồ phân công: LifeOS biết ai lo mảng nào để giao đúng (31/10)
+
+Chuyện xảy ra: hỏi việc nhóm thí nghiệm, LifeOS tự lục Zalo rồi Drive cá nhân, Khôi phải nhắc 2 lần mới chuyển cho Học tập. Quyết định: SPEC §5e (G1–G5).
+
+**Tiko làm:**
+1. `git pull`, chạy test (phải OK, 47 bài).
+2. Chép đè skill `lifeos-noi-quy` vào `/home/box/agent-data/workflows/`.
+3. **Ghi phần Kết nối của bản đồ** theo đúng thực tế (chỉ tên gọi, không ghi địa chỉ), ví dụ:
+   ```bash
+   cd /workspace/lifeos-grok
+   python3 -m lifeos bando ket-noi "Gmail cá nhân" --trang-thai ok --loai Gmail
+   python3 -m lifeos bando ket-noi "Mail trường" --trang-thai ok --loai Gmail
+   python3 -m lifeos bando ket-noi "Lịch cá nhân" --trang-thai ok --loai Lịch
+   python3 -m lifeos bando ket-noi "Lịch trường" --trang-thai ok --loai Lịch
+   python3 -m lifeos bando ket-noi "Drive cá nhân" --trang-thai ok --loai Drive
+   python3 -m lifeos bando ket-noi "Drive trường" --trang-thai ok --loai Drive
+   python3 -m lifeos bando ket-noi "Sheets" --trang-thai chua_cai --ghi-chu "đọc sheet được qua Drive, chưa sửa ô được"
+   python3 -m lifeos bando ket-noi "Mail công ty" --trang-thai <ok|het_phien> --loai "Trình duyệt"
+   python3 -m lifeos bando show
+   ```
+4. Gửi tin ưu tiên cho **cả 6 bot** (Tiko tự áp dụng): "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/<bot>.md (đọc toàn văn, thay hướng dẫn cũ)." Không routine cố định nào phải đổi.
+5. Thử rồi ghi vào `state/cai_dat.md`: Khôi hỏi LifeOS một việc của trường (ví dụ "môn X tuần này có tài liệu mới không?") → LifeOS phải **giao ngay** cho Học tập (không tự lục), báo Khôi một dòng; Học tập trả lời LifeOS kèm nguồn; LifeOS báo lại. Ghi luôn: LifeOS có tạo được routine "chạy 1 lần sau 10 phút" không, có hiện thẻ duyệt không.
+
+**Khôi làm:** nhắn Tiko cập nhật. Nếu LifeOS hỏi bấm thẻ tạo routine kiểm tra 10 phút thì bấm duyệt.
+
+Thay đổi:
+- `lifeos/bando.py` + lệnh `bando` (show, ket-noi, xoa-ket-noi, ai) và `giao` (add, done, list, check). Bản đồ phân công + kết nối + việc đang chờ bot khác được in trong `brain core` và Page Trí nhớ.
+- Nội quy mục 11 (mới): bản đồ phân công, cách nhận việc LifeOS giao. LifeOS: mục "Giao việc theo bản đồ phân công". Tiko: giữ phần Kết nối. 4 bot: mục "Nhận việc LifeOS giao".
+- `docs/NEN_TANG_GROK.md`: kết nối chung cho cả tài khoản, Drive đọc được Sheet, Drive trường đã kết nối.
+
 ## 0.3.2 — không bịa dữ kiện, bản nháp ghi nguồn, báo mail bị trả về (31/10)
 
 Chuyện xảy ra: mail gửi thầy bị trả về vì địa chỉ không dùng được, và Khôi duyệt gửi mà không biết địa chỉ lấy từ đâu. Quyết định: SPEC §5d (N1–N4).

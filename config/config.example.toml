@@ -124,6 +124,12 @@ weekly_days = 90
 zalo_raw_days = 7
 journal_days = 90          # nhật ký chuyện đã nói (sổ nhớ). Sổ nhớ và kho giữ lâu dài.
 
+# ---------- Bản đồ phân công (SPEC §5e) ----------
+# Mặc định nằm trong lifeos/bando.py. Muốn đổi mảng/nguồn/việc của một bot thì mở khóa dưới đây, ví dụ:
+# [phan_cong.hoctap]
+# nguon = ["Mail trường", "Lịch trường", "Drive trường", "BKeL", "MyBK", "AAO", "Zalo nhóm lớp"]
+# Trạng thái kết nối KHÔNG ghi ở đây: Tiko ghi bằng `python3 -m lifeos bando ket-noi …` (state/ket_noi.json).
+
 # ---------- Sổ nhớ (SPEC §5c) ----------
 [brain]
 core_limits = { ve_khoi = 8, muc_tieu = 5, nguoi_quen = 10, cach_lam_viec = 7, dang_do = 6, tranh = 4 }   # ~40 dòng

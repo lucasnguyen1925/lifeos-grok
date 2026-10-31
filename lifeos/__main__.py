@@ -161,6 +161,32 @@ def main(argv: list[str] | None = None) -> int:
 
     _brain_parser(sub)
 
+    s = sub.add_parser("bando", help="Bản đồ phân công: mảng → bot, kết nối của tài khoản (SPEC §5e)")
+    ms = s.add_subparsers(dest="action", required=True)
+    ms.add_parser("show")
+    m = ms.add_parser("ket-noi", help="Tiko ghi trạng thái một kết nối")
+    m.add_argument("name")
+    m.add_argument("--trang-thai", required=True, help="ok · chua_ket_noi · chua_cai · het_phien · hong")
+    m.add_argument("--loai", help="Gmail · Drive · Lịch · Trình duyệt …")
+    m.add_argument("--ghi-chu")
+    m = ms.add_parser("xoa-ket-noi")
+    m.add_argument("name")
+    m = ms.add_parser("ai", help="Nguồn này do bot nào phụ trách")
+    m.add_argument("source", nargs="+")
+
+    s = sub.add_parser("giao", help="LifeOS theo dõi việc đã giao cho bot khác")
+    gs = s.add_subparsers(dest="action", required=True)
+    g = gs.add_parser("add")
+    g.add_argument("--to", required=True)
+    g.add_argument("--viec", required=True, help="Việc gì, tìm ở đâu, cần trả lời gì")
+    g.add_argument("--phut", type=int, default=10, help="Chờ tối đa bao nhiêu phút (mặc định 10)")
+    g = gs.add_parser("done")
+    g.add_argument("id")
+    g.add_argument("--ket-qua")
+    gs.add_parser("list")
+    g = gs.add_parser("check", help="Việc quá hạn chờ chưa có trả lời")
+    g.add_argument("--mark", action="store_true", help="Đã báo Khôi + nhờ Tiko")
+
     a = p.parse_args(argv)
 
     if a.cmd == "validate":
@@ -285,6 +311,31 @@ def main(argv: list[str] | None = None) -> int:
         out["dashboard"] = dashboard.build(png=a.png, cfg=cfg)
         out["brain"] = {"tidy": brain.tidy(), "page": brain.page(cfg)}
         _print(out)
+    elif a.cmd in {"bando", "giao"}:
+        from . import bando
+        try:
+            if a.cmd == "bando":
+                if a.action == "show":
+                    _print(bando.show(cfg))
+                elif a.action == "ket-noi":
+                    _print(bando.set_connection(a.name, a.trang_thai, a.loai, a.ghi_chu))
+                elif a.action == "xoa-ket-noi":
+                    _print(bando.remove_connection(a.name))
+                else:
+                    src = " ".join(a.source)
+                    who = bando.owner_of(src, cfg)
+                    _print({"source": src, "bot": who, "name": bando.NAMES.get(who) if who else None})
+            elif a.action == "add":
+                _print(bando.delegate(a.to, a.viec, a.phut))
+            elif a.action == "done":
+                _print(bando.finish(a.id, a.ket_qua))
+            elif a.action == "list":
+                _print({"open": bando.open_items()})
+            else:
+                _print(bando.overdue(mark=a.mark))
+        except ValueError as exc:
+            _print({"ok": False, "why": str(exc)})
+            return 1
     elif a.cmd == "brain":
         try:
             _print(_brain_run(a, cfg))

@@ -42,6 +42,10 @@ Danh bạ iPhone: dùng để biết tên người gửi (điền `from` cho đ�
 
 Trong lúc quét, thấy điều **lâu dài** về Khôi hoặc người quanh Khôi (ai là trưởng nhóm, ai phụ trách gì, nhóm nào làm dự án gì, lịch họp cố định…) → `python3 -m lifeos brain propose --by canhan --section nguoi_quen --source "<thấy ở đâu>" --text "<một câu>"`. Khôi duyệt trong báo cáo tối. Không đề xuất việc có hạn, chuyện nhạy cảm (skill `lifeos-tri-nho` mục 6).
 
+## Nhận việc LifeOS giao
+
+Tin từ LifeOS bắt đầu bằng `[g<số>]` (ví dụ "tìm sheet phân công nhóm X", "đọc lại nhóm Y") → làm ngay nếu chỉ là đọc/tìm/quét lại, rồi trả lời **LifeOS** kèm mã, kết quả và **nguồn**. Không vào được nguồn → nói rõ vì sao. Không nhắn Khôi (nội quy mục 10, 11).
+
 ## Không bao giờ
 
 Gửi/trả lời, tạo Reminder (LifeOS làm khi Khôi duyệt), xóa mail, mở Zalo, nhắn Khôi.

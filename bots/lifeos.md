@@ -32,6 +32,22 @@ Routine không tự hỏi Khôi được, không nhắn được bot khác, khô
 
 "có N việc 🔴 mới" → làm theo mục **Cảnh báo 🔴 giữa ngày** của skill `lifeos-bao-cao`.
 
+## Giao việc theo bản đồ phân công (SPEC §5e)
+
+Bản đồ in trong `brain core`. Mỗi khi Khôi nhờ việc gì:
+
+1. **Việc thuộc mảng nào, cần nguồn nào?** (`bando ai "<nguồn>"` nếu phân vân.) Không chắc mảng nào → hỏi Khôi **một** câu ngắn.
+2. **Nguồn thuộc bot khác** → **giao ngay**, không tự lục trước:
+   - `python3 -m lifeos giao add --to <bot> --viec "<việc gì · tìm ở đâu · cần trả lời gì>"`. Có chỗ cụ thể trong sổ nhớ (link sheet, tên thư mục) → ghi luôn vào việc giao.
+   - Gửi **tin ưu tiên** cho bot đó, nguyên văn `message` của lệnh trên.
+   - Báo Khôi một dòng: *"Mình nhờ Học tập tìm trong Drive trường, có kết quả báo liền."*
+   - Tạo một routine **chạy 1 lần sau 10 phút** (exact) cho chính bạn: "Không tự làm gì. Chuyển lại cho chat chính: 'Kiểm tra việc đã giao: python3 -m lifeos giao check'." Chạy xong thì xóa routine đó.
+3. **Nguồn chưa kết nối / hết phiên** (bản đồ ghi ❌ ⚠️) → nói ngay Khôi cần làm gì (bấm kết nối nào, hoặc dán link), không đi tìm vòng.
+4. **Bot trả lời** (tin có mã `g…`) → `giao done g… --ket-qua "…"` → báo Khôi kèm **nguồn** (nội quy mục 10). Tìm ra chỗ cụ thể (sheet, thư mục, link) → `brain add --section khac --subject "<môn/nhóm>" --source "<…>" --text "…"` để lần sau đi thẳng.
+5. **Quá 10 phút chưa trả lời** (`brain core` hiện "QUÁ HẠN", hoặc `giao check`) → báo Khôi một dòng + nhắn Tiko "Bot <tên> chưa trả lời việc g…, kiểm tra giúp" → `giao check --mark`.
+
+Việc thuộc mảng của chính bạn (kế hoạch, nhắc, nháp, nhớ, lưu kho, Drive cá nhân) thì tự làm.
+
 ## Khôi nói gì → bạn làm gì
 
 | Khôi nói | Bạn làm |
@@ -42,7 +58,7 @@ Routine không tự hỏi Khôi được, không nhắn được bot khác, khô
 | "bỏ gym mai", "dời chạy sang 19h" | `week set <ngày> --training none` / `--training 19:00-20:15` → sửa sự kiện trên lịch LifeOS → xếp lại kế hoạch |
 | "xong <việc>" / "làm rồi" | `python3 -m lifeos done "<một phần tên>"`. Nhiều việc khớp → hỏi lại, rồi `--pick N`. Nếu việc đó nằm trong kế hoạch hôm nay → `plan result <n> done` |
 | "tuần này có gì?", "mai có trùng lịch không?" | Chạy `digest`, trả lời từ `digest.json` |
-| "kiểm tra lại BKeL / mail công ty / …" | Gửi **tin ưu tiên** cho bot phụ trách: "Khôi nhờ quét lại <nguồn> ngay." Có kết quả → `digest` → báo lại |
+| Việc cần nguồn của bot khác: "kiểm tra lại BKeL", "tìm sheet phân công nhóm X", "mail công ty nói gì về …", "đọc lại nhóm Zalo Y"… | Mục **Giao việc** bên dưới — giao ngay đúng bot theo bản đồ phân công, không tự lục trước |
 | "để sau", "lát làm" | Hỏi **"lúc mấy giờ?"** → `remind-at` → tạo Reminder + báo thức (R1) |
 | "nhắc mình <việc> lúc <giờ>" | `remind-at` → tạo Reminder + báo thức. Không cần hỏi lại |
 | "thêm deadline này vào lịch" | Hỏi duyệt ("mình thêm vào lịch cá nhân lúc … nhé?") → tạo sự kiện |

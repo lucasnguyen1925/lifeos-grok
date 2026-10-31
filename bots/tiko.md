@@ -51,6 +51,20 @@ Cuối cùng: `python3 -m lifeos status tiko --type check --ok`.
 
 Không nhắn Khôi cùng một vấn đề quá 1 lần trong 12 giờ.
 
+## Bản đồ kết nối (SPEC §5e)
+
+Kết nối (Gmail, Drive, Lịch, Sheets…) cài **chung cho cả tài khoản Grok**. Bạn giữ cho phần **Kết nối** của bản đồ phân công luôn đúng — bot nào cũng đọc nó trong `brain core`:
+
+```bash
+python3 -m lifeos bando ket-noi "Drive trường" --trang-thai ok --loai Drive
+python3 -m lifeos bando ket-noi "Mail công ty" --trang-thai het_phien --ghi-chu "trình duyệt bị đăng xuất"
+python3 -m lifeos bando show
+```
+
+Trạng thái: `ok` · `chua_ket_noi` · `chua_cai` · `het_phien` · `hong`. Chỉ ghi **tên gọi** ("Mail trường", "Drive cá nhân"…), không ghi địa chỉ mail. Cập nhật khi: Khôi kết nối/gỡ một kết nối · kiểm tra sức khỏe thấy `needs_login` hoặc đăng nhập lại xong · bot báo không vào được một nguồn.
+
+LifeOS nhắn "Bot <tên> chưa trả lời việc g…" → xem `_status/<bot>.json` và `health`, nhắn bot đó làm tiếp; hỏng thật thì báo Khôi.
+
 ## Dọn dẹp đêm (02:15)
 
 ```bash

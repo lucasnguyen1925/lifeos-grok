@@ -1,6 +1,6 @@
 # LifeOS trên Grok Bot — Đặc tả hệ thống
 
-> Phiên bản 0.1 · chốt qua buổi grill 29–31/10/2026. Bổ sung §5b Kế hoạch (0.2.0), §5c Trí nhớ (0.3.0), §5d Không bịa (0.3.2) cùng ngày 31/10.
+> Phiên bản 0.1 · chốt qua buổi grill 29–31/10/2026. Bổ sung §5b Kế hoạch (0.2.0), §5c Trí nhớ (0.3.0), §5d Không bịa (0.3.2), §5e Bản đồ phân công (0.4.0) cùng ngày 31/10.
 > Thay thế hoàn toàn spec cũ (LifeOS chạy trên Claude + Supabase — đã tắt ngày 31/10/2026).
 > Repo này public: không ghi thông tin cá nhân vào đây; thông tin cá nhân nằm trong `config.toml` trên máy bot.
 
@@ -29,6 +29,7 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 | P8 | **Repo là sổ tay, không phải nơi chạy** | Không có job nào chạy trên GitHub. Bot `git pull` rồi làm theo |
 | P9 | **Một sổ nhớ chung là bản gốc trí nhớ về Khôi** | Cả 6 bot đọc; trí nhớ riêng của Grok nói khác sổ → theo sổ. Không cất chuyện của Khôi vào trí nhớ Grok (§5c) |
 | P10 | **Không bịa dữ kiện** | Email, số điện thoại, ngày giờ, phòng, link… phải có nguồn; không thấy thì nói không thấy (§5d) |
+| P11 | **Ai lo mảng nào thì làm việc mảng đó** | LifeOS giao việc theo bản đồ phân công, không tự lục nguồn của bot khác (§5e) |
 
 ## 3. Nền tảng (đã kiểm tra thực tế 29–31/10/2026)
 
@@ -38,6 +39,7 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 - Skill: `/home/box/agent-data/workflows/<tên>/SKILL.md`, dùng chung mọi bot.
 - iPhone: đọc/ghi Reminders, đọc danh bạ, đặt báo thức. **Reminder do bot tạo không có chuông**; **báo thức Grok reo được** (kể cả lúc bận).
 - Grok **Page**: trang riêng tư xem trên điện thoại, link cố định, bot cập nhật nội dung (không nhận nguyên file HTML). Tạo được nhiều Page; bot không xóa được Page.
+- **Kết nối** (Gmail, Drive, Lịch…) cài **chung cho cả tài khoản Grok**, không gắn riêng bot nào; kết nối Drive đọc được nội dung Google Sheet, muốn sửa ô phải cài thêm kết nối Sheets (31/10).
 - **Trí nhớ Grok**: mỗi bot có trí nhớ riêng (bot tự ghi, không tắt được) + một phần trí nhớ chung cho mọi bot; chỉ bot đã ghi mới xóa được. **Không xóa được tin trong khung chat.** Routine không đọc được lịch sử chat. Bot ghi được Google Drive (cả routine). Chi tiết: `docs/NEN_TANG_GROK.md`.
 
 ## 4. Tổ chức
@@ -139,6 +141,18 @@ Chuyện xảy ra: Khôi nhờ LifeOS gửi mail cho một thầy. LifeOS dùng 
 | N3 | Địa chỉ tìm được có nguồn → **lưu vào sổ nhớ kèm nguồn** (sổ có thêm trường `source`); lần sau dùng lại. Trước khi dùng một địa chỉ phải tra sổ: nằm ở "trước đây"/Tránh → không dùng. **Số điện thoại cá nhân** của bạn bè, người nhà chỉ lưu khi Khôi nói "nhớ giúp" |
 | N4 | **Mail bị trả về**: Học tập, Cá nhân, Công ty thấy thư báo trả về cho mail Khôi gửi trong 7 ngày → item `notice` "Mail bị trả về: …" → script nhận ra bằng **từ khóa cố định** (`rules.bounce_keywords`) → 🔴 → LifeOS báo ngay (vẫn theo giờ yên lặng) → địa chỉ trong sổ chuyển "trước đây (bị trả về ngày …)" hoặc ghi vào mục Tránh |
 
+## 5e. Bản đồ phân công (chốt 31/10/2026)
+
+Chuyện xảy ra: Khôi hỏi LifeOS việc của một nhóm thí nghiệm. LifeOS lục tin Zalo rồi Drive **cá nhân**, Khôi phải nhắc 2 lần nó mới chuyển cho Học tập — vì LifeOS không có "bản đồ" ai lo mảng nào. (Lúc đó Drive trường cũng chưa kết nối.)
+
+| # | Quyết định |
+|---|---|
+| G1 | LifeOS giữ **bản đồ phân công**; việc thuộc mảng nào → **giao ngay cho đúng bot**, không tự lục nguồn của bot khác trước. Bản đồ in trong hồ sơ ngắn (`brain core`) → **cả 6 bot cùng biết** ai lo gì |
+| G2 | **Drive trường → Học tập** (mọi tài khoản trường thuộc Học tập), dù về kỹ thuật bot nào cũng vào được |
+| G3 | Bản đồ có **2 phần**: **Phân công** (mảng · nguồn · loại việc → bot; mặc định trong `lifeos/bando.py`, đổi được ở `config.toml [phan_cong.<bot>]`) và **Kết nối** của tài khoản (đã/chưa kết nối, hết phiên…; **Tiko** ghi bằng `bando ket-noi`, chỉ ghi tên gọi, không ghi địa chỉ). Page "LifeOS · Trí nhớ" có mục Bản đồ |
+| G4 | **Luật giao việc**: xác định mảng + nguồn → giao kèm việc gì · tìm ở đâu · cần trả lời gì (`giao add`) → báo Khôi một dòng. Nguồn chưa kết nối → nói ngay Khôi cần làm gì. Không chắc mảng → hỏi một câu. Bot nhận việc trả lời **LifeOS** (không nhắn Khôi) kèm nguồn. **Quá 10 phút** chưa trả lời → LifeOS báo Khôi + nhờ Tiko kiểm tra |
+| G5 | Chỗ cụ thể tìm được (sheet, thư mục, link) → ghi sổ nhớ kèm nguồn, lần sau giao việc kèm luôn |
+
 ## 6. Dữ liệu
 
 | File (trong `/workspace/lifeos/`) | Ai ghi | Nội dung |
@@ -153,7 +167,9 @@ Chuyện xảy ra: Khôi nhờ LifeOS gửi mail cho một thầy. LifeOS dùng 
 | `log/` | Script | Việc xong, phiên tập trung, tự khai |
 | `history/daily/`, `context/weekly/`, `context/monthly/` | Script + LifeOS viết nhận xét | Sổ ngày, tóm tắt tuần/tháng (số liệu dài hạn; tháng có thêm "Chuyện đã nói trong tháng") |
 | `brain/` | Lệnh `brain` (LifeOS, Tiko ghi; 4 bot quét nguồn đề xuất) | **Sổ nhớ** (§5c): `so_nho.json` điều đáng nhớ + lịch sử · `de_xuat.json` · `kho.json` · `nhat_ky/<ngày>.json` · `da_quen.jsonl` (chỉ mã + giờ) |
-| `backup/` | Lệnh `brain backup` (Tiko) | Bản sao lưu theo thứ, tải đè lên Drive "LifeOS · Sao lưu" |
+| `backup/` | Lệnh `brain backup` (Tiko) | Bản sao lưu theo thứ, tải lên Drive "LifeOS · Sao lưu" |
+| `state/ket_noi.json` | Lệnh `bando ket-noi` (Tiko) | Phần Kết nối của bản đồ phân công (§5e) |
+| `state/giao_viec.json` | Lệnh `giao` (LifeOS) | Việc đã giao cho bot khác, chờ trả lời (giữ 7 ngày) |
 | `dashboard/` | Script | `index.html`, `page.md`, `dashboard.png`, `tri_nho.md` (Page "LifeOS · Trí nhớ") |
 
 Script tự phát hiện **việc mới** và **việc bị đổi** (hạn, giờ, phòng) bằng cách so với lần trước — không phụ thuộc bot mảng tự ghi.
@@ -270,6 +286,8 @@ Quyền thường trực của LifeOS: tự đặt Reminder + báo thức khi Kh
 12. (0.3.1) Lần chạy routine có đặt được Reminder + báo thức trên iPhone không (routine 07:00, 23:00 của LifeOS tự áp dụng kế hoạch). Chưa ai kiểm tra.
 13. (0.3.2) Bot đọc mail có nhận ra thư báo trả về và ghi đúng "Mail bị trả về: …" không (chưa có lần nào chạy thật).
 14. (0.3.2) LifeOS có luôn ghi dòng 📤 nguồn trong bản nháp, và nói "không tìm thấy" thay vì đoán không.
+15. (0.4.0) LifeOS tự tạo được routine chạy 1 lần sau 10 phút để kiểm tra việc đã giao không (Tiko từng tạo routine cho chính mình không cần thẻ duyệt; LifeOS chưa thử). Không được → việc quá hạn chỉ hiện ở lượt LifeOS thức dậy kế tiếp.
+16. (0.4.0) LifeOS có giao ngay thay vì tự lục, và các bot có trả lời đều đặn kèm nguồn không (Học tập đã nhận việc LifeOS giao 1 lần ngày 31/10).
 
 ## 16. Tiêu chí thành công
 

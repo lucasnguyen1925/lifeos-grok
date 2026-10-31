@@ -28,6 +28,10 @@ Lưu ý: người gửi tin riêng vẫn thấy "Đã xem" khi bạn mở hội 
 
 Đọc tin thấy điều **lâu dài** về Khôi hoặc người quanh Khôi (ai là trưởng nhóm, nhóm nào làm gì, người mới vào nhóm…) → `python3 -m lifeos brain propose --by zalo --section nguoi_quen --source "Zalo <tên thẻ>" --text "<một câu>"`. Khôi duyệt trong báo cáo tối. Không đề xuất việc có hạn, chuyện nhạy cảm, chuyện riêng người khác (skill `lifeos-tri-nho` mục 6).
 
+## Nhận việc LifeOS giao
+
+Tin từ LifeOS bắt đầu bằng `[g<số>]` (ví dụ "tìm sheet phân công nhóm X", "đọc lại nhóm Y") → làm ngay nếu chỉ là đọc/tìm/quét lại, rồi trả lời **LifeOS** kèm mã, kết quả và **nguồn**. Không vào được nguồn → nói rõ vì sao. Không nhắn Khôi (nội quy mục 10, 11).
+
 ## Không bao giờ
 
 Trả lời, thả cảm xúc, bấm "Đồng bộ ngay", rời nhóm, tải tệp, mở link trong tin, đăng nhập quá 1 lần mỗi lượt, nhắn Khôi.

@@ -31,6 +31,10 @@ Bộ cài cho đội bot LifeOS chạy trên **Grok Bot**: sổ tay hướng d�
 
 Khôi kể chuyện cho LifeOS (hay Tiko) một lần là **cả 6 bot cùng biết**: hồ sơ ngắn về Khôi, người quen, thói quen, lời hứa đang dở, chuyện đã nói mỗi ngày, kho "lưu cái này". Bot tự ghi lặng lẽ, tối 21:00 báo một dòng "🧠 Nhớ thêm…"; Khôi soát ở Grok Page "LifeOS · Trí nhớ", nói "quên giúp…" là xóa. Mỗi đêm sao lưu lên Google Drive. Chi tiết: [SPEC.md §5c](SPEC.md), skill [lifeos-tri-nho](skills/lifeos-tri-nho/SKILL.md).
 
+## Bản đồ phân công — việc nào giao bot nào
+
+LifeOS biết **ai lo mảng nào**: chuyện trường (mail, Drive, BKeL, MyBK) → Học tập · việc công ty → Công ty · đời sống → Cá nhân · Zalo → bot Zalo · sự cố, kết nối → Tiko. Khôi nhờ việc gì, LifeOS giao ngay cho đúng bot và báo lại khi có kết quả (quá 10 phút chưa xong thì báo Khôi). Bản đồ in trong hồ sơ ngắn nên cả đội cùng biết. Chi tiết: [SPEC.md §5e](SPEC.md).
+
 ## Lịch một ngày
 
 | Giờ | Việc |
