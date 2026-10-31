@@ -34,7 +34,7 @@ Hỏi Khôi **gom vào một tin** rồi điền vào `/workspace/lifeos/config.
 1. **Người quan trọng** (`[[people.vip]]`): tên/cách gọi sếp và quản lý trực tiếp, các giảng viên học kỳ này, người nhà. Mỗi người một mục, `aliases` là các cách gọi khác.
 2. **Mã các khóa học BKeL học kỳ này** (`sources.hoctap.lms_course_ids`): lấy từ brief cũ trong `/workspace/brief/` hoặc hỏi bot Học tập, rồi nhờ Khôi xác nhận.
 3. **Thẻ Zalo** (`[zalo] tags`): mặc định Công việc → congty, Trường học → hoctap, Bạn bè và Gia đình → canhan.
-4. **Giờ được bảo vệ** (`[[schedule.protected]]`): mặc định ăn trưa 11:30–12:30, ăn tối 18:30–19:30.
+4. **Một ngày của Khôi** (`[day]`, `[office]`, `[training]`): giờ dậy/ngủ, giờ ăn, văn phòng, giáo án tập — giá trị mẫu đã theo lịch Khôi chốt 31/10; hỏi thêm **tên/địa điểm buổi chạy nhóm** (`training.group_run_keyword`).
 5. Kiểm tra: `cd /workspace/lifeos-grok && python3 -m lifeos date today` chạy được (đọc được config).
 
 Không ghi mật khẩu vào config. Mật khẩu đã ở Vault.

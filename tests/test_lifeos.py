@@ -179,7 +179,8 @@ class Reminders(Base):
         self.write_domains(hoctap=[cls])
         res = tracking.remind_at(parse_dt("2026-11-02T14:00+07:00"), self.cfg)
         self.assertTrue(res["moved"])
-        self.assertEqual(res["at"], "2026-11-02T15:35+07:00")  # 15:00 + 30' di chuyển + 5'
+        # T2 mặc định lên văn phòng 9–18 (+30' di chuyển) rồi ăn tối 18:30–19:30 → 19:35
+        self.assertEqual(res["at"], "2026-11-02T19:35+07:00")
         free = tracking.remind_at(parse_dt("2026-11-02T19:30+07:00"), self.cfg)
         self.assertFalse(free["moved"])
 
@@ -275,42 +276,119 @@ class Plans(Base):
 
 
 class Planner(Base):
-    def test_day_plan_fits_free_time_and_deadlines(self):
-        from lifeos import planner
-        os.environ["LIFEOS_NOW"] = "2026-10-31T07:30+07:00"  # Thứ 7
-        t = parse_dt("2026-10-31T07:30+07:00")
-        run = item(id="cn:run", domain="canhan", kind="event", title="Chạy 10km",
-                   start="2026-10-31T06:00+07:00", end="2026-10-31T09:00+07:00")
-        kit = item(id="cn:kit", domain="canhan", kind="task", title="Lấy race kit", due="2026-10-31", est_minutes=90)
-        btl = item(id="hoc:btl", kind="deadline", title="BTL nhóm", due="2026-10-31T22:00+07:00", est_minutes=180)
-        mail = item(id="hoc:mail", kind="notice", title="Đọc mail hoãn thi")
-        reply = item(id="hoc:rep", kind="message", title="Trả lời bạn A", needs_reply=True)
-        later = item(id="hoc:later", kind="deadline", title="Bài 3 thí nghiệm", due="2026-11-20T23:59+07:00")
-        self.write_domains(hoctap=[btl, mail, reply, later], canhan=[run, kit])
-        digest.build(t=t, cfg=self.cfg)
+    """Tuần 2–8/11/2026: T2 kiểm tra GT2, T3 có lớp sáng, T5 chạy nhóm, thi cuối kỳ 16/11."""
 
-        res = planner.suggest(date(2026, 10, 31), 3, self.cfg, t=t)
+    def setUp(self):
+        super().setUp()
+        from lifeos import week
+        self.cfg["training"]["group_run_keyword"] = "Công viên X"
+        os.environ["LIFEOS_NOW"] = "2026-11-01T20:00+07:00"  # Chủ nhật
+        self.t = parse_dt("2026-11-01T20:00+07:00")
+        self.write_domains(
+            hoctap=[
+                item(id="hoc:kt", kind="exam", title="Kiểm tra giữa kỳ GT2", start="2026-11-02T13:00+07:00", end="2026-11-02T14:00+07:00"),
+                item(id="hoc:final", kind="exam", title="Thi cuối kỳ CNPM", start="2026-11-16T07:00+07:00", end="2026-11-16T09:00+07:00"),
+                item(id="hoc:lop", kind="class", title="Lớp XSTK", start="2026-11-03T07:00+07:00", end="2026-11-03T11:00+07:00"),
+                item(id="hoc:bt", kind="deadline", title="Bài 3 thí nghiệm", due="2026-11-03T23:00+07:00", est_minutes=90),
+                item(id="hoc:far", kind="deadline", title="Báo cáo dài", due="2026-11-05T23:59+07:00", est_minutes=180),
+                item(id="hoc:msg", kind="message", title="Trả lời bạn A", needs_reply=True),
+            ],
+            congty=[item(id="ct:task", domain="congty", kind="deadline", title="Gửi file test", due="2026-11-04T10:00+07:00", est_minutes=60)],
+            canhan=[item(id="cn:sala", domain="canhan", kind="event", title="Chạy nhóm Công viên X",
+                         start="2026-11-05T18:00+07:00", end="2026-11-05T20:00+07:00")],
+        )
+        digest.build(t=self.t, cfg=self.cfg)
+        self.week = week.propose(date(2026, 11, 2), self.cfg, t=self.t)
+
+    def test_week_proposal(self):
+        d = self.week["days"]
+        self.assertIsNone(d["2026-11-02"]["office"])                       # có kiểm tra → nghỉ văn phòng
+        self.assertEqual(d["2026-11-03"]["office"], ["11:30", "18:00"])     # sau lớp 7–11 + 30' di chuyển
+        self.assertEqual(d["2026-11-04"]["office"], ["09:00", "18:00"])
+        self.assertIsNone(d["2026-11-08"]["office"])                        # Chủ nhật
+        self.assertEqual(d["2026-11-02"]["training"]["label"], "Gym: PUSH")
+        self.assertEqual(d["2026-11-02"]["training"]["start"], "06:00")
+        self.assertEqual(d["2026-11-03"]["training"]["label"], "Chạy: INTERVAL")
+        self.assertEqual(d["2026-11-03"]["training"]["start"], "18:15")     # ngày văn phòng tới 18:00
+        self.assertIn("Công viên X", d["2026-11-05"]["training"]["label"])    # thay buổi EASY
+        self.assertEqual(d["2026-11-07"]["training"]["label"], "Chạy: LONG RUN")
+        self.assertIsNone(d["2026-11-08"]["training"])
+        self.assertIn("Bài 3 thí nghiệm", [b["title"] for b in self.week["big_items"]])
+
+    def test_day_profile(self):
+        from lifeos.daymodel import profile
+        mon = profile(date(2026, 11, 2), self.cfg)        # gym
+        self.assertEqual(f"{mon['wake']:%H:%M}", "05:30")
+        self.assertEqual(f"{mon['task_start']:%H:%M}", "08:15")
+        tue = profile(date(2026, 11, 3), self.cfg)        # chạy tối, hôm sau gym
+        self.assertEqual(f"{tue['wake']:%H:%M}", "06:00")   # lớp 07:00 → dậy trước 60 phút
+        self.assertEqual(f"{tue['task_end']:%H:%M}", "23:00")
+        dinner = tue["meals"][1]
+        self.assertEqual(f"{dinner[1]:%H:%M}", "19:45")   # ăn sau buổi chạy 18:15–19:30
+        self.assertEqual(tue["day_type"], "office_full")
+        self.assertEqual(profile(date(2026, 11, 8), self.cfg)["day_type"], "sunday")
+
+    def test_day_plan(self):
+        from lifeos import planner
+        t = parse_dt("2026-11-02T21:00+07:00")
+        os.environ["LIFEOS_NOW"] = t.isoformat()
+        digest.build(t=t, cfg=self.cfg)
+        res = planner.suggest(date(2026, 11, 3), self.cfg, t=t)
         titles = [b["title"] for b in res["blocks"]]
-        self.assertIn("Lấy race kit", titles)
-        self.assertIn("BTL nhóm", titles)
-        self.assertIn("Việc nhanh gộp lại", titles)
-        self.assertNotIn("Bài 3 thí nghiệm", titles)  # hạn còn xa
-        starts = [parse_dt(b["start"]) for b in res["blocks"]]
-        self.assertEqual(starts, sorted(starts))
-        self.assertGreaterEqual(starts[0], parse_dt("2026-10-31T09:00+07:00"))  # sau buổi chạy
+        self.assertEqual(titles[0], "Việc nhanh")
+        self.assertIn("Bài 3 thí nghiệm", titles)
+        busy = tracking.all_items()
+        from lifeos.daymodel import profile, synthetic_events
+        busy += synthetic_events(profile(date(2026, 11, 3), self.cfg))
         for b in res["blocks"]:
             s, e = parse_dt(b["start"]), parse_dt(b["end"])
-            self.assertFalse(agenda.is_busy(tracking.all_items(), s, self.cfg), b)
-            self.assertLessEqual(e, parse_dt("2026-10-31T23:00+07:00"))
-        btl_block = next(b for b in res["blocks"] if b["title"] == "BTL nhóm")
-        self.assertEqual(btl_block["minutes"], 120)
-        self.assertIn("phiên đầu", btl_block["note"])
-        quick = next(b for b in res["blocks"] if b["title"] == "Việc nhanh gộp lại")
-        self.assertEqual({x["id"] for x in quick["items"]}, {"hoc:mail", "hoc:rep"})
+            self.assertGreaterEqual(s, parse_dt("2026-11-03T07:30+07:00"))
+            self.assertLessEqual(e, parse_dt("2026-11-03T23:00+07:00"))
+            self.assertFalse(agenda.is_busy(busy, s, self.cfg), b)
+            self.assertFalse(agenda.is_busy(busy, e - timedelta(minutes=1), self.cfg), b)
+        # ngày văn phòng cả ngày: tối đa 150 phút / 3 ô
+        self.assertLessEqual(res["planned_minutes"], 150)
+        self.assertLessEqual(len(res["blocks"]), 3)
+        self.assertTrue(any(u["why"].startswith("vượt giới hạn") for u in res["unplaced"]))
+        # việc công ty hạn T4 10:00 → để làm trong giờ văn phòng (T3 11:30–18:00), không chiếm giờ tối
+        self.assertIn("ct:task", [x["id"] for x in res["at_office"]])
+        self.assertNotIn("Gửi file test", titles)
+        rows = res["timeline"]
+        self.assertEqual(rows[0]["start"], "06:00")  # có lớp 07:00 → dậy trước 60 phút
+        quick = next(b for b in res["blocks"] if b["title"] == "Việc nhanh")
+        self.assertGreaterEqual(parse_dt(quick["start"]), parse_dt("2026-11-03T19:45+07:00"))
+        # việc học hạn ≤ 48h (bậc 2) được xếp trước việc công ty (bậc 3)
+        tiers = {b["title"]: b["tier"] for b in res["blocks"]}
+        self.assertEqual(tiers["Bài 3 thí nghiệm"], 2)
+        types = [r["type"] for r in res["timeline"]]
+        self.assertEqual(types[0], "wake")
+        self.assertIn("office", types)
+        self.assertIn("training", types)
 
-        tracking.plan_add(date(2026, 10, 31), "Lấy race kit", "10:00", "Mang CCCD", item_id="cn:kit")
-        again = planner.suggest(date(2026, 10, 31), 3, self.cfg, t=t)
-        self.assertNotIn("Lấy race kit", [b["title"] for b in again["blocks"]])
+    def test_exam_prep_sessions(self):
+        from lifeos import planner
+        items = tracking.all_items()
+        sessions = {}
+        for i in range(15):
+            day = date(2026, 11, 2) + timedelta(days=i)
+            for s in planner.prep_sessions(day, items, self.cfg):
+                sessions.setdefault(s["exam_id"], []).append((day, s))
+        final = sessions["hoc:final"]
+        self.assertEqual(len(final), 6)
+        self.assertEqual(final[-1][0], date(2026, 11, 15))
+        self.assertIn("nhẹ", final[-1][1]["title"])
+        self.assertEqual([s["_prep_tier"] for _, s in final], [4, 4, 4, 4, 2, 2])
+        self.assertNotIn("hoc:kt", sessions)  # kiểm tra 2/11 — cửa sổ ôn đã qua trước 2/11
+
+    def test_plan_saved_excluded_and_timeline(self):
+        from lifeos import planner
+        tue = date(2026, 11, 3)
+        tracking.plan_add(tue, "Bài 3 thí nghiệm", "20:30", "Mở file số liệu", item_id="hoc:bt", minutes=90)
+        res = planner.suggest(tue, self.cfg, t=parse_dt("2026-11-02T21:00+07:00"))
+        self.assertNotIn("Bài 3 thí nghiệm", [b["title"] for b in res["blocks"]])
+        rows = planner.timeline(tue, self.cfg)
+        plan_row = next(r for r in rows if r["type"] == "plan")
+        self.assertEqual((plan_row["start"], plan_row["end"]), ("20:30", "22:00"))
 
 
 if __name__ == "__main__":

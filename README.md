@@ -31,13 +31,15 @@ Bộ cài cho đội bot LifeOS chạy trên **Grok Bot**: sổ tay hướng d�
 
 | Giờ | Việc |
 |---|---|
-| 05:10 / 20:10 | Bot Zalo đọc Zalo |
-| 05:30 / 20:30 | Học tập, Công ty, Cá nhân quét đầy đủ |
-| 05:50 / 20:50 | Tiko kiểm tra sức khỏe, sửa sự cố |
-| **06:00 / 21:00** | **LifeOS báo cáo** (tối có kế hoạch nếu–thì cho ngày mai) |
+| 04:40 / 20:10 | Bot Zalo đọc Zalo |
+| 05:00 / 20:30 | Học tập, Công ty, Cá nhân quét đầy đủ |
+| 05:20 / 20:50 | Tiko kiểm tra sức khỏe, sửa sự cố |
+| **05:30** | **LifeOS báo cáo sáng** — nhắc lại kế hoạch đã chốt, chen việc gấp mới |
+| 07:00 | Tự áp dụng việc chen buổi sáng nếu Khôi chưa trả lời |
 | 11:30 · 14:30 · 17:30 | Quét nhẹ nguồn hay có việc gấp → có việc 🔴 mới thì LifeOS báo ngay |
+| **Chủ nhật 20:00** | **Kế hoạch tuần**: văn phòng T2–T7 (ghi Office lên lịch công ty khi Khôi "ok"), buổi tập, việc lớn + ảnh dashboard |
+| **21:00** | **LifeOS báo cáo tối** — tổng kết hôm nay + kế hoạch mai (dòng thời gian có giờ) |
 | 22:00 / 23:00 | Nhắc / tự áp dụng kế hoạch ngày mai nếu Khôi chưa trả lời |
-| Chủ nhật 21:00 | Báo cáo tuần + ảnh dashboard · ngày cuối tháng: báo cáo tháng |
 
 ## Cài đặt
 

@@ -15,7 +15,7 @@ Mục tiêu: **Khôi phải động tay ≤ 1 lần/tuần**, sự cố xử lý
 
 | Tên | Cron (giờ VN) | Nội dung routine |
 |---|---|---|
-| Kiểm tra sức khỏe sáng | `50 5 * * *` | "Kiểm tra sức khỏe LifeOS (mục Kiểm tra sức khỏe trong hướng dẫn Tiko)." |
+| Kiểm tra sức khỏe sáng | `20 5 * * *` | "Kiểm tra sức khỏe LifeOS (mục Kiểm tra sức khỏe trong hướng dẫn Tiko)." |
 | Kiểm tra sức khỏe tối | `50 20 * * *` | Như trên |
 | Dọn dẹp đêm | `15 2 * * *` | "`cd /workspace/lifeos-grok && python3 -m lifeos cleanup`, rồi `status tiko --type check --ok`." |
 | Báo cáo hệ thống tuần | `0 10 * * 0` | "Báo cáo hệ thống tuần cho Khôi (mục Báo cáo tuần)." |

@@ -94,9 +94,10 @@ def main(argv: list[str] | None = None) -> int:
     pa.add_argument("--auto", action="store_true", help="Tự áp dụng vì Khôi không trả lời tới 23:00")
     pl = ps.add_parser("list")
     pl.add_argument("--for", dest="for_day", default="today")
-    pg = ps.add_parser("suggest", help="Đề xuất việc + xếp giờ vào khung trống (báo cáo sáng/tối)")
+    pg = ps.add_parser("suggest", help="Đề xuất việc + xếp giờ vào khung trống, kèm dòng thời gian")
     pg.add_argument("--for", dest="for_day", default="today")
-    pg.add_argument("--max", type=int, default=3, help="Số việc chính tối đa")
+    pt = ps.add_parser("timeline", help="Dòng thời gian cả ngày (lịch cố định + kế hoạch đã lưu)")
+    pt.add_argument("--for", dest="for_day", default="today")
     pe = ps.add_parser("edit", help="Dời giờ (--at) hoặc bỏ (--remove) khối số n")
     pe.add_argument("n", type=int)
     pe.add_argument("--for", dest="for_day", default="today")
@@ -110,6 +111,32 @@ def main(argv: list[str] | None = None) -> int:
     pr.add_argument("status", choices=["done", "skipped", "moved"])
     pr.add_argument("--for", dest="for_day", default="today")
     pr.add_argument("--why")
+
+    s = sub.add_parser("week", help="Kế hoạch tuần: văn phòng + tập + việc lớn (CN 20:00)")
+    ws = s.add_subparsers(dest="action", required=True)
+    wp = ws.add_parser("propose")
+    wp.add_argument("--start", help="Thứ 2 của tuần (mặc định: Thứ 2 kế tiếp)")
+    ws.add_parser("show")
+    wset = ws.add_parser("set")
+    wset.add_argument("date")
+    wset.add_argument("--office", help="09:00-12:00 hoặc none")
+    wset.add_argument("--training", help="17:30-18:45 hoặc none")
+    wc = ws.add_parser("confirm")
+    wc.add_argument("--auto", action="store_true")
+    wcw = ws.add_parser("company-written", help="Đã ghi Office lên lịch công ty (cả tuần, hoặc --date)")
+    wcw.add_argument("--date")
+
+    s = sub.add_parser("calmap", help="Nhớ id sự kiện bot đã tạo trên lịch (để sửa/xóa đúng cái)")
+    cs = s.add_subparsers(dest="action", required=True)
+    c1 = cs.add_parser("set")
+    c1.add_argument("key", help="ví dụ office:2026-11-03, train:2026-11-03, plan:2026-11-03:2")
+    c1.add_argument("event_id")
+    c2 = cs.add_parser("get")
+    c2.add_argument("key")
+    c3 = cs.add_parser("del")
+    c3.add_argument("key")
+
+    s = sub.add_parser("page", help="Nội dung Grok Page LifeOS: Hôm nay · Tuần này · Hiệu suất")
 
     s = sub.add_parser("free", help="Khung trống trong ngày")
     s.add_argument("--date", default="today")
@@ -191,8 +218,10 @@ def main(argv: list[str] | None = None) -> int:
         day = _day(a.for_day)
         if a.action == "suggest":
             from . import planner
-            res = planner.suggest(day, a.max, cfg)
-            _print(res | {"date_label": vn_date(day)})
+            _print(planner.suggest(day, cfg) | {"date_label": vn_date(day)})
+        elif a.action == "timeline":
+            from . import planner
+            _print({"date": day.isoformat(), "date_label": vn_date(day), "timeline": planner.timeline(day, cfg)})
         elif a.action == "add":
             _print(tracking.plan_add(day, a.title, a.at, a.step, a.item_id, a.minutes, a.auto))
         elif a.action == "list":
@@ -204,10 +233,36 @@ def main(argv: list[str] | None = None) -> int:
             _print({"date": vn_date(day), "plans": tracking.plan_confirm(day, a.auto)})
         else:
             _print(tracking.plan_result(day, a.n, a.status, a.why))
+    elif a.cmd == "week":
+        from . import week
+        if a.action == "propose":
+            _print(week.propose(date.fromisoformat(a.start) if a.start else None, cfg))
+        elif a.action == "show":
+            _print(week.show())
+        elif a.action == "set":
+            _print(week.set_day(_day(a.date), a.office, a.training))
+        elif a.action == "confirm":
+            _print(week.confirm(a.auto))
+        else:
+            _print(week.mark_company_written(_day(a.date) if a.date else None))
+    elif a.cmd == "calmap":
+        cm = read_json(path("state", "calendar_map.json"), {}) or {}
+        if a.action == "set":
+            cm[a.key] = a.event_id
+        elif a.action == "del":
+            cm.pop(a.key, None)
+        if a.action != "get":
+            from .common import write_json
+            write_json(path("state", "calendar_map.json"), cm)
+        _print({"key": a.key, "event_id": cm.get(a.key)})
+    elif a.cmd == "page":
+        _print(dashboard.build_page(cfg))
     elif a.cmd == "free":
-        from . import agenda
+        from . import agenda, daymodel
         day = _day(a.date)
-        slots = agenda.free_slots(tracking.all_items(), day, cfg, a.min, not_before=now() if day == now().date() else None)
+        prof = daymodel.profile(day, cfg)
+        items = tracking.all_items() + daymodel.synthetic_events(prof)
+        slots = agenda.free_slots(items, day, cfg, a.min, not_before=now() if day == now().date() else None)
         _print({"date": vn_date(day), "slots": [{"from": f"{s:%H:%M}", "to": f"{e:%H:%M}",
                                                  "minutes": int((e - s).total_seconds() // 60)} for s, e in slots]})
     elif a.cmd == "remind-at":

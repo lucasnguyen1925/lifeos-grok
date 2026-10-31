@@ -2,18 +2,22 @@
 
 Mỗi bản ghi rõ **Tiko phải làm gì** khi cập nhật (skill `lifeos-cap-nhat`).
 
-## 0.2.0 — báo cáo "kế hoạch lên đầu" (31/10)
+## 0.2.0 — tính năng Kế hoạch + báo cáo mới (31/10)
 
 **Tiko làm:**
 1. Chép đè skill `lifeos-bao-cao` và `lifeos-chong-tri-hoan` vào `/home/box/agent-data/workflows/`.
-2. Gửi tin ưu tiên cho LifeOS: "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/lifeos.md (đọc toàn văn, thay hướng dẫn cũ). Thêm routine mới 'Tự áp dụng kế hoạch sáng' `40 6 * * *` (exact) đúng bảng Routine." Khôi có thể phải bấm duyệt thẻ thêm routine.
+2. Thêm các khóa mới từ `config/config.example.toml` vào `/workspace/lifeos/config.toml` (giữ giá trị Khôi đã điền): `[day]`, `[capacity]`, `[priority]`, `[office]`, `[training]`, `[exam_prep]`, `wake_before_first_class`; hỏi Khôi tên/địa điểm buổi chạy nhóm để điền `training.group_run_keyword`; đổi `[[schedule.protected]]` ăn trưa/ăn tối cũ → xóa (giờ ăn giờ nằm trong `[day]`); cập nhật `[health.expected]` và `[scan]` theo giờ mới.
+3. Gửi tin ưu tiên cho **từng bot** (LifeOS, Học tập, Công ty, Cá nhân, Zalo, và Tiko tự áp dụng): "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/<bot>.md, sửa routine đúng bảng Routine mới (exact)." Giờ mới: Zalo 04:40 · bot mảng 05:00 · Tiko 05:20 · LifeOS báo cáo 05:30, 07:00, CN 20:00 (mới). Khôi phải bấm duyệt thẻ sửa routine.
+4. Nhắc Khôi: Grok Page "LifeOS" (gộp trang Hiệu suất cũ) — LifeOS tạo một lần, ghim lại.
 
 Thay đổi:
-- Lệnh mới `plan suggest`: chọn việc cần làm (hạn ≤ 3 ngày, 🔴, cần trả lời) và xếp vào khung trống thật — không đè giờ học/làm/ăn, trước hạn chót, việc nhanh gộp một khối đầu ngày, việc dài chia phiên 2 tiếng.
-- Lệnh mới `plan edit` (dời giờ / bỏ khối).
-- Báo cáo sáng mở đầu bằng "HÔM NAY LÀM GÌ": khối có giờ + ▶ bước đầu; "ok" → Reminder + báo thức từng khối; im lặng tới 06:40 → tự áp dụng.
-- Báo cáo tối: tổng kết kế hoạch hôm nay (xong / chưa xong → dời, bỏ) + kế hoạch mai cùng định dạng.
-- Mỗi việc chỉ xuất hiện một lần trong báo cáo; xa hơn 3 ngày chỉ ghi số lượng.
+- `lifeos/daymodel.py`: mô hình một ngày (dậy/ngủ, văn phòng, tập, giờ ăn, giới hạn giờ).
+- `lifeos/week.py` + lệnh `week`: kế hoạch tuần (văn phòng quanh lịch học/thi, buổi tập theo giáo án, chạy nhóm thay buổi chạy, việc lớn, trùng lịch).
+- `lifeos/planner.py`: thang ưu tiên 6 bậc, giới hạn giờ mỗi ngày, buổi ôn thi tự chia, việc công ty để trong giờ văn phòng, dòng thời gian cả ngày. Lệnh `plan suggest`, `plan timeline`, `plan edit`.
+- Lệnh `calmap` (nhớ id sự kiện bot tạo), `page` (Grok Page: Hôm nay · Tuần này · Hiệu suất).
+- `remind-at` và `free` tính cả văn phòng, buổi tập, giờ ăn.
+- Mẫu báo cáo sáng/tối/kế hoạch tuần mới (skill `lifeos-bao-cao`), R4/R4c (skill `lifeos-chong-tri-hoan`).
+- Quyết định: SPEC §5b.
 
 ## 0.1.2 — cho phép tự giải CAPTCHA (31/10)
 

@@ -13,9 +13,10 @@ Vì sao có bạn: trước đây 3 bot cùng mở Zalo Web, mỗi bot một c�
 
 | Tên | Cron | Nội dung routine |
 |---|---|---|
-| Quét Zalo | `10 5,20 * * *` | "Đọc Zalo theo skill lifeos-zalo, ghi data/zalo.json, ghi nhịp tim." |
+| Quét Zalo sáng | `40 4 * * *` | "Đọc Zalo theo skill lifeos-zalo, ghi data/zalo.json, ghi nhịp tim." |
+| Quét Zalo tối | `10 20 * * *` | "Đọc Zalo theo skill lifeos-zalo, ghi data/zalo.json, ghi nhịp tim." |
 
-Chạy trước các bot mảng 20 phút để họ có dữ liệu mới.
+Chạy trước các bot mảng 20 phút để họ có dữ liệu mới (sáng 4:40 vì báo cáo sáng gửi lúc 5:30).
 
 ## Cách làm
 

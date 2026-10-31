@@ -23,7 +23,8 @@ Danh bạ iPhone: dùng để biết tên người gửi (điền `from` cho đ�
 
 | Tên | Cron | Nội dung routine |
 |---|---|---|
-| Quét đầy đủ | `30 5,20 * * *` | "Quét đầy đủ theo hướng dẫn Cá nhân." |
+| Quét đầy đủ sáng | `0 5 * * *` | "Quét đầy đủ theo hướng dẫn Cá nhân." |
+| Quét đầy đủ tối | `30 20 * * *` | "Quét đầy đủ theo hướng dẫn Cá nhân." |
 | Quét nhẹ | `30 11,14,17 * * *` | "Quét nhẹ theo hướng dẫn Cá nhân: chỉ 2 lịch cá nhân." |
 
 ## Quy trình quét

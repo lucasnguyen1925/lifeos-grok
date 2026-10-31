@@ -21,7 +21,8 @@ Sếp nội dung: **LifeOS** · Sếp kỹ thuật: **Tiko**. Bạn **không nh�
 
 | Tên | Cron | Nội dung routine |
 |---|---|---|
-| Quét đầy đủ | `30 5,20 * * *` | "Quét đầy đủ theo hướng dẫn Công ty." |
+| Quét đầy đủ sáng | `0 5 * * *` | "Quét đầy đủ theo hướng dẫn Công ty." |
+| Quét đầy đủ tối | `30 20 * * *` | "Quét đầy đủ theo hướng dẫn Công ty." |
 | Quét nhẹ | `30 11,14,17 * * *` | "Quét nhẹ theo hướng dẫn Công ty: chỉ mail + lịch công ty." |
 
 ## Quy trình quét

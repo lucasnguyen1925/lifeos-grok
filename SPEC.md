@@ -62,16 +62,36 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 
 | Giờ | Bot | Việc |
 |---|---|---|
-| 05:10 · 20:10 | Zalo | Đọc Zalo → `data/zalo.json` |
-| 05:30 · 20:30 | Học tập · Công ty · Cá nhân | Quét đầy đủ |
+| 04:40 · 20:10 | Zalo | Đọc Zalo → `data/zalo.json` |
+| 05:00 · 20:30 | Học tập · Công ty · Cá nhân | Quét đầy đủ |
 | 11:30 · 14:30 · 17:30 | Học tập · Công ty · Cá nhân | Quét nhẹ: BKeL + mail/lịch trường · mail/lịch công ty · lịch cá nhân |
-| 05:50 · 20:50 | Tiko | Kiểm tra sức khỏe, xử lý sự cố trước giờ báo cáo |
-| **06:00 · 21:00** | **LifeOS** | **Báo cáo** — 06:00: kế hoạch hôm nay có giờ lên đầu; 21:00: tổng kết, chốt sổ ngày, kế hoạch mai |
-| 06:40 | LifeOS | Khôi chưa "ok" kế hoạch sáng → tự áp dụng (đặt Reminder + báo thức) |
-| 22:00 · 23:00 | LifeOS | Nhắc xem kế hoạch mai · tự áp dụng nếu Khôi im lặng |
+| 05:20 · 20:50 | Tiko | Kiểm tra sức khỏe, xử lý sự cố trước giờ báo cáo |
+| **05:30** | **LifeOS** | **Báo cáo sáng** — nhắc lại kế hoạch đã chốt tối qua, chen việc gấp mới (chưa có kế hoạch → lên đầy đủ) |
+| 07:00 | LifeOS | Khôi chưa trả lời việc chen buổi sáng → tự áp dụng |
+| **CN 20:00** | **LifeOS** | **Kế hoạch tuần** + tổng kết tuần (ảnh dashboard) |
+| **21:00** | **LifeOS** | **Báo cáo tối** — tổng kết hôm nay, chốt sổ ngày, kế hoạch mai (dòng thời gian) |
+| 22:00 · 23:00 | LifeOS | Nhắc xem kế hoạch mai · tự áp dụng nếu Khôi im lặng (CN 23:00: tự áp dụng kế hoạch tuần, trừ lịch công ty) |
 | 02:15 | Tiko | Dọn dữ liệu quá hạn |
 | CN 10:00 | Tiko | Báo cáo hệ thống tuần |
-| CN 21:00 · ngày cuối tháng 21:00 | LifeOS | Báo cáo tuần / tháng + ảnh dashboard |
+| Ngày cuối tháng 21:00 | LifeOS | Báo cáo tháng + ảnh dashboard |
+
+## 5b. Kế hoạch (chốt 31/10/2026)
+
+| # | Quyết định |
+|---|---|
+| K1 | **Tối lên kế hoạch cho ngày mai, sáng chỉ nhắc lại** và chen việc gấp mới. Tối qua chưa có kế hoạch → sáng lên đầy đủ |
+| K2 | Kế hoạch gồm: việc có hạn · buổi ôn thi · gym/chạy · việc tự ghi. Việc công ty ưu tiên làm **trong giờ văn phòng**; chỉ xếp buổi tối khi hạn rơi trước buổi văn phòng kế tiếp |
+| K3 | **Thang ưu tiên:** 1 thi/lịch học · 2 việc học hạn ≤ 48h + 2 buổi ôn cuối · 3 văn phòng + việc công ty có hạn · 4 ôn tập, việc học còn xa · 5 gym/chạy · 6 đi chơi, bạn bè |
+| K4 | **Giờ giấc:** ngày gym dậy 5:30, ngày khác 7:00 (có lớp/thi sớm thì dậy trước 60'), ngủ muộn nhất 23:30 (tối trước hôm gym) / 24:00, không xếp việc 30' trước giờ ngủ · ăn trưa 12:00–13:00 · ăn tối 18:30–19:30 (ngày chạy tối: sau buổi chạy 15') · nghỉ 15' sau buổi tập |
+| K5 | **Giới hạn giờ 📝/ngày:** văn phòng ≥ 6h → 150' (3 ô) · văn phòng ít hơn → 240' (4 ô) · không lên công ty → 300' (5 ô) · Chủ nhật → 180' (3 ô). Việc 🔴 hạn hôm đó luôn được xếp |
+| K6 | **Ôn thi:** kiểm tra 3 buổi × 90' trong 5 ngày trước · thi cuối kỳ 6 buổi × 90' mỗi môn trong 14 ngày trước · buổi cuối nhẹ · 2 buổi cuối lên bậc 2 |
+| K7 | **Văn phòng T2–T7** đề xuất mỗi Chủ nhật (mặc định 9–18, trừ giờ học + di chuyển, ngày có thi/kiểm tra → nghỉ, khung < 4h → nghỉ) |
+| K8 | **Tập:** Gym PUSH T2 · PULL T4 · LEGS T6 (6:00–8:00) · Chạy INTERVAL T3 (75') · EASY T5 (60') · LONG RUN T7 (90') buổi tối (ngày văn phòng 18:15, ngày khác 17:00, dời sau sự kiện đè). Buổi chạy nhóm (từ khóa trong `config.toml`) đã nhận lời thay buổi EASY. Lỡ buổi không dồn. Tiêu đề chỉ ghi nhóm cơ/loại chạy |
+| K9 | **Hiển thị:** dòng thời gian cả ngày; chỉ ô 📝 có ▶ bước đầu + Reminder + báo thức; gym sáng có báo thức; không hiện giờ ăn |
+| K10 | **Lịch công ty:** Khôi "ok" kế hoạch tuần → LifeOS đặt **Working location = Office** đúng khung giờ (không mời ai, ngày nghỉ không ghi). Đổi trong tuần qua tin nhắn → sửa/xóa. **Im lặng thì không ghi lịch công ty** |
+| K11 | **Lịch "LifeOS"** (cá nhân): buổi tập + ô 📝 đã chốt (cả khi tự áp dụng vì im lặng) |
+| K12 | **Grok Page "LifeOS"**: Hôm nay · Tuần này · Hiệu suất — một link cố định, cập nhật sau mỗi lần kế hoạch đổi |
+| K13 | Trả lời một chữ: "ok" · "đổi 2 sang 15h" · "bỏ 3" · "xong 1" · "mai không lên công ty" |
 
 ## 6. Dữ liệu
 
@@ -124,7 +144,6 @@ Chi tiết: skill `lifeos-chong-tri-hoan`. Chẩn đoán: không bắt đầu đ
 | R1 | "Không có *để sau*, chỉ có *để lúc mấy giờ*" — kèm thời lượng ước tính + khung trống gần nhất |
 | R2 | Nhắc = **Reminder + báo thức Grok**, không bao giờ trong giờ học/làm (script `remind-at`); quiz/đăng ký nhắc khi mở → 24h → 3h |
 | R3 | Việc lớn cắt mốc, mỗi mốc có bước đầu ≤ 10 phút; việc nhóm hẹn tiến độ với người khác |
-| R4b | Sáng 06:00: "HÔM NAY LÀM GÌ" — script `plan suggest` chọn việc (hạn ≤ 3 ngày, 🔴, cần trả lời) và xếp vào khung trống thật; việc nhanh gộp một khối đầu ngày; mỗi khối có ▶ bước đầu; "ok" hoặc im lặng tới 06:40 → Reminder + báo thức |
 | R4 | Tối 21:00: tổng kết kế hoạch hôm nay; mai: 1 việc chính + khối việc nhanh (xếp bằng `plan suggest`), câu NẾU–THÌ; "ok" là xong; im lặng → 22:00 nhắc, 23:00 tự áp dụng |
 | R5 | Đăng ký môn: chuẩn bị danh sách trước, báo thức giờ mở cổng, Khôi tự bấm |
 | R6 | LifeOS viết nháp việc ngại; tin người quan trọng > 24h → tự soạn nháp (không gửi) |

@@ -23,91 +23,99 @@ python3 -m lifeos health      # đọc health.json
 
 Sau khi gửi xong: `python3 -m lifeos mark-reported` (để không bắn lại cảnh báo cho việc đã báo), rồi `status lifeos --type report --ok`.
 
-## Nguyên tắc chung của báo cáo sáng/tối
+## Nguyên tắc chung
 
-- **Kế hoạch lên đầu.** Khôi đọc xong 5 dòng đầu là biết làm gì, lúc mấy giờ. Phần "để biết" xuống dưới, ngắn.
-- **Mỗi việc chỉ xuất hiện một lần.** Việc đã nằm trong kế hoạch thì không lặp lại ở các mục khác.
-- **Mọi khối trong kế hoạch có ▶ bước đầu tiên ≤ 10 phút**, cụ thể đến mức không cần nghĩ (skill `lifeos-chong-tri-hoan`, R3). Viết động từ: "mở…", "trả lời…", "đọc…".
-- Giờ và thứ tự do script xếp (`plan suggest`) — được đổi chữ, **không tự đổi giờ** (trừ khi Khôi yêu cầu, hoặc biết chắc ràng buộc thực tế mà script không biết, ví dụ giờ mở cửa; khi đó chạy `free` để chọn giờ khác và nói lý do).
-- Lời khuyên thêm (ví dụ "hôm nay chạy nhẹ thôi") tối đa **1 dòng 💡**.
-- Tổng ≤ 25 dòng. Xa hơn 3 ngày chỉ ghi một dòng đếm.
+- **Tối lên kế hoạch cho ngày mai, sáng chỉ nhắc lại** và chen việc gấp mới. Tối qua chưa có kế hoạch (ngày đầu, hoặc Khôi bỏ qua cả tối) → sáng lên kế hoạch đầy đủ như buổi tối.
+- **Kế hoạch là dòng thời gian cả ngày**, lấy nguyên từ `timeline` của script: ⏰ dậy · 🏫 lớp/thi · 🏢 văn phòng · 🏋️/🏃 tập · 📌 sự kiện · 📝 việc. **Không hiện giờ ăn.**
+- **Chỉ ô 📝 có dòng ▶ bước đầu tiên ≤ 10 phút** (LifeOS viết, cụ thể, bắt đầu bằng động từ) và có Reminder + báo thức. Gym sáng cũng có báo thức.
+- Giờ và thứ tự do script xếp (thang ưu tiên, giờ dậy/ngủ, giới hạn giờ mỗi ngày) — **không tự đổi giờ**. Khôi muốn đổi thì `plan edit` / `free`.
+- Việc công ty trong `at_office` → ghi dưới dòng 🏢: "· việc công ty: …". Không xếp ô riêng.
+- `unplaced` → một dòng: "Không đủ giờ cho X — dời mai hay bỏ bớt Y?". `overload: true` → "Hôm nay quá tải, mai mình xếp nhẹ lại".
+- **Mỗi việc chỉ xuất hiện một lần.** Lời khuyên thêm tối đa 1 dòng 💡.
 
-## Mẫu báo cáo sáng (06:00)
+## ☀️ Báo cáo sáng (05:30)
 
-Thứ tự:
-
-1. `python3 -m lifeos digest`, `python3 -m lifeos health`.
-2. `python3 -m lifeos plan list --for today` — kế hoạch đã chốt tối qua (nếu có).
-3. `python3 -m lifeos plan suggest --for today --max 3` — việc còn lại (đã trừ việc trong kế hoạch tối qua) xếp vào khung trống.
-4. Viết báo cáo:
-
+1. `digest`, `health`, `plan timeline --for today`.
+2. **Đã có kế hoạch chốt tối qua:** chỉ cần kiểm tra việc 🔴 MỚI từ tối qua (`alerts`). Không có → báo cáo 2–3 dòng:
 ```
-☀️ <today_label> · <số khối> việc, rảnh ~<free_minutes_left/60> giờ
-
-🎯 HÔM NAY LÀM GÌ — trả lời "ok" là mình đặt nhắc cho từng việc
-1️⃣ 08:00–08:30 · Việc nhanh: trả lời bạn A (nhóm lớp) · trả lời B · đọc mail phòng khảo thí
-   ▶ Mở Zalo nhóm lớp, trả lời A trước
-2️⃣ 08:40–09:40 · 🔴 Nộp BTL môn X (hạn tối nay)
-   ▶ Mở file nhóm, đọc lại phần kết luận 10 phút
-3️⃣ 09:50–11:20 · 🔴 Đi nhận đồ đăng ký sự kiện (ngày cuối)
-   ▶ Bỏ CCCD + mã đăng ký vào túi
-   (khối đã chốt tối qua ghi thêm "✅ chốt tối qua")
-💡 <tối đa 1 dòng lời khuyên>
-
-📅 LỊCH CỐ ĐỊNH          ← schedule_today (học, làm, sự kiện) — mỗi dòng: giờ · tên · nơi
-⚠️ CẦN BẠN QUYẾT         ← tối đa 3: trùng lịch, lời mời chưa trả lời ("có 4 lời mời — nói 'xem lời mời'")
-📌 3 NGÀY TỚI            ← việc có hạn trong 3 ngày nhưng KHÔNG nằm trong kế hoạch hôm nay: 1 dòng/việc
-➕ Xa hơn: <N> việc — nói "xem tuần này"
-🔑 / ⚙️                  ← chỉ khi có vấn đề (needs_login, dữ liệu cũ)
+☀️ Thứ 3, 03/11 · đã chốt tối qua
+✅ Không có gì mới — khảo sát 8:00 → thí nghiệm 9:00 → văn phòng 13:00 → chạy 18:15
 ```
+   Có việc mới → `plan suggest --for today` và đề xuất chen:
+```
+🆕 Quiz 5 GT2 vừa mở, đóng 23:59 hôm nay · ~20 phút
+   → chen vào 10:40–11:00, "ok" không?
+```
+3. **Chưa có kế hoạch:** `plan suggest --for today` → gửi theo **mẫu dòng thời gian** (bên dưới), lưu từng ô 📝 bằng `plan add` (chưa chốt).
+4. Thứ 2: kế hoạch tuần chưa được "ok" → thêm dòng "📅 Lịch văn phòng tuần này chưa ghi lên lịch công ty — ok không?".
+5. 🔑 / ⚙️ chỉ khi có vấn đề.
 
-`plan suggest` trả về `unplaced` (không còn chỗ trống) → ghi 1 dòng: "Không đủ giờ cho X hôm nay — dời sang mai nhé?".
-Không có việc gì để xếp → "🎯 Hôm nay không có việc gấp — muốn mình xếp giờ cho việc gì không?".
+## 🌙 Báo cáo tối (21:00)
 
-### Khôi trả lời kế hoạch
+1. `digest` → `nightly --png` → `plan timeline --for today` (đối chiếu hôm nay) → `plan suggest --for mai`.
+2. Gửi:
+```
+🌙 Thứ 2, 02/11 · xong 3/4 việc trong kế hoạch 👏
+✅ Kiểm tra GT2 · trả lời nhóm thí nghiệm · đọc mail hoãn thi
+❓ Chưa xong: Bài 3 thí nghiệm — dời mai / bỏ / xong rồi?
+
+🎯 MAI — Thứ 3, 03/11 · "ok" là mình đặt nhắc
+06:00        ⏰ Dậy
+07:00–11:00  🏫 Lớp XSTK (H6-304)
+11:30–18:00  🏢 Văn phòng · việc công ty: gửi file test (hạn T4 10:00)
+18:15–19:30  🏃 Chạy: INTERVAL
+20:30–20:40  📝 Việc nhanh: trả lời A · làm 1 khảo sát học phần
+             ▶ Mở Zalo nhóm thí nghiệm, trả lời A trước
+20:50–22:20  📝 Bài 3 thí nghiệm MA3020
+             ▶ Mở file số liệu, kẻ bảng kết quả 10 phút
+Không đủ giờ cho "Báo cáo dài" — để T4 nhé?
+
+📌 Mới hoặc đổi hôm nay: …
+🗒️ Tự khai (tùy chọn): "năng lượng 1–5"
+```
+3. Ngay khi gửi: lưu từng ô 📝 bằng `plan add --for mai …` (chưa chốt). Việc Khôi chọn "dời mai" → `plan suggest` xếp ưu tiên (đã nằm trong candidates).
+4. Chủ nhật/cuối tháng: gửi kèm **ảnh dashboard** + 3 dòng nhận xét. Ghi nhận xét vào file `context/…md`.
+
+## Khôi trả lời kế hoạch (sáng, tối)
 
 | Khôi nói | Làm |
 |---|---|
-| *(ngay khi gửi báo cáo)* | **Lưu kế hoạch (chưa chốt)**: với từng khối `plan add --for today --title … --at <giờ bắt đầu> --step "<▶ bước đầu>" --minutes … [--id …]`. Số thứ tự `n` trùng số 1️⃣ 2️⃣ 3️⃣ trong tin. |
-| "ok" | `plan confirm --for today` → với từng khối tạo **Reminder + báo thức Grok** đúng giờ bắt đầu (kiểm qua `remind-at`), tên = "▶ bước đầu · N phút". Trả lời một dòng: "Đặt nhắc xong 3 việc ✅". |
-| "đổi 2 sang 15h" / "bỏ 3" | Giờ mới kiểm bằng `free` → `plan edit 2 --at 15:00` / `plan edit 3 --remove` → gửi lại kế hoạch rút gọn, chờ "ok". |
-| "thêm <việc> lúc <giờ>" | `plan add …` → gửi lại kế hoạch rút gọn, chờ "ok". |
-| "xong 1" / "xong <việc>" | `done "<việc>"` + `plan result <n> done`. |
-| Không trả lời | Routine 06:40: `plan confirm --for today --auto` + Reminder + báo thức cho các khối đã lưu. Không nhắn thêm. |
+| "ok" | `plan confirm --for <ngày>` → mỗi ô 📝: **Reminder + báo thức Grok** đúng giờ bắt đầu (kiểm `remind-at`), tên "▶ bước đầu · N phút" → ghi ô 📝 lên **lịch "LifeOS"** (`calmap set plan:<ngày>:<n> <id>`) → `page` + cập nhật Grok Page → "Đặt nhắc xong ✅". |
+| "đổi 2 sang 15h" / "bỏ 3" | Kiểm giờ bằng `free` → `plan edit 2 --at 15:00` / `plan edit 3 --remove` → gửi lại phần 🎯 rút gọn. Đã chốt trước đó → sửa luôn Reminder/báo thức/sự kiện LifeOS (lấy id từ `calmap get`). |
+| "thêm <việc> lúc <giờ>" | `plan add …` → gửi lại phần 🎯 rút gọn. |
+| "xong 2" / "xong <việc>" | `done "<việc>"` + `plan result 2 done` → `page`. |
+| Im lặng (tối) | 22:00 nhắc 1 dòng + báo thức "Xem kế hoạch mai · 1 phút". 23:00: `plan confirm --for mai --auto` + nhắc + lịch LifeOS, không nhắn. |
+| Im lặng (sáng, khi có đề xuất chen việc) | 07:00: tự áp dụng như "ok", không nhắn. |
 
-Trong ngày, mỗi khối tới giờ thì báo thức reo. Qua giờ kết thúc mà chưa "xong" → không nhắc lại; báo cáo tối sẽ hỏi.
+## 📅 Kế hoạch tuần (Chủ nhật 20:00)
 
-## Mẫu báo cáo tối (21:00)
-
-Thứ tự:
-
-1. `python3 -m lifeos digest` → `python3 -m lifeos nightly --png`.
-2. `python3 -m lifeos plan list --for today` — đối chiếu kế hoạch hôm nay.
-3. `python3 -m lifeos plan suggest --for mai --max 1` — 1 việc chính + khối việc nhanh cho mai (R4).
-4. Viết báo cáo:
-
+1. `digest` → `week propose` (cho tuần bắt đầu Thứ 2 tới) → đọc `history`/`context` tuần này cho phần tổng kết.
+2. Gửi:
 ```
-🌙 <today_label> · xong <a>/<b> việc trong kế hoạch
+📅 Tuần 2–7/11 · tuần này xong 18/22 việc (82%) · ảnh dashboard ⬇️
 
-✅ ĐÃ XONG             ← done_titles hôm nay — ghi nhận, 1 dòng
-❓ CHƯA XONG           ← khối kế hoạch chưa xong: "dời mai / bỏ / xong rồi?" — hỏi nhẹ, KHÔNG trách
-                          (Khôi nói lý do → plan result <n> skipped --why "…")
+🏢 VĂN PHÒNG (sếp sẽ thấy trên lịch công ty)
+  T2 nghỉ (có kiểm tra) · T3 11:30–18:00 (sau giờ học) · T4 9–18 · T5 9–18 · T6 9–18 · T7 9–18
+🏋️ TẬP
+  T2 Gym: PUSH 6:00 · T3 Chạy: INTERVAL 18:15 · T4 Gym: PULL 6:00
+  T5 Chạy nhóm 18:00 · T6 Gym: LEGS 6:00 · T7 Chạy: LONG RUN 18:15
+📚 VIỆC LỚN: Kiểm tra GT2 (T2) · Bài 3 thí nghiệm (T3) · 6 khảo sát (hạn 9/11)
+⚠️ T5 12/11: sinh nhật Lab trùng chạy nhóm → gợi ý đi sinh nhật Lab
 
-🎯 MAI (<tomorrow_label>) LÀM GÌ — "ok" là mình đặt nhắc
-1️⃣ <giờ> · <việc chính>
-   ▶ NẾU <giờ> ở <nơi> THÌ <bước đầu ≤ 10 phút>
-2️⃣ <giờ> · Việc nhanh: …
-   (việc Khôi chọn "dời mai" được đưa vào đây trước)
-
-📅 LỊCH CỐ ĐỊNH MAI    ← schedule_tomorrow
-📌 MỚI HOẶC ĐỔI HÔM NAY ← việc mới xuất hiện / bị đổi hạn trong ngày (chưa báo)
-🗒️ Tự khai (tùy): "pháp <phút>, năng lượng <1–5>"
+"ok" là mình ghi lịch · hoặc sửa: "T4 lên 9–12", "bỏ gym T6"
 ```
+   Dòng văn phòng lấy từ `days.*.office` / `office_note`; tập từ `training`; cảnh báo từ `conflicts` + `notes` — gợi ý theo thang ưu tiên (học > làm > tập > đi chơi), Khôi quyết.
+3. Khôi sửa → `week set <ngày> --office 09:00-12:00|none` / `--training none|17:30-18:45` → gửi lại phần đã đổi.
+4. **"ok"** → `week confirm` → với mỗi ngày:
+   - **Lịch công ty** (trình duyệt, tài khoản công ty — phiên do bot Công ty giữ; bị đăng xuất → nhờ bot Công ty đăng nhập lại trước): đặt **Working location = Office** đúng khung giờ. Không mời ai. Ngày nghỉ văn phòng: không ghi. Chỉ sửa/xóa mục Office do LifeOS tạo (`calmap set office:<ngày> <id>`). Xong → `week company-written`.
+   - **Lịch "LifeOS"** (Google Calendar cá nhân): tạo sự kiện buổi tập với tiêu đề đúng nhãn ("Gym: PUSH", "Chạy: INTERVAL"…), không ghi chi tiết bài tập (`calmap set train:<ngày> <id>`). Chạy nhóm đã có trên lịch → không tạo thêm.
+   - `page` → cập nhật Grok Page.
+5. **Im lặng:** 23:00 Chủ nhật → `week confirm --auto` + ghi buổi tập lên lịch "LifeOS". **KHÔNG ghi lịch công ty** cho tới khi Khôi "ok" (báo cáo sáng T2 hỏi lại).
+6. Trong tuần Khôi nói "mai không lên công ty" / "T5 lên 13h–18h" → `week set …` → sửa/xóa mục Office trên lịch công ty (tin nhắn của Khôi là lời duyệt) → `plan suggest` lại cho ngày đó nếu là hôm nay/mai.
 
-Khôi trả lời kế hoạch mai giống bảng ở báo cáo sáng (dùng `--for mai`). Im lặng → 22:00 nhắc, 23:00 tự áp dụng (R4).
+## Grok Page "LifeOS"
 
-5. Thứ 6: thêm câu "Mai có lên công ty không?" chỉ khi có việc công ty còn dở.
-6. Chủ nhật / cuối tháng: thêm phần tuần / tháng (bên dưới) và **gửi kèm ảnh** `/workspace/lifeos/dashboard/dashboard.png`. Cập nhật Grok Page "LifeOS · Hiệu suất" từ `dashboard/page.md`.
+Một Page duy nhất, link cố định, ghim sẵn. Nội dung lấy từ `dashboard/page.md` (lệnh `page` dựng lại phần Hôm nay + Tuần này; `nightly` dựng lại cả phần Hiệu suất). Cập nhật sau mỗi lần: báo cáo 05:30 và 21:00, Khôi "ok"/sửa kế hoạch, "xong" một việc, kế hoạch tuần.
 
 ## Cảnh báo 🔴 giữa ngày
 
@@ -122,18 +130,18 @@ Nhận tin ưu tiên từ bot mảng → `python3 -m lifeos digest` → `python3
   rồi `python3 -m lifeos alerts --mark <các id vừa gửi>`.
 - Việc quiz/đăng ký còn ≤ 3 giờ chưa làm → **tự đặt Reminder + báo thức** (đã được Khôi cấp quyền), giờ lấy từ `remind-at`.
 
-## Báo cáo tuần (Chủ nhật 21:00) và tháng
+## Tổng kết tuần (trong tin Chủ nhật 20:00) và tháng
 
-`nightly` đã tạo `context/weekly/<năm>-W<tuần>.md` (hoặc `context/monthly/<năm>-<tháng>.md`) có sẵn bảng chỉ số so với kỳ trước.
+Chủ nhật 20:00, trước khi gửi kế hoạch tuần: chạy `nightly --png` (chốt sổ hôm nay + chốt tuần + dựng dashboard; 21:00 chạy lại cũng không sao). Ngày cuối tháng 21:00: `nightly` tự chốt tháng.
 
-1. Đọc file đó + file tuần/tháng trước.
-2. **Viết vào mục "Nhận xét của LifeOS"** trong file .md (thay dòng chú thích): 3 điểm sáng · 3 điểm cần cải thiện · 3 đề xuất cụ thể cho kỳ tới · việc lớn đang dở cần nhớ. Dựa trên số liệu và lý do bỏ kế hoạch Khôi đã nói — không bịa.
-3. Gửi Khôi bản rút gọn (≤ 15 dòng) + ảnh dashboard.
-4. Chủ nhật: kèm câu hỏi WOOP (skill `lifeos-chong-tri-hoan`, R10).
+1. Đọc `context/weekly/<năm>-W<tuần>.md` (hoặc `context/monthly/…`) + kỳ trước.
+2. **Viết vào mục "Nhận xét của LifeOS"** trong file .md: 3 điểm sáng · 3 điểm cần cải thiện · 3 đề xuất cho kỳ tới · việc lớn đang dở. Dựa trên số liệu và lý do bỏ kế hoạch Khôi đã nói — không bịa.
+3. Trong tin: **1 dòng tổng kết** ("tuần này xong 18/22 việc (82%)") + **ảnh dashboard**. Khôi muốn đọc thêm → gửi phần nhận xét.
+4. Chủ nhật: kèm câu hỏi WOOP (skill `lifeos-chong-tri-hoan`, R10) ở cuối tin kế hoạch tuần.
 
-File tuần/tháng là **trí nhớ dài hạn** của LifeOS: khi Khôi hỏi về tuần trước/tháng trước, đọc các file này trước.
+File tuần/tháng là **trí nhớ dài hạn** của LifeOS: Khôi hỏi về tuần trước/tháng trước → đọc các file này trước.
 
 ## Dashboard
 
-- Grok Page "LifeOS · Hiệu suất": tạo một lần, sau đó mỗi tối 21:00 cập nhật nội dung từ `dashboard/page.md`. Không tạo trang mới mỗi ngày.
+- Nằm trong Grok Page "LifeOS" (phần Hiệu suất) — không tạo trang riêng.
 - Khôi nhắn "cho xem dashboard" → `python3 -m lifeos dashboard --png` rồi gửi ảnh.

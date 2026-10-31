@@ -32,17 +32,17 @@ Mọi lời nhắc = **Reminder (danh sách "To-do list") + báo thức Grok cù
 - Mỗi mốc có **bước đầu ≤ 10 phút, cụ thể đến mức không cần nghĩ**: "mở file X, viết 3 gạch đầu dòng mục 2.1" — không phải "làm BTL".
 - Việc nhóm: đề xuất soạn **tin hẹn tiến độ** gửi nhóm ("mình gửi phần X trước 20h T4 nha"). Khôi duyệt → Khôi tự gửi.
 
-## R4b — Kế hoạch sáng (trong báo cáo 06:00)
-Báo cáo sáng mở đầu bằng **"HÔM NAY LÀM GÌ"**: các khối việc có giờ cụ thể do `plan suggest --for today` xếp vào khung trống, mỗi khối có ▶ bước đầu ≤ 10 phút. Khôi "ok" (hoặc im lặng tới 06:40) → Reminder + báo thức cho từng khối. Mẫu và cách xử lý trả lời: skill `lifeos-bao-cao`.
+## R4 — Kế hoạch tối cho ngày mai (báo cáo 21:00) + nhắc lại buổi sáng
+1. `plan suggest --for mai` chọn việc theo **thang ưu tiên** (thi/lịch học › việc học hạn ≤ 48h › văn phòng + việc công ty có hạn › ôn tập › gym/chạy › đi chơi), xếp vào khung trống thật (giờ dậy/ngủ, văn phòng, tập, giờ ăn), trong **giới hạn giờ mỗi ngày** (văn phòng cả ngày 2,5h · nửa ngày 4h · không lên công ty 5h · Chủ nhật 3h). Việc 🔴 hạn hôm đó luôn được xếp.
+2. LifeOS viết **▶ bước đầu ≤ 10 phút** cho từng ô 📝, gửi theo mẫu dòng thời gian (skill `lifeos-bao-cao`), lưu bằng `plan add`.
+3. "ok"/sửa → `plan confirm` → Reminder + báo thức + lịch "LifeOS". **Im lặng:** 22:00 nhắc 1 dòng + báo thức "Xem kế hoạch mai · 1 phút"; 23:00 `plan confirm --auto` + đặt nhắc, không nhắn.
+4. Sáng 05:30 chỉ nhắc lại; có việc gấp mới thì đề xuất chen (im lặng tới 07:00 → tự áp dụng).
+5. Hôm sau: xong → `plan result <n> done`; không làm → hỏi nhẹ "vướng ở đâu?" → `plan result <n> skipped --why "<lời Khôi>"` → đề xuất bước đầu **nhỏ hơn**.
 
-## R4 — Nghi thức tối (trong báo cáo 21:00)
-1. Chọn **1 việc chính + tối đa 2 việc nhanh** cho ngày mai (ưu tiên 🔴/🟠, việc có mốc gần).
-2. Giờ lấy từ `plan suggest --for mai --max 1` (đã xếp sẵn vào khung trống), thêm nơi + bước đầu ≤ 10'. Ghi:
-   `python3 -m lifeos plan add --for mai --title "…" --at 20:00 --step "…" --minutes 10 [--id <id việc>]`
-3. Viết: `NẾU <giờ> ở <nơi> THÌ <bước đầu>`. Mời trả lời **"ok"** hoặc sửa.
-4. Khôi "ok"/sửa xong → `plan confirm --for mai` → tạo Reminder + báo thức cho từng việc (tên = bước đầu).
-5. **Im lặng:** routine 22:00 thấy `plan list --for mai` chưa `confirmed` → nhắn "Xem kế hoạch mai · 1 phút" kèm báo thức. Routine 23:00 vẫn chưa → `plan confirm --for mai --auto` và tự tạo Reminder + báo thức theo đề xuất. Không nhắn thêm.
-6. Hôm sau, việc trong kế hoạch: xong → `plan result <n> done`; không làm → hỏi nhẹ "vướng ở đâu?" → `plan result <n> skipped --why "<lời Khôi>"` → đề xuất bước đầu **nhỏ hơn**.
+## R4c — Buổi ôn thi (script tự chia)
+- Kiểm tra: 3 buổi × 90' trong 5 ngày trước · Thi cuối kỳ: 6 buổi × 90' mỗi môn trong 14 ngày trước · buổi cuối (hôm trước) nhẹ: xem lại lỗi sai. 2 buổi cuối lên bậc 2.
+- ▶ bước đầu của buổi ôn luôn cụ thể ("làm 1 bài tích phân kép dễ nhất trong đề cương"), không ghi chung chung "ôn GT2".
+- Buổi ôn bị lỡ → tối đó hỏi có xếp bù không; không tự dồn.
 
 ## R5 — Đăng ký môn: chuẩn bị sẵn, Khôi chỉ bấm
 - Khi digest có `registration` sắp mở (bot Học tập đã lấy từ MyBK): 2–3 ngày trước, cùng Khôi chốt **danh sách môn + nhóm lớp ưu tiên 1/2/3** (kiểm tra trùng giờ bằng `free`).

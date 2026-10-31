@@ -206,7 +206,8 @@ def all_items() -> list[dict[str, Any]]:
 
 def remind_at(wanted: datetime, cfg: dict[str, Any], minutes: int = 15) -> dict[str, Any]:
     """Giờ đặt Reminder + báo thức. Rơi vào giờ học/làm thì dời sang 5 phút sau khi rảnh (quy tắc R2)."""
-    items = all_items()
+    from .daymodel import profile, synthetic_events
+    items = all_items() + synthetic_events(profile(wanted.date(), cfg))
     if not agenda.is_busy(items, wanted, cfg):
         return {"at": iso(wanted), "label": vn_datetime(wanted), "moved": False}
     slots = agenda.free_slots(items, wanted.date(), cfg, min_minutes=minutes, not_before=wanted)

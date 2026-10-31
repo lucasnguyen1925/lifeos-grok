@@ -138,7 +138,7 @@ h1{{font-size:22px;margin:0 0 2px}} .sub{{color:{MUTED};font-size:13px;margin-bo
 </main></body></html>"""
     out_dir = path("dashboard")
     write_text(out_dir / "index.html", doc)
-    write_text(out_dir / "page.md", _page_markdown(t, this_week, last_week, days))
+    write_text(out_dir / "page.md", _page_markdown(t, this_week, last_week, days, cfg or {}))
 
     result: dict[str, Any] = {"html": str(out_dir / "index.html"), "page_md": str(out_dir / "page.md")}
     if png:
@@ -146,9 +146,59 @@ h1{{font-size:22px;margin:0 0 2px}} .sub{{color:{MUTED};font-size:13px;margin-bo
     return result
 
 
-def _page_markdown(t, this_week, last_week, days) -> str:
+def build_page(cfg: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Chỉ dựng lại page.md (gọi mỗi khi kế hoạch đổi: sau "ok", dời giờ, 5:30, 21:00)."""
+    t = now()
+    today = t.date()
+    days = _load_days(today - timedelta(days=13), today)
+    week_start = today - timedelta(days=today.weekday())
+    this_week = summarize(_load_days(week_start, today))
+    last_week = summarize(_load_days(week_start - timedelta(days=7), week_start - timedelta(days=1)))
+    out = path("dashboard", "page.md")
+    write_text(out, _page_markdown(t, this_week, last_week, days, cfg or {}))
+    return {"page_md": str(out)}
+
+
+def _today_section(t, cfg) -> list[str]:
+    from .planner import timeline
+    from .common import vn_date
+    rows = timeline(t.date(), cfg)
+    lines = [f"## Hôm nay — {vn_date(t)}", ""]
+    for r in rows:
+        when = f"{r['start']}–{r['end']}" if r.get("end") else r["start"]
+        mark = " ✅" if r.get("status") == "done" else (" ⏭️" if r.get("status") in {"skipped", "moved"} else "")
+        lines.append(f"- **{when}** {r['icon']} {r['title']}{mark}")
+        if r.get("first_step") and r.get("status") not in {"done"}:
+            lines.append(f"  - ▶ {r['first_step']}")
+    return lines + [""]
+
+
+def _week_section() -> list[str]:
+    from .week import show
+    wk = show()
+    if not wk.get("days"):
+        return ["## Tuần này", "", "_Chưa có kế hoạch tuần (lập vào 20:00 Chủ nhật)._", ""]
+    status = "✅ đã chốt" if wk.get("confirmed") else "⏳ chờ Khôi duyệt"
+    lines = [f"## Tuần này ({status})", "", "| Ngày | Văn phòng | Tập |", "|---|---|---|"]
+    for d in wk["days"].values():
+        office = "–".join(d["office"]) if d.get("office") else (d.get("office_note") or "—")
+        tr = d.get("training")
+        train = f"{tr['label']} {tr['start']}" if tr else "—"
+        lines.append(f"| {d['label']} | {office} | {train} |")
+    if wk.get("big_items"):
+        lines += ["", "**Việc lớn:** " + " · ".join(f"{b['title']} ({b.get('due_label') or ''})" for b in wk["big_items"])]
+    return lines + [""]
+
+
+def _page_markdown(t, this_week, last_week, days, cfg) -> str:
     """Nội dung cho Grok Page (Page không nhận nguyên file HTML — bot dựng lại từ nội dung này)."""
-    lines = ["# LifeOS · Hiệu suất", f"_Cập nhật {vn_datetime(t)}_", "", "## Tuần này so với tuần trước", "",
+    lines = ["# LifeOS", f"_Cập nhật {vn_datetime(t)}_", ""]
+    try:
+        lines += _today_section(t, cfg)
+    except Exception as exc:  # Page vẫn phải dựng được dù thiếu dữ liệu ngày
+        lines += ["## Hôm nay", "", f"_Chưa dựng được: {exc}_", ""]
+    lines += _week_section()
+    lines += ["## Hiệu suất — tuần này so với tuần trước", "",
              "| Chỉ số | Tuần này | Tuần trước |", "|---|---|---|"]
     for key, label in LABELS.items():
         cur, prev = this_week.get(key), last_week.get(key) if last_week["days_recorded"] else None

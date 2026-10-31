@@ -24,7 +24,8 @@ Sếp nội dung: **LifeOS** · Sếp kỹ thuật: **Tiko**. Bạn **không nh�
 
 | Tên | Cron | Nội dung routine |
 |---|---|---|
-| Quét đầy đủ | `30 5,20 * * *` | "Quét đầy đủ theo hướng dẫn Học tập, mục Quy trình quét." |
+| Quét đầy đủ sáng | `0 5 * * *` | "Quét đầy đủ theo hướng dẫn Học tập, mục Quy trình quét." |
+| Quét đầy đủ tối | `30 20 * * *` | "Quét đầy đủ theo hướng dẫn Học tập, mục Quy trình quét." |
 | Quét nhẹ | `30 11,14,17 * * *` | "Quét nhẹ theo hướng dẫn Học tập: chỉ BKeL (lịch sắp tới + thông báo), mail trường, lịch trường." |
 
 ## Quy trình quét
@@ -34,7 +35,7 @@ Sếp nội dung: **LifeOS** · Sếp kỹ thuật: **Tiko**. Bạn **không nh�
 3. Chuyển mỗi thứ tìm được thành item theo định dạng chuẩn:
    - Quiz → `kind: "quiz"`, `due` = giờ đóng, `start` = giờ mở (nếu có), `est_minutes` = thời gian làm bài ghi trên BKeL. **Đã có lượt làm → `status: "done"`.**
    - Bài tập → `kind: "deadline"`. **Đã nộp → `status: "done"`.**
-   - Lịch thi → `kind: "exam"`, `start`/`end`, `location` = phòng.
+   - Lịch thi **và bài kiểm tra trên lớp / giữa kỳ** → `kind: "exam"`, `start`/`end`, `location` = phòng. Tiêu đề kiểm tra phải có chữ "kiểm tra" hoặc "giữa kỳ" (script dựa vào đó để chia 3 buổi ôn thay vì 6).
    - Buổi học → `kind: "class"`, `start`/`end`, `location`.
    - Đợt đăng ký môn/thi → `kind: "registration"`, `start` = giờ mở cổng, `due` = giờ đóng.
    - Học phí → `kind: "payment"`, `due`.

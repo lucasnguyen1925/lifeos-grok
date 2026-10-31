@@ -40,15 +40,62 @@ travel_kinds = ["class", "exam", "work_shift"]
 focus_default_minutes = 30
 reminder_lead_minutes = 5        # nhắc sau khi tan học/tan làm bao nhiêu phút
 
-[[schedule.protected]]
-from = "11:30"
-to = "12:30"
-label = "ăn trưa"
+# Giờ ăn, giờ dậy/ngủ, văn phòng, tập luyện: xem [day], [office], [training] bên dưới.
+# Các khung bảo vệ thêm (nếu có) khai báo dạng:
+# [[schedule.protected]]
+# from = "12:00"
+# to = "13:00"
+# label = "..."
 
-[[schedule.protected]]
-from = "18:30"
-to = "19:30"
-label = "ăn tối"
+# ---------- Một ngày của Khôi (dùng để xếp kế hoạch) ----------
+[day]
+wake_gym = "05:30"            # ngày có gym sáng
+wake_normal = "07:00"
+first_task_after_wake = 30    # phút từ lúc dậy tới việc đầu tiên (ngày không gym)
+wake_before_first_class = 60  # có lớp/thi sớm thì dậy trước giờ đó ít nhất 60 phút
+first_task_after_gym = 15     # phút sau buổi gym tới việc đầu tiên
+bedtime = "24:00"             # ngủ muộn nhất
+bedtime_before_gym = "23:30"  # tối trước hôm gym (ngủ đủ 6 tiếng)
+wind_down_minutes = 30        # không xếp việc trong 30 phút trước giờ ngủ
+lunch = ["12:00", "13:00"]
+dinner = ["18:30", "19:30"]   # ngày có chạy tối: ăn sau buổi chạy 15 phút, 45 phút
+dinner_after_run_minutes = 45
+
+# Giới hạn giờ việc 📝 mỗi ngày (không tính lớp học, văn phòng, tập luyện)
+[capacity]
+office_full = { minutes = 150, blocks = 3 }   # văn phòng ≥ 6 tiếng
+office_half = { minutes = 240, blocks = 4 }
+no_office   = { minutes = 300, blocks = 5 }
+sunday      = { minutes = 180, blocks = 3 }
+
+# Thang ưu tiên (1 cao nhất): 1 thi/lịch học · 2 việc học hạn ≤48h · 3 văn phòng + việc công ty có hạn
+# · 4 ôn tập, việc học còn xa · 5 gym/chạy · 6 đi chơi, bạn bè
+[priority]
+academic_urgent_hours = 48
+
+# ---------- Văn phòng (đề xuất mỗi Chủ nhật, Khôi duyệt) ----------
+[office]
+days = [1, 2, 3, 4, 5, 6]     # 1 = Thứ 2 … 6 = Thứ 7
+hours = ["09:00", "18:00"]
+min_hours = 4                 # khung trống ít hơn thì đề xuất nghỉ văn phòng ngày đó
+company_calendar_title = "Office"   # ghi bằng Working location = Office trên lịch công ty
+
+# ---------- Tập luyện (bot tạo lịch mỗi Chủ nhật trên lịch "LifeOS") ----------
+[training]
+gym_time = ["06:00", "08:00"]
+gym = { 1 = "Gym: PUSH", 3 = "Gym: PULL", 5 = "Gym: LEGS" }
+run = { 2 = "Chạy: INTERVAL", 4 = "Chạy: EASY", 6 = "Chạy: LONG RUN" }
+run_minutes = { 2 = 75, 4 = 60, 6 = 90 }
+run_start_office_day = "18:15"
+run_start_free_day = "17:00"
+run_latest_end = "21:00"
+group_run_keyword = ""   # tên/địa điểm buổi chạy nhóm (Tiko hỏi Khôi). Có sự kiện chứa chữ này (đã nhận lời) trong ngày chạy → thay buổi chạy đó
+
+# ---------- Ôn thi ----------
+[exam_prep]
+test = { sessions = 3, minutes = 90, days_before = 5, keywords = ["kiểm tra", "giữa kỳ", "giữa kì", "midterm"] }
+final = { sessions = 6, minutes = 90, days_before = 14 }
+urgent_last_sessions = 2      # 2 buổi cuối lên bậc 2
 
 # ---------- Nhịp chạy (Tiko dùng để biết bot nào trễ) ----------
 [health]
@@ -56,14 +103,14 @@ grace_minutes = 45
 source_red_hours = 36
 
 [health.expected]   # giờ các lần chạy ĐẦY ĐỦ của từng bot
-zalo = ["05:10", "20:10"]
-hoctap = ["05:30", "20:30"]
-congty = ["05:30", "20:30"]
-canhan = ["05:30", "20:30"]
-lifeos = ["06:00", "21:00"]
+zalo = ["04:40", "20:10"]
+hoctap = ["05:00", "20:30"]
+congty = ["05:00", "20:30"]
+canhan = ["05:00", "20:30"]
+lifeos = ["05:30", "21:00"]
 
 [scan]
-full = ["05:30", "20:30"]
+full = ["05:00", "20:30"]
 light = ["11:30", "14:30", "17:30"]
 
 # ---------- Lưu trữ (ngày & tuần 90 ngày, Zalo thô 7 ngày, tháng giữ lâu dài) ----------
