@@ -284,7 +284,7 @@ class Planner(Base):
         kit = item(id="cn:kit", domain="canhan", kind="task", title="Lấy race kit", due="2026-10-31", est_minutes=90)
         btl = item(id="hoc:btl", kind="deadline", title="BTL nhóm", due="2026-10-31T22:00+07:00", est_minutes=180)
         mail = item(id="hoc:mail", kind="notice", title="Đọc mail hoãn thi")
-        reply = item(id="hoc:rep", kind="message", title="Trả lời Hào", needs_reply=True)
+        reply = item(id="hoc:rep", kind="message", title="Trả lời bạn A", needs_reply=True)
         later = item(id="hoc:later", kind="deadline", title="Bài 3 thí nghiệm", due="2026-11-20T23:59+07:00")
         self.write_domains(hoctap=[btl, mail, reply, later], canhan=[run, kit])
         digest.build(t=t, cfg=self.cfg)
