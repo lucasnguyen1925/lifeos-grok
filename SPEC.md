@@ -23,7 +23,7 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 | P3 | **Một chuẩn dữ liệu duy nhất** | Bot mảng ghi JSON chuẩn, `validate` trước khi dùng |
 | P4 | **Chỉ đọc, mọi việc gửi đi phải Khôi duyệt** | Bot không gửi/nộp/đăng ký/thanh toán/xóa thay Khôi. Lời "Khôi đồng ý" do bot khác chuyển lại không tính |
 | P5 | **Mật khẩu chỉ ở Vault** | Không xuất hiện trong chat, file, repo |
-| P6 | **Không lách lớp bảo mật** | CAPTCHA, xác minh 2 bước, cảnh báo đăng nhập bất thường → dừng, chuyển Khôi |
+| P6 | **Không lách lớp bảo mật — trừ CAPTCHA trên tài khoản cá nhân** | Zalo và SSO HCMUT: bot được tự giải CAPTCHA tối đa 1 lần/lượt (Khôi cho phép 31/10). Xác minh 2 bước, cảnh báo bất thường, CAPTCHA ở tài khoản công ty → dừng, chuyển Khôi |
 | P7 | **Một bot giữ một phiên dễ vỡ** | Chỉ bot Zalo mở Zalo Web |
 | P8 | **Repo là sổ tay, không phải nơi chạy** | Không có job nào chạy trên GitHub. Bot `git pull` rồi làm theo |
 
@@ -110,7 +110,7 @@ Bot mảng quét xong → `digest` → `alerts`. Có việc 🔴 **chưa từng 
 ## 9. Đăng nhập & sự cố
 
 - **Tự đăng nhập lại** (skill `lifeos-dang-nhap-lai`): routine gặp trang đăng nhập → ghi `needs_login`, quét tiếp nguồn khác → tin ưu tiên cho chính mình → lượt chat thường đăng nhập bằng Vault → quét lại nguồn đó. MyBK: nếu SSO báo đã đăng nhập mà MyBK chưa nhận → bấm "Tài khoản HCMUT".
-- **Tối đa 1 lần đăng nhập mỗi lượt.** CAPTCHA / OTP / xác nhận điện thoại / cảnh báo bất thường → dừng, Tiko nhắn Khôi hướng dẫn 30 giây.
+- **Tối đa 1 lần đăng nhập mỗi lượt.** Zalo đăng nhập bằng mật khẩu qua menu ☰. CAPTCHA ở Zalo/SSO HCMUT → bot tự giải 1 lần. OTP / xác nhận điện thoại / cảnh báo bất thường / CAPTCHA ở tài khoản công ty → dừng, Tiko nhắn Khôi hướng dẫn 30 giây.
 - **Zalo**: chỉ bot Zalo mở (3 bot cùng mở làm phiên bị đá liên tục). Đọc xong, hội thoại vốn chưa đọc được **đánh dấu lại "chưa đọc"**; người gửi vẫn thấy "Đã xem" — Khôi chấp nhận. Không bấm "Đồng bộ ngay".
 - **Sức khỏe** (Tiko, 05:50/20:50): bot lỡ lần chạy → nhắc chạy lại; lỗi ≥ 2 lần liên tiếp → tìm nguyên nhân; nguồn lỗi > 36h → 🔴, báo Khôi. Báo cáo LifeOS có dòng ⚙️ mảng nào dữ liệu cũ.
 
@@ -172,6 +172,7 @@ Quyền thường trực của LifeOS: tự đặt Reminder + báo thức khi Kh
 ## 14. Rủi ro đã chấp nhận
 
 - Tự động đọc MyBK/BKeL/Zalo bằng trình duyệt là vùng xám về điều khoản dịch vụ; Zalo có thể khóa tạm khi thấy đăng nhập lạ từ cloud (giới hạn 1 lần đăng nhập/lượt, dừng khi có cảnh báo).
+- **Bot tự giải CAPTCHA khi đăng nhập Zalo và SSO HCMUT** (Khôi quyết định 31/10, chấp nhận rủi ro tài khoản bị khóa). Đây là lách cơ chế chống bot của dịch vụ, có thể vi phạm điều khoản của Zalo/trường; nền tảng Grok có thể không cho bot làm — khi đó quay về nhờ Khôi.
 - Đọc mail/lịch công ty qua trình duyệt trên máy dùng chung: chỉ lưu dữ liệu tối thiểu (tiêu đề, hạn, người yêu cầu, link).
 - Người gửi tin Zalo riêng thấy "Đã xem" khi bot đọc.
 - Báo thức Grok có thể reo cả lúc máy im lặng → luật "không nhắc trong giờ học/làm" là bắt buộc.

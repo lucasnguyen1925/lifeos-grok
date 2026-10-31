@@ -2,6 +2,13 @@
 
 Mỗi bản ghi rõ **Tiko phải làm gì** khi cập nhật (skill `lifeos-cap-nhat`).
 
+## 0.1.2 — cho phép tự giải CAPTCHA (31/10)
+
+**Tiko làm:** chép đè skill `lifeos-dang-nhap-lai` vào `/home/box/agent-data/workflows/`.
+
+- Zalo và SSO HCMUT: bot được tự giải CAPTCHA tối đa 1 lần mỗi lượt (Khôi cho phép, chấp nhận rủi ro bị khóa). Google công ty vẫn dừng và nhờ Khôi.
+- Mỗi lần gặp CAPTCHA ghi vào nhịp tim để theo dõi tần suất.
+
 ## 0.1.1 — sửa sau lần chạy đầu tiên (31/10)
 
 **Tiko làm:** chép đè 2 skill `lifeos-dang-nhap-lai` và `lifeos-zalo` vào `/home/box/agent-data/workflows/`. Không phải sửa hướng dẫn bot hay routine.
