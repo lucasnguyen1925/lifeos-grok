@@ -5,16 +5,17 @@ description: Quy trình tự đăng nhập lại khi một nguồn LifeOS (SSO H
 
 # Tự đăng nhập lại
 
-**Vì sao cần vòng này:** khi chạy theo routine, bot KHÔNG điền được login từ Vault. Ở lượt chat thường thì được, không cần hỏi Khôi. Nên routine chuyển việc cho chính bot đó ở lượt chat thường.
+**Vì sao cần vòng này:** khi chạy theo routine, bot KHÔNG điền được login từ Vault. Ở chat chính (lượt chat thường) thì được, không cần hỏi Khôi. Nên routine **chuyển việc lại cho chat chính** của chính bot đó — chat chính tự dậy và làm ngay (đã chạy trọn ở bot Công ty ngày 31/10).
 
 ## A. Trong routine — gặp trang đăng nhập
 
 1. **Không thử đăng nhập trong routine.** Không thử nhiều lần.
 2. Ghi nguồn đó là `needs_login` trong file mảng (giữ lại các việc cũ của nguồn đó), quét tiếp các nguồn khác, chạy `validate`, `digest`, `status … --source <nguồn>=needs_login:"<mô tả>"`.
-3. Gửi **tin ưu tiên cho CHÍNH MÌNH**:
-   `"Đăng nhập lại <nguồn> bằng Vault rồi quét lại riêng phần <nguồn> (skill lifeos-dang-nhap-lai, mục B)."`
+3. Kết thúc lần chạy bằng việc **chuyển lại cho chat chính** (routine không tự nhắn được, kể cả cho chính mình — nội quy mục 9):
+   `"Chuyển cho chat chính: đăng nhập lại <nguồn> bằng Vault rồi quét lại riêng phần <nguồn> (skill lifeos-dang-nhap-lai, mục B)."`
+   Có việc 🔴 mới cần báo LifeOS thì ghi chung vào lần chuyển này.
 
-## B. Ở lượt chat thường — nhận tin "đăng nhập lại <nguồn>"
+## B. Ở chat chính — routine chuyển lại, hoặc nhận tin "đăng nhập lại <nguồn>"
 
 1. Mở trang đăng nhập của nguồn, dùng login đã lưu trong Vault.
 2. Riêng **MyBK**: nếu trang SSO báo đã đăng nhập nhưng MyBK vẫn coi là chưa đăng nhập → bấm **"Tài khoản HCMUT"** rồi đăng nhập lại. Link MyBK cũ dạng `/app/sinh-vien/...` bị đá về trang đăng nhập → vào từ trang chủ MyBK rồi bấm menu.

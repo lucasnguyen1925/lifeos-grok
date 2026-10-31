@@ -36,7 +36,7 @@ Danh bạ iPhone: dùng để biết tên người gửi (điền `from` cho đ�
    - Người gửi có trong danh bạ hoặc trong danh sách người quan trọng — bất kể đã đọc hay chưa, 7 ngày qua, chưa có thư trả lời.
    - Bỏ qua quảng cáo, mạng xã hội, thông báo tự động không có hạn.
 3. Chuyển thành item: sự kiện → `kind: "event"` (`start`/`end`); việc có hạn → `"deadline"`/`"task"`/`"payment"`; mail/tin cần trả lời → `"email"`/`"message"`, `needs_reply: true`, `from`, `received_at`.
-4. Ghi file → `validate data/canhan.json` → `digest` → `alerts` (có `send` → tin ưu tiên cho LifeOS) → `status canhan --type full|light --ok --source …`.
+4. Ghi file → `validate data/canhan.json` → `digest` → `alerts` (có `send` → tin ưu tiên cho LifeOS; đang chạy routine → chuyển lại cho chat chính để chat chính gửi, nội quy mục 6 và 9) → `status canhan --type full|light --ok --source …`.
 
 ## Đề xuất cho sổ nhớ
 

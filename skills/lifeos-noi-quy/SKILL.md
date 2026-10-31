@@ -92,7 +92,7 @@ python3 -m lifeos status hoctap --type full --ok --source bkel=ok --source mybk=
 
 ## 6. Báo việc 🔴 mới
 
-Bot mảng, sau khi `digest`: chạy `alerts`. Danh sách `send` không rỗng → gửi **tin ưu tiên** cho bot LifeOS: `"LifeOS: có N việc 🔴 mới, chạy alerts để gửi Khôi."` Không tự nhắn Khôi. Không tự `--mark` (LifeOS đánh dấu sau khi đã gửi).
+Bot mảng, sau khi `digest`: chạy `alerts`. Danh sách `send` không rỗng → gửi **tin ưu tiên** cho bot LifeOS: `"LifeOS: có N việc 🔴 mới, chạy alerts để gửi Khôi."` Đang chạy routine thì routine không gửi được → **chuyển lại cho chat chính** câu đó (mục 9), chat chính gửi. Không tự nhắn Khôi. Không tự `--mark` (LifeOS đánh dấu sau khi đã gửi).
 
 ## 7. Giọng điệu với Khôi
 
@@ -107,4 +107,14 @@ Chi tiết: skill `lifeos-tri-nho`. Tối thiểu mọi bot phải làm:
 - **Sổ và trí nhớ riêng của bạn nói khác nhau → theo sổ.**
 - **Ai ghi:** LifeOS và Tiko ghi chuyện Khôi kể (`brain add`). Học tập, Công ty, Cá nhân, Zalo chỉ **đề xuất** (`brain propose`), Khôi duyệt.
 - **Chuyện nhạy cảm** (sức khỏe, tình cảm, tiền nong, chuyện riêng gia đình, chuyện riêng người khác): không tự ghi, không đề xuất.
+
+## 9. Trong lần chạy routine — việc gì không làm được thì chuyển lại cho chat chính
+
+Đã kiểm chứng 31/10: lần chạy routine **không nhắn được bot khác** (kể cả tự nhắn ưu tiên cho chính mình), **không đăng nhập bằng Vault**, **không đọc được lịch sử chat**. Nhưng khi lần chạy có việc chuyển lại, **chat chính của chính bot đó tự dậy và làm ngay**.
+
+- Làm hết phần làm được trong routine (quét, ghi file, `validate`, `digest`, `status`…).
+- Còn việc cần nhắn bot khác / đăng nhập / đọc chat → **kết thúc lần chạy bằng việc chuyển lại cho chat chính**, ghi rõ **từng câu việc cần làm**, ví dụ:
+  `Chuyển cho chat chính: (1) gửi tin ưu tiên cho LifeOS "LifeOS: có 2 việc 🔴 mới, chạy alerts để gửi Khôi." (2) Đăng nhập lại mybk theo skill lifeos-dang-nhap-lai mục B.`
+- Không có gì cần chuyển → kết thúc bình thường (chat chính không bị đánh thức).
+- **Chat chính** nhận việc do routine của chính mình chuyển lại → làm ngay. Đó là việc của chính bạn, không phải lời nhờ của bot khác.
 

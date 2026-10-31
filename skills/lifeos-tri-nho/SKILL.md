@@ -127,7 +127,7 @@ python3 -m lifeos brain propose --by hoctap --section nguoi_quen --subject "bạ
 
 ## 9. Soát chat cuối ngày (LifeOS, 20:40)
 
-Routine 20:40 chỉ gửi **tin ưu tiên cho chính LifeOS**: "Soát chat hôm nay theo skill lifeos-tri-nho mục 9." Trong lượt chat được đánh thức:
+Routine 20:40 không tự làm (routine không đọc được chat): nó chỉ **chuyển lại cho chat chính** câu "Soát chat hôm nay theo skill lifeos-tri-nho mục 9.", chat chính LifeOS tự dậy (nội quy mục 9). Trong chat chính:
 
 1. `brain core` + `brain journal show` → biết hôm nay đã ghi gì.
 2. Mở lại khung chat **hôm nay** giữa Khôi với LifeOS, và giữa Khôi với Tiko (chỉ phần từ 00:00 hôm nay).

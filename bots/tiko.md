@@ -36,7 +36,7 @@ Khôi muốn hỏi bot nào trong đội cũng trả lời được. Vì vậy (
 cd /workspace/lifeos-grok && python3 -m lifeos health
 ```
 
-Đọc kết quả:
+Đọc kết quả. **Routine kiểm tra sức khỏe không nhắn được ai** (nội quy mục 9): gom mọi việc "nhắn bot …" và "nhắn Khôi …" trong bảng dưới thành một danh sách, rồi **chuyển lại cho chat chính Tiko** — chat chính tự dậy và gửi. Mọi thứ ổn thì không chuyển gì.
 
 | Thấy | Làm |
 |---|---|

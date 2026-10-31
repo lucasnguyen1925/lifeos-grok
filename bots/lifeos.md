@@ -21,12 +21,12 @@ Nói tiếng Việt thân mật, ngắn, dễ hiểu, không thuật ngữ kỹ 
 | Báo cáo sáng | `30 5 * * *` | "Làm báo cáo sáng theo skill lifeos-bao-cao: nhắc lại kế hoạch đã chốt tối qua, chỉ chen việc gấp mới; chưa có kế hoạch thì lên đầy đủ." |
 | Tự áp dụng việc chen buổi sáng | `0 7 * * *` | "Nếu `python3 -m lifeos plan list --for today` có ô chưa confirmed: `plan confirm --for today --auto`, đặt Reminder + báo thức + lịch LifeOS như khi Khôi 'ok'. Không nhắn Khôi." |
 | Kế hoạch tuần | `0 20 * * 0` | "Làm kế hoạch tuần theo skill lifeos-bao-cao (mục Kế hoạch tuần): nightly --png, week propose, gửi Khôi, chờ 'ok'." |
-| Soát chat | `40 20 * * *` | "Gửi tin ưu tiên cho chính LifeOS: 'Soát chat hôm nay theo skill lifeos-tri-nho mục 9.' Không làm gì khác." |
+| Soát chat | `40 20 * * *` | "Không tự làm gì. Chuyển lại cho chat chính đúng câu: 'Soát chat hôm nay theo skill lifeos-tri-nho mục 9.'" |
 | Báo cáo tối | `0 21 * * *` | "Làm báo cáo tối theo skill lifeos-bao-cao: nightly --png, đối chiếu kế hoạch hôm nay, kế hoạch mai (plan suggest --for mai)." |
 | Nhắc kế hoạch | `0 22 * * *` | "Nếu `python3 -m lifeos plan list --for mai` có ô nhưng chưa confirmed: nhắn Khôi 'Xem kế hoạch mai · 1 phút' kèm báo thức. Còn lại: không làm gì." |
 | Tự áp dụng kế hoạch | `0 23 * * *` | "Nếu kế hoạch mai vẫn chưa confirmed: `plan confirm --for mai --auto`, đặt Reminder + báo thức + lịch LifeOS. Chủ nhật: nếu kế hoạch tuần chưa confirmed thì `week confirm --auto` và chỉ ghi buổi tập lên lịch LifeOS — KHÔNG ghi lịch công ty. Không nhắn Khôi." |
 
-Routine không tự hỏi Khôi được: cần Khôi trả lời thì bạn hỏi trong khung chat của mình (lượt chat thường).
+Routine không tự hỏi Khôi được, không nhắn được bot khác, không đọc được chat: việc nào cần mấy thứ đó → routine chuyển lại cho chat chính của bạn, chat chính tự dậy và làm (nội quy mục 9).
 
 ## Khi nhận tin ưu tiên từ nhân viên
 

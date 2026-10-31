@@ -2,6 +2,24 @@
 
 Mỗi bản ghi rõ **Tiko phải làm gì** khi cập nhật (skill `lifeos-cap-nhat`).
 
+## 0.3.1 — sửa hướng dẫn cho khớp cách routine chạy thật (31/10)
+
+Thử thật 31/10: routine **không nhắn được bot khác** (kể cả tự nhắn cho chính mình), nhưng khi có việc chuyển lại thì **chat chính của bot đó tự dậy và làm**. Báo 🔴 và tự đăng nhập lại vẫn chạy được là nhờ bot tự xoay xở theo đường này; bản này ghi đúng cách làm vào hướng dẫn. Không đổi quyết định nào.
+
+**Tiko làm:**
+1. Đang ở bản 0.2.0 → làm hết các bước của **0.3.0** trước (bên dưới), **bỏ qua bước 5** của 0.3.0 (đã thử: chat chính đọc được chat), rồi làm tiếp các bước này.
+2. Chép đè skill `lifeos-noi-quy`, `lifeos-dang-nhap-lai`, `lifeos-tri-nho` vào `/home/box/agent-data/workflows/`.
+3. Gửi tin ưu tiên cho **LifeOS, Học tập, Công ty, Cá nhân** (Tiko tự áp dụng): "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/<bot>.md (đọc toàn văn, thay hướng dẫn cũ)." Bot Zalo không đổi.
+4. **LifeOS**: sửa nội dung routine **Soát chat** 20:40 đúng bảng mới ("Không tự làm gì. Chuyển lại cho chat chính đúng câu: …"). Không routine nào khác phải đổi.
+5. Theo dõi rồi ghi vào `state/cai_dat.md`: lần đầu Học tập hoặc Cá nhân có việc 🔴 → LifeOS có nhận không; lần đầu có bot lỡ lần chạy → Tiko có nhắc được không; tối đầu tiên 20:40 → LifeOS soát chat xong lúc mấy giờ (trước 21:00 không).
+
+**Khôi làm:** không có gì thêm. Chưa cập nhật 0.3.0 thì nhắn Tiko một lần "Cập nhật LifeOS lên bản 0.3.1, làm theo CHANGELOG" và làm phần "Khôi làm" của 0.3.0.
+
+Thay đổi:
+- Nội quy mục 9 (mới): trong routine, việc cần nhắn bot khác / đăng nhập bằng Vault / đọc chat → chuyển lại cho chat chính, ghi rõ từng câu việc cần làm.
+- Báo 🔴 (nội quy mục 6, 3 bot mảng), tự đăng nhập lại (skill `lifeos-dang-nhap-lai` mục A), Tiko kiểm tra sức khỏe, routine 20:40 của LifeOS: đổi "gửi tin ưu tiên" thành "chuyển lại cho chat chính".
+- `docs/NEN_TANG_GROK.md`, SPEC §3, §8, §9, §15: ghi các điều đã kiểm chứng 31/10.
+
 ## 0.3.0 — Sổ nhớ: cả đội cùng nhớ chuyện của Khôi (31/10)
 
 **Tiko làm:**

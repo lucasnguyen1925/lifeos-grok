@@ -16,15 +16,19 @@ Ghi lại kết quả Tiko/các bot **làm thử thật** trên tài khoản c�
 
 - Cron 5 trường theo giờ VN; chế độ **flexible** (±15', mặc định) hoặc **exact**; tối thiểu 5' giữa hai lần chạy.
 - Mỗi bot chỉ xem/sửa routine của **chính nó**. Sửa routine cần Khôi bấm duyệt thẻ (bot Học tập từng bị lỗi khi duyệt).
-- **Lần chạy routine KHÔNG điền login từ Vault được**; lượt chat thường thì được, không cần hỏi Khôi → vòng tự đăng nhập lại: routine gửi tin ưu tiên cho chính bot (skill `lifeos-dang-nhap-lai`).
+- **Lần chạy routine KHÔNG điền login từ Vault được**; lượt chat thường thì được, không cần hỏi Khôi → vòng tự đăng nhập lại: routine chuyển lại cho chat chính, chat chính đăng nhập (skill `lifeos-dang-nhap-lai`).
 - Routine không tự hỏi Khôi được; muốn hỏi phải qua lượt chat thường của bot.
 - (31/10) Chế độ **exact vẫn trễ 1–6 phút**. Một routine thử (exact) **không chạy**, không rõ lý do. Bot tạo routine **cho chính nó** thì không hiện thẻ duyệt.
 - (31/10) Routine **thấy** trí nhớ chung và một phần trí nhớ riêng, tìm trong trí nhớ được; **ghi đè được file trên Google Drive**.
 - (31/10) Routine **không có công cụ đọc lịch sử chat** (cả chat của chính bot lẫn bot khác).
+- (31/10) Routine **không có công cụ nhắn bot khác**, kể cả tự nhắn ưu tiên cho chính bot. Lần chạy **có việc chuyển lại** → **chat chính của chính bot đó tự dậy làm ngay**, không chờ Khôi nhắn (thấy ở Tiko 19:02, Công ty 11:37 và 17:36). Lần chạy không có gì chuyển → chat chỉ hiện một dòng "chạy xong", bot không làm gì thêm. → Mọi việc "routine nhắn bot khác / đăng nhập / đọc chat" phải đi qua chat chính (nội quy mục 9).
+- (31/10) Đã chạy thật qua chat chính: **báo 🔴** — routine Công ty chuyển lại → chat chính Công ty nhắn LifeOS "có 4 việc 🔴 mới" → LifeOS báo Khôi ngay (11:37). **Tự đăng nhập lại** — routine Công ty gặp "Verify it's you" → chat chính đăng nhập bằng Vault (không bị hỏi mã/điện thoại) → tự quét lại mail (17:30–17:38). Học tập (29–30/10) và Zalo (31/10) có dấu hiệu tự đăng nhập lại, chưa kiểm tra kỹ.
+- (31/10) Routine kiểm tra sức khỏe của Tiko chưa từng nhắn được bot khác; lần 05:56 chỉ chuyển về để chat chính Tiko báo Khôi.
+- (31/10) Chat chính được routine đánh thức **đọc được chat hôm nay** của Tiko và của LifeOS (3 tin gần nhất mỗi bên).
 
 ## Nhắn tin, phê duyệt
 
-- Bot nhắn bot bằng id; chế độ **ưu tiên** đánh thức bot kia ngay, chế độ thường chờ lượt sau.
+- Bot nhắn bot bằng id (**chỉ từ chat chính**, routine không nhắn được); chế độ **ưu tiên** đánh thức bot kia ngay, chế độ thường chờ lượt sau.
 - Bot nhắn Khôi trong khung chat của bot đó (app Grok Bot). Không gửi email/SMS cho Khôi.
 - **Lời "Khôi đồng ý" do bot khác chuyển lại không được tính** → việc cần duyệt do chính LifeOS làm.
 - (31/10) Bot còn **từ chối cả việc nhỏ khi lời nhờ đi qua bot khác**: Tiko nhờ hộ LifeOS tạo thư mục Drive → LifeOS không làm; Khôi nhắn thẳng LifeOS → làm ngay. Ngược lại, LifeOS nhờ Tiko xóa một điều trong trí nhớ riêng → Tiko xóa, nhưng nói "lẽ ra nên hỏi Khôi trước" → không ổn định; ngoại lệ "quên" được ghi rõ trong nội quy.

@@ -80,7 +80,7 @@ Làm từng mục, ghi kết quả vào `state/cai_dat.md`:
 | 1 | Bot Zalo chạy một lần (nhắn bot: "chạy quét Zalo ngay") | `data/zalo.json` có hội thoại; trang **không** bị đá về "Đang đăng nhập..." |
 | 2 | Đánh dấu lại chưa đọc | Hội thoại vốn chưa đọc vẫn hiện chưa đọc trên **iPhone** của Khôi sau khi bot đọc (hỏi Khôi) |
 | 3 | Học tập, Công ty, Cá nhân mỗi bot quét đầy đủ một lần | 3 file `data/*.json` qua `validate`; `python3 -m lifeos digest` chạy không lỗi |
-| 4 | Vòng tự đăng nhập SSO | Đăng xuất MyBK trong trình duyệt → nhắn bot Học tập "chạy quét đầy đủ như routine" → bot tự gửi tin cho chính mình và đăng nhập lại bằng Vault, không cần Khôi |
+| 4 | Vòng tự đăng nhập SSO | Đăng xuất MyBK trong trình duyệt → nhắn bot Học tập "chạy quét đầy đủ như routine" → routine chuyển lại cho chat chính, chat chính tự đăng nhập lại bằng Vault và quét lại, không cần Khôi |
 | 5 | Nhịp tim | `python3 -m lifeos health` liệt kê đủ bot, không có `chưa từng ghi nhịp tim` |
 | 6 | Routine gửi ảnh | Tạo tạm cho LifeOS một routine chạy sau 5 phút: "chạy `python3 -m lifeos dashboard --png` và gửi ảnh dashboard.png". Ghi lại gửi được ảnh hay chỉ chữ, rồi xóa routine tạm |
 | 7 | Grok Page | LifeOS tạo Page "LifeOS · Hiệu suất" từ `dashboard/page.md`, gửi Khôi link |

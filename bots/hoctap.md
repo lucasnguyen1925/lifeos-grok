@@ -44,7 +44,7 @@ Sếp nội dung: **LifeOS** · Sếp kỹ thuật: **Tiko**. Bạn **không nh�
    - Mail/tin GV hỏi Khôi → `kind: "email"`/`"message"`, `needs_reply: true`, `from`, `received_at`.
 4. Bảng điểm: ghi mảng `grades` ở cấp ngoài cùng của file: `[{"course": "CO3001", "name": "CNPM", "score": 8.5, "credits": 3, "term": "HK251"}]` (thang 10).
 5. Ghi file → `python3 -m lifeos validate data/hoctap.json` → sửa tới khi OK.
-6. `python3 -m lifeos digest` → `python3 -m lifeos alerts`: có `send` → tin ưu tiên cho LifeOS (nội quy mục 6).
+6. `python3 -m lifeos digest` → `python3 -m lifeos alerts`: có `send` → tin ưu tiên cho LifeOS (nội quy mục 6). Đang chạy routine → chuyển lại cho chat chính để chat chính gửi (nội quy mục 9).
 7. `python3 -m lifeos status hoctap --type full|light --ok --source mybk=… --source bkel=… …`
 
 ## Đề xuất cho sổ nhớ

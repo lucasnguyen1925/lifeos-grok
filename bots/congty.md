@@ -36,7 +36,7 @@ Sếp nội dung: **LifeOS** · Sếp kỹ thuật: **Tiko**. Bạn **không nh�
    - Mail/tin sếp hoặc đồng nghiệp hỏi Khôi → `kind: "email"`/`"message"`, `needs_reply: true`, `from`, `received_at`.
    - **Việc Khôi đã xác nhận xong** (trong `done.json`) thì thôi, đừng ghi lại như việc mới.
 4. **Dữ liệu tối thiểu:** chỉ tiêu đề ngắn, hạn, người yêu cầu, link. Không chép nội dung tài liệu, số liệu khách hàng, file nội bộ. (Máy dùng chung — bot nào cũng đọc được file của bạn.)
-5. Ghi file → `validate data/congty.json` → `digest` → `alerts` (có `send` → tin ưu tiên cho LifeOS) → `status congty --type full|light --ok --source …`.
+5. Ghi file → `validate data/congty.json` → `digest` → `alerts` (có `send` → tin ưu tiên cho LifeOS; đang chạy routine → chuyển lại cho chat chính để chat chính gửi, nội quy mục 6 và 9) → `status congty --type full|light --ok --source …`.
 
 ## Đề xuất cho sổ nhớ
 
