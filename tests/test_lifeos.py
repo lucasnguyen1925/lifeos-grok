@@ -265,8 +265,52 @@ class Plans(Base):
         self.assertFalse(any(x.get("confirmed") for x in tracking.plan_list(tomorrow)))
         tracking.plan_confirm(tomorrow, auto=True)
         self.assertTrue(all(x["confirmed"] and x["auto_applied"] for x in tracking.plan_list(tomorrow)))
+        tracking.plan_edit(tomorrow, 2, at="13:00")
+        self.assertEqual(tracking.plan_list(tomorrow)[1]["at"], "13:00")
+        tracking.plan_add(tomorrow, "Việc thừa", "21:00", "…")
+        tracking.plan_edit(tomorrow, 3, remove=True)
+        self.assertEqual(len(tracking.plan_list(tomorrow)), 2)
         tracking.plan_result(tomorrow, 1, "skipped", why="đi làm về mệt")
         self.assertEqual(tracking.plan_list(tomorrow)[0]["why"], "đi làm về mệt")
+
+
+class Planner(Base):
+    def test_day_plan_fits_free_time_and_deadlines(self):
+        from lifeos import planner
+        os.environ["LIFEOS_NOW"] = "2026-10-31T07:30+07:00"  # Thứ 7
+        t = parse_dt("2026-10-31T07:30+07:00")
+        run = item(id="cn:run", domain="canhan", kind="event", title="Chạy 10km",
+                   start="2026-10-31T06:00+07:00", end="2026-10-31T09:00+07:00")
+        kit = item(id="cn:kit", domain="canhan", kind="task", title="Lấy race kit", due="2026-10-31", est_minutes=90)
+        btl = item(id="hoc:btl", kind="deadline", title="BTL nhóm", due="2026-10-31T22:00+07:00", est_minutes=180)
+        mail = item(id="hoc:mail", kind="notice", title="Đọc mail hoãn thi")
+        reply = item(id="hoc:rep", kind="message", title="Trả lời Hào", needs_reply=True)
+        later = item(id="hoc:later", kind="deadline", title="Bài 3 thí nghiệm", due="2026-11-20T23:59+07:00")
+        self.write_domains(hoctap=[btl, mail, reply, later], canhan=[run, kit])
+        digest.build(t=t, cfg=self.cfg)
+
+        res = planner.suggest(date(2026, 10, 31), 3, self.cfg, t=t)
+        titles = [b["title"] for b in res["blocks"]]
+        self.assertIn("Lấy race kit", titles)
+        self.assertIn("BTL nhóm", titles)
+        self.assertIn("Việc nhanh gộp lại", titles)
+        self.assertNotIn("Bài 3 thí nghiệm", titles)  # hạn còn xa
+        starts = [parse_dt(b["start"]) for b in res["blocks"]]
+        self.assertEqual(starts, sorted(starts))
+        self.assertGreaterEqual(starts[0], parse_dt("2026-10-31T09:00+07:00"))  # sau buổi chạy
+        for b in res["blocks"]:
+            s, e = parse_dt(b["start"]), parse_dt(b["end"])
+            self.assertFalse(agenda.is_busy(tracking.all_items(), s, self.cfg), b)
+            self.assertLessEqual(e, parse_dt("2026-10-31T23:00+07:00"))
+        btl_block = next(b for b in res["blocks"] if b["title"] == "BTL nhóm")
+        self.assertEqual(btl_block["minutes"], 120)
+        self.assertIn("phiên đầu", btl_block["note"])
+        quick = next(b for b in res["blocks"] if b["title"] == "Việc nhanh gộp lại")
+        self.assertEqual({x["id"] for x in quick["items"]}, {"hoc:mail", "hoc:rep"})
+
+        tracking.plan_add(date(2026, 10, 31), "Lấy race kit", "10:00", "Mang CCCD", item_id="cn:kit")
+        again = planner.suggest(date(2026, 10, 31), 3, self.cfg, t=t)
+        self.assertNotIn("Lấy race kit", [b["title"] for b in again["blocks"]])
 
 
 if __name__ == "__main__":

@@ -32,9 +32,12 @@ Mọi lời nhắc = **Reminder (danh sách "To-do list") + báo thức Grok cù
 - Mỗi mốc có **bước đầu ≤ 10 phút, cụ thể đến mức không cần nghĩ**: "mở file X, viết 3 gạch đầu dòng mục 2.1" — không phải "làm BTL".
 - Việc nhóm: đề xuất soạn **tin hẹn tiến độ** gửi nhóm ("mình gửi phần X trước 20h T4 nha"). Khôi duyệt → Khôi tự gửi.
 
+## R4b — Kế hoạch sáng (trong báo cáo 06:00)
+Báo cáo sáng mở đầu bằng **"HÔM NAY LÀM GÌ"**: các khối việc có giờ cụ thể do `plan suggest --for today` xếp vào khung trống, mỗi khối có ▶ bước đầu ≤ 10 phút. Khôi "ok" (hoặc im lặng tới 06:40) → Reminder + báo thức cho từng khối. Mẫu và cách xử lý trả lời: skill `lifeos-bao-cao`.
+
 ## R4 — Nghi thức tối (trong báo cáo 21:00)
 1. Chọn **1 việc chính + tối đa 2 việc nhanh** cho ngày mai (ưu tiên 🔴/🟠, việc có mốc gần).
-2. Với mỗi việc: giờ + nơi từ `free --date mai`, bước đầu ≤ 10'. Ghi:
+2. Giờ lấy từ `plan suggest --for mai --max 1` (đã xếp sẵn vào khung trống), thêm nơi + bước đầu ≤ 10'. Ghi:
    `python3 -m lifeos plan add --for mai --title "…" --at 20:00 --step "…" --minutes 10 [--id <id việc>]`
 3. Viết: `NẾU <giờ> ở <nơi> THÌ <bước đầu>`. Mời trả lời **"ok"** hoặc sửa.
 4. Khôi "ok"/sửa xong → `plan confirm --for mai` → tạo Reminder + báo thức cho từng việc (tên = bước đầu).

@@ -94,6 +94,14 @@ def main(argv: list[str] | None = None) -> int:
     pa.add_argument("--auto", action="store_true", help="Tự áp dụng vì Khôi không trả lời tới 23:00")
     pl = ps.add_parser("list")
     pl.add_argument("--for", dest="for_day", default="today")
+    pg = ps.add_parser("suggest", help="Đề xuất việc + xếp giờ vào khung trống (báo cáo sáng/tối)")
+    pg.add_argument("--for", dest="for_day", default="today")
+    pg.add_argument("--max", type=int, default=3, help="Số việc chính tối đa")
+    pe = ps.add_parser("edit", help="Dời giờ (--at) hoặc bỏ (--remove) khối số n")
+    pe.add_argument("n", type=int)
+    pe.add_argument("--for", dest="for_day", default="today")
+    pe.add_argument("--at")
+    pe.add_argument("--remove", action="store_true")
     pc = ps.add_parser("confirm", help="Khôi trả lời ok (hoặc --auto khi im lặng tới 23:00)")
     pc.add_argument("--for", dest="for_day", default="tomorrow")
     pc.add_argument("--auto", action="store_true")
@@ -181,11 +189,17 @@ def main(argv: list[str] | None = None) -> int:
         _print(tracking.self_report(a.french, a.energy, _day(a.date)))
     elif a.cmd == "plan":
         day = _day(a.for_day)
-        if a.action == "add":
+        if a.action == "suggest":
+            from . import planner
+            res = planner.suggest(day, a.max, cfg)
+            _print(res | {"date_label": vn_date(day)})
+        elif a.action == "add":
             _print(tracking.plan_add(day, a.title, a.at, a.step, a.item_id, a.minutes, a.auto))
         elif a.action == "list":
             plans = tracking.plan_list(day)
             _print({"date": vn_date(day), "confirmed": bool(plans) and all(x.get("confirmed") for x in plans), "plans": plans})
+        elif a.action == "edit":
+            _print({"date": vn_date(day), "plans": tracking.plan_edit(day, a.n, a.at, a.remove)})
         elif a.action == "confirm":
             _print({"date": vn_date(day), "plans": tracking.plan_confirm(day, a.auto)})
         else:

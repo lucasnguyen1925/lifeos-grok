@@ -165,18 +165,34 @@ def plan_result(for_day: date, n: int, status: str, why: str | None = None) -> d
     raise KeyError(f"Không có kế hoạch số {n} cho ngày {for_day}.")
 
 
+def plan_edit(for_day: date, n: int, at: str | None = None, remove: bool = False) -> list[dict[str, Any]]:
+    """Khôi sửa kế hoạch: dời giờ khối số n, hoặc bỏ khối đó."""
+    plans = read_json(path("state", "plans.json"), {}) or {}
+    day_plans = plans.get(for_day.isoformat(), [])
+    target = next((r for r in day_plans if r["n"] == n), None)
+    if target is None:
+        raise KeyError(f"Không có kế hoạch số {n} cho ngày {for_day}.")
+    if remove:
+        target["status"] = "removed"
+    if at:
+        target["at"] = at
+    write_json(path("state", "plans.json"), plans)
+    return [r for r in day_plans if r["status"] != "removed"]
+
+
 def plan_confirm(for_day: date, auto: bool = False) -> list[dict[str, Any]]:
     """Khôi trả lời "ok" (hoặc 23:00 tự áp dụng khi im lặng): đánh dấu kế hoạch ngày đó đã chốt."""
     plans = read_json(path("state", "plans.json"), {}) or {}
     day_plans = plans.get(for_day.isoformat(), [])
-    for rec in day_plans:
+    for rec in (r for r in day_plans if r["status"] != "removed"):
         rec.update(confirmed=True, auto_applied=auto or rec.get("auto_applied", False), confirmed_at=iso(now()))
     write_json(path("state", "plans.json"), plans)
     return day_plans
 
 
 def plan_list(for_day: date) -> list[dict[str, Any]]:
-    return (read_json(path("state", "plans.json"), {}) or {}).get(for_day.isoformat(), [])
+    day_plans = (read_json(path("state", "plans.json"), {}) or {}).get(for_day.isoformat(), [])
+    return [r for r in day_plans if r["status"] != "removed"]
 
 
 # ---------- khung trống & giờ đặt nhắc (R1, R2) ----------

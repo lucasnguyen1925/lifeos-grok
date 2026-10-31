@@ -66,7 +66,8 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 | 05:30 · 20:30 | Học tập · Công ty · Cá nhân | Quét đầy đủ |
 | 11:30 · 14:30 · 17:30 | Học tập · Công ty · Cá nhân | Quét nhẹ: BKeL + mail/lịch trường · mail/lịch công ty · lịch cá nhân |
 | 05:50 · 20:50 | Tiko | Kiểm tra sức khỏe, xử lý sự cố trước giờ báo cáo |
-| **06:00 · 21:00** | **LifeOS** | **Báo cáo** (21:00: chốt sổ ngày, kế hoạch nếu–thì) |
+| **06:00 · 21:00** | **LifeOS** | **Báo cáo** — 06:00: kế hoạch hôm nay có giờ lên đầu; 21:00: tổng kết, chốt sổ ngày, kế hoạch mai |
+| 06:40 | LifeOS | Khôi chưa "ok" kế hoạch sáng → tự áp dụng (đặt Reminder + báo thức) |
 | 22:00 · 23:00 | LifeOS | Nhắc xem kế hoạch mai · tự áp dụng nếu Khôi im lặng |
 | 02:15 | Tiko | Dọn dữ liệu quá hạn |
 | CN 10:00 | Tiko | Báo cáo hệ thống tuần |
@@ -123,7 +124,8 @@ Chi tiết: skill `lifeos-chong-tri-hoan`. Chẩn đoán: không bắt đầu đ
 | R1 | "Không có *để sau*, chỉ có *để lúc mấy giờ*" — kèm thời lượng ước tính + khung trống gần nhất |
 | R2 | Nhắc = **Reminder + báo thức Grok**, không bao giờ trong giờ học/làm (script `remind-at`); quiz/đăng ký nhắc khi mở → 24h → 3h |
 | R3 | Việc lớn cắt mốc, mỗi mốc có bước đầu ≤ 10 phút; việc nhóm hẹn tiến độ với người khác |
-| R4 | Tối 21:00: 1 việc chính + ≤ 2 việc nhanh, câu NẾU–THÌ; "ok" là xong; im lặng → 22:00 nhắc, 23:00 tự áp dụng |
+| R4b | Sáng 06:00: "HÔM NAY LÀM GÌ" — script `plan suggest` chọn việc (hạn ≤ 3 ngày, 🔴, cần trả lời) và xếp vào khung trống thật; việc nhanh gộp một khối đầu ngày; mỗi khối có ▶ bước đầu; "ok" hoặc im lặng tới 06:40 → Reminder + báo thức |
+| R4 | Tối 21:00: tổng kết kế hoạch hôm nay; mai: 1 việc chính + khối việc nhanh (xếp bằng `plan suggest`), câu NẾU–THÌ; "ok" là xong; im lặng → 22:00 nhắc, 23:00 tự áp dụng |
 | R5 | Đăng ký môn: chuẩn bị danh sách trước, báo thức giờ mở cổng, Khôi tự bấm |
 | R6 | LifeOS viết nháp việc ngại; tin người quan trọng > 24h → tự soạn nháp (không gửi) |
 | R7 | Phiên tập trung 30 phút mặc định, nghỉ 5 phút, bị kéo đi thì thử lại 15 phút |

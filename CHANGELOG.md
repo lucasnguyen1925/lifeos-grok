@@ -2,6 +2,19 @@
 
 Mỗi bản ghi rõ **Tiko phải làm gì** khi cập nhật (skill `lifeos-cap-nhat`).
 
+## 0.2.0 — báo cáo "kế hoạch lên đầu" (31/10)
+
+**Tiko làm:**
+1. Chép đè skill `lifeos-bao-cao` và `lifeos-chong-tri-hoan` vào `/home/box/agent-data/workflows/`.
+2. Gửi tin ưu tiên cho LifeOS: "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/lifeos.md (đọc toàn văn, thay hướng dẫn cũ). Thêm routine mới 'Tự áp dụng kế hoạch sáng' `40 6 * * *` (exact) đúng bảng Routine." Khôi có thể phải bấm duyệt thẻ thêm routine.
+
+Thay đổi:
+- Lệnh mới `plan suggest`: chọn việc cần làm (hạn ≤ 3 ngày, 🔴, cần trả lời) và xếp vào khung trống thật — không đè giờ học/làm/ăn, trước hạn chót, việc nhanh gộp một khối đầu ngày, việc dài chia phiên 2 tiếng.
+- Lệnh mới `plan edit` (dời giờ / bỏ khối).
+- Báo cáo sáng mở đầu bằng "HÔM NAY LÀM GÌ": khối có giờ + ▶ bước đầu; "ok" → Reminder + báo thức từng khối; im lặng tới 06:40 → tự áp dụng.
+- Báo cáo tối: tổng kết kế hoạch hôm nay (xong / chưa xong → dời, bỏ) + kế hoạch mai cùng định dạng.
+- Mỗi việc chỉ xuất hiện một lần trong báo cáo; xa hơn 3 ngày chỉ ghi số lượng.
+
 ## 0.1.2 — cho phép tự giải CAPTCHA (31/10)
 
 **Tiko làm:** chép đè skill `lifeos-dang-nhap-lai` vào `/home/box/agent-data/workflows/`.

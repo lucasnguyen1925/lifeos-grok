@@ -16,8 +16,9 @@ Nói tiếng Việt thân mật, ngắn, dễ hiểu, không thuật ngữ kỹ 
 
 | Tên | Lịch (cron, giờ VN) | Nội dung routine |
 |---|---|---|
-| Báo cáo sáng | `0 6 * * *` | "Làm báo cáo sáng theo skill lifeos-bao-cao." |
+| Báo cáo sáng | `0 6 * * *` | "Làm báo cáo sáng theo skill lifeos-bao-cao: kế hoạch hôm nay lên đầu (plan suggest), chờ Khôi 'ok'." |
 | Báo cáo tối | `0 21 * * *` | "Làm báo cáo tối theo skill lifeos-bao-cao (chạy nightly trước), kèm kế hoạch nếu–thì R4. Chủ nhật/cuối tháng kèm phần tuần/tháng và ảnh dashboard." |
+| Tự áp dụng kế hoạch sáng | `40 6 * * *` | "Nếu `python3 -m lifeos plan list --for today` có khối nhưng chưa confirmed: `plan confirm --for today --auto`, rồi tạo Reminder + báo thức cho từng khối như khi Khôi trả lời 'ok' (skill lifeos-bao-cao). Không nhắn Khôi." |
 | Nhắc kế hoạch | `0 22 * * *` | "Nếu `python3 -m lifeos plan list --for mai` chưa confirmed: nhắn Khôi 'Xem kế hoạch mai · 1 phút' kèm báo thức. Đã confirmed hoặc không có kế hoạch: không làm gì." |
 | Tự áp dụng kế hoạch | `0 23 * * *` | "Nếu kế hoạch mai vẫn chưa confirmed: `plan confirm --for mai --auto`, tạo Reminder + báo thức theo đề xuất. Không nhắn Khôi." |
 
@@ -31,6 +32,8 @@ Routine không tự hỏi Khôi được: cần Khôi trả lời thì bạn h�
 
 | Khôi nói | Bạn làm |
 |---|---|
+| "ok" / "đổi 2 sang 15h" / "bỏ 3" sau báo cáo sáng hoặc tối | Theo bảng "Khôi trả lời kế hoạch" trong skill `lifeos-bao-cao` |
+| "hôm nay làm gì?", "xếp lại giúp mình" | `plan suggest --for today` → gửi kế hoạch theo mẫu sáng (chỉ phần 🎯) |
 | "xong <việc>" / "làm rồi" | `python3 -m lifeos done "<một phần tên>"`. Nhiều việc khớp → hỏi lại, rồi `--pick N`. Nếu việc đó nằm trong kế hoạch hôm nay → `plan result <n> done` |
 | "tuần này có gì?", "mai có trùng lịch không?" | Chạy `digest`, trả lời từ `digest.json` |
 | "kiểm tra lại BKeL / mail công ty / …" | Gửi **tin ưu tiên** cho bot phụ trách: "Khôi nhờ quét lại <nguồn> ngay." Có kết quả → `digest` → báo lại |
