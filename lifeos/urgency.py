@@ -14,6 +14,10 @@ RED, ORANGE, YELLOW, WHITE = 1, 2, 3, 4
 LABELS = {RED: "🔴 GẤP", ORANGE: "🟠 CAO", YELLOW: "🟡 TRUNG BÌNH", WHITE: "⚪ ĐỂ BIẾT"}
 
 DEFAULT_URGENT_KEYWORDS = ["hoãn thi", "nghỉ học", "đổi phòng", "đổi lịch thi", "khẩn", "hoãn", "huỷ", "hủy"]
+# Thư báo mail của Khôi bị trả về (SPEC §5d). Bot đọc mail ghi thành notice "Mail bị trả về: …".
+DEFAULT_BOUNCE_KEYWORDS = ["bị trả về", "không tìm thấy địa chỉ", "address not found", "undeliverable",
+                           "delivery status notification", "mail delivery subsystem", "delivery has failed",
+                           "message not delivered", "không gửi được thư"]
 SCHEDULE_KINDS = {"class", "exam", "work_shift", "meeting", "event"}
 DEADLINE_KINDS = {"deadline", "quiz", "registration", "payment", "task"}
 NEW_ITEM_KINDS = {"deadline", "quiz", "exam", "registration"}
@@ -82,7 +86,12 @@ def classify(
     if in_conflict:
         candidates.append((RED, "trùng lịch trong 48 giờ tới"))
 
-    if kind == "notice" and any(k in text for k in keywords):
+    bounce = [k.casefold() for k in cfg.get("rules", {}).get("bounce_keywords", DEFAULT_BOUNCE_KEYWORDS)]
+    if kind == "notice" and any(k in text for k in bounce):
+        received = parse_dt(item.get("received_at")) or first_seen
+        if received is None or now - received <= timedelta(hours=72):
+            candidates.append((RED, "mail bạn gửi bị trả về — người nhận CHƯA nhận được"))
+    elif kind == "notice" and any(k in text for k in keywords):
         received = parse_dt(item.get("received_at")) or first_seen
         if received is None or now - received <= timedelta(hours=72):
             candidates.append((RED, "thông báo có từ khóa khẩn"))

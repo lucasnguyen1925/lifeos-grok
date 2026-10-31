@@ -319,12 +319,14 @@ def _brain_parser(sub) -> None:
     x.add_argument("--by", default="lifeos")
     x.add_argument("--origin", default="chat", help="chat · soat_chat · grok · notes")
     x.add_argument("--replaces", help="Mã điều cũ không còn đúng (giữ lại làm 'trước đây')")
+    x.add_argument("--source", help="Lấy từ đâu: 'trang môn GT2 trên BKeL', 'mail ngày 20/10', 'Khôi kể'…")
     x = bs.add_parser("edit", help="Sửa vì ghi SAI")
     x.add_argument("id")
     x.add_argument("--text")
     x.add_argument("--section")
     x.add_argument("--subject")
     x.add_argument("--due")
+    x.add_argument("--source")
     x = bs.add_parser("end", help="Không còn đúng / đã xong → 'trước đây'")
     x.add_argument("id")
     x.add_argument("--note")
@@ -399,9 +401,9 @@ def _brain_run(a, cfg) -> dict:
         return brain.show(" ".join(a.name))
     if act == "add":
         return brain.add(a.section, a.text, subject=a.subject, tags=a.tag, due=a.due, core=a.core, pin=a.pin,
-                         sensitive=a.sensitive, by=a.by, origin=a.origin, replaces=a.replaces)
+                         sensitive=a.sensitive, by=a.by, origin=a.origin, replaces=a.replaces, source=a.source)
     if act == "edit":
-        return brain.edit(a.id, text=a.text, section=a.section, subject=a.subject, due=a.due)
+        return brain.edit(a.id, text=a.text, section=a.section, subject=a.subject, due=a.due, source=a.source)
     if act == "end":
         return brain.end(a.id, a.note)
     if act == "forget":

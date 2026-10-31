@@ -1,6 +1,6 @@
 # LifeOS trên Grok Bot — Đặc tả hệ thống
 
-> Phiên bản 0.1 · chốt qua buổi grill 29–31/10/2026. Bổ sung §5b Kế hoạch (0.2.0) và §5c Trí nhớ (0.3.0) cùng ngày 31/10.
+> Phiên bản 0.1 · chốt qua buổi grill 29–31/10/2026. Bổ sung §5b Kế hoạch (0.2.0), §5c Trí nhớ (0.3.0), §5d Không bịa (0.3.2) cùng ngày 31/10.
 > Thay thế hoàn toàn spec cũ (LifeOS chạy trên Claude + Supabase — đã tắt ngày 31/10/2026).
 > Repo này public: không ghi thông tin cá nhân vào đây; thông tin cá nhân nằm trong `config.toml` trên máy bot.
 
@@ -28,6 +28,7 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 | P7 | **Một bot giữ một phiên dễ vỡ** | Chỉ bot Zalo mở Zalo Web |
 | P8 | **Repo là sổ tay, không phải nơi chạy** | Không có job nào chạy trên GitHub. Bot `git pull` rồi làm theo |
 | P9 | **Một sổ nhớ chung là bản gốc trí nhớ về Khôi** | Cả 6 bot đọc; trí nhớ riêng của Grok nói khác sổ → theo sổ. Không cất chuyện của Khôi vào trí nhớ Grok (§5c) |
+| P10 | **Không bịa dữ kiện** | Email, số điện thoại, ngày giờ, phòng, link… phải có nguồn; không thấy thì nói không thấy (§5d) |
 
 ## 3. Nền tảng (đã kiểm tra thực tế 29–31/10/2026)
 
@@ -127,6 +128,17 @@ Khôi hỏi: "chat với LifeOS thì nó có nhớ không?" Trước 0.3.0: ch�
 
 **Ba lớp để không phải đọc cả sổ:** (1) hồ sơ ngắn `brain core` · (2) mục lục tìm nhanh `brain search` (SQLite FTS5, gõ không dấu vẫn ra) · (3) trang chi tiết một người/môn/dự án `brain show`. Chi tiết vận hành: skill `lifeos-tri-nho`.
 
+## 5d. Không bịa dữ kiện (chốt 31/10/2026)
+
+Chuyện xảy ra: Khôi nhờ LifeOS gửi mail cho một thầy. LifeOS dùng một địa chỉ đã ngưng hoạt động, rồi nói là "mình đoán", sau đó lại đính chính là có nguồn. Khôi duyệt gửi mà không biết địa chỉ lấy từ đâu → mail bị trả về. Địa chỉ đoán mà trùng một người thật khác thì mail riêng của Khôi sẽ tới tay người lạ.
+
+| # | Quyết định |
+|---|---|
+| N1 | **Mọi bot, mọi dữ kiện** (email, số điện thoại, tên người, ngày giờ, phòng, link, số tiền, mã môn…) nói với Khôi, ghi vào file hay dùng để làm việc phải có **nguồn** (sổ nhớ, dữ liệu mảng, mail, BKeL, MyBK, trang web, Khôi nói). Không thấy → nói thẳng "không tìm thấy" + đã tìm ở đâu + gợi ý cách tìm. **Không đoán, không ghép theo mẫu.** Ghi trong nội quy chung (mục 10) |
+| N2 | **Bản nháp trước khi gửi**: mỗi người nhận (cả CC) một dòng `📤 Gửi tới: <tên> <địa chỉ> — nguồn: <…>` ("nguồn: Khôi đưa" nếu Khôi đưa). Người nhận không có nguồn → **không đưa vào bản nháp**: hỏi Khôi hoặc nhờ đúng bot tìm. Ngoài bản nháp, chỉ nói nguồn khi Khôi hỏi |
+| N3 | Địa chỉ tìm được có nguồn → **lưu vào sổ nhớ kèm nguồn** (sổ có thêm trường `source`); lần sau dùng lại. Trước khi dùng một địa chỉ phải tra sổ: nằm ở "trước đây"/Tránh → không dùng. **Số điện thoại cá nhân** của bạn bè, người nhà chỉ lưu khi Khôi nói "nhớ giúp" |
+| N4 | **Mail bị trả về**: Học tập, Cá nhân, Công ty thấy thư báo trả về cho mail Khôi gửi trong 7 ngày → item `notice` "Mail bị trả về: …" → script nhận ra bằng **từ khóa cố định** (`rules.bounce_keywords`) → 🔴 → LifeOS báo ngay (vẫn theo giờ yên lặng) → địa chỉ trong sổ chuyển "trước đây (bị trả về ngày …)" hoặc ghi vào mục Tránh |
+
 ## 6. Dữ liệu
 
 | File (trong `/workspace/lifeos/`) | Ai ghi | Nội dung |
@@ -152,7 +164,7 @@ Mỗi việc lấy mức cao nhất mà nó thỏa:
 
 | Mức | Điều kiện |
 |---|---|
-| 🔴 GẤP | Hạn ≤ 24h · quá hạn ≤ 7 ngày chưa xong · thay đổi lịch/hạn diễn ra trong 48h · trùng lịch trong 48h · thông báo có từ khóa khẩn (hoãn thi, nghỉ học, đổi phòng…) trong 72h · người quan trọng chờ trả lời > 12h |
+| 🔴 GẤP | Hạn ≤ 24h · quá hạn ≤ 7 ngày chưa xong · thay đổi lịch/hạn diễn ra trong 48h · trùng lịch trong 48h · thông báo có từ khóa khẩn (hoãn thi, nghỉ học, đổi phòng…) trong 72h · **mail Khôi gửi bị trả về** trong 72h · người quan trọng chờ trả lời > 12h |
 | 🟠 CAO | Hạn 24–72h · deadline/quiz/thi/đăng ký mới xuất hiện (≤ 24h) · khoản phải đóng ≤ 7 ngày · cần trả lời · sắp mở đăng ký (≤ 72h) · có thay đổi (xa hơn 48h) |
 | 🟡 TRUNG BÌNH | Hạn 3–7 ngày · thông báo · tin nhắc đến Khôi |
 | ⚪ ĐỂ BIẾT | Còn lại |
@@ -214,7 +226,7 @@ Quyền thường trực của LifeOS: tự đặt Reminder + báo thức khi Kh
 | Soạn nháp | ✔ | — | — |
 | Reminder + báo thức | ✔ trong 3 trường hợp thường trực; còn lại hỏi | — | — |
 | Tạo/sửa sự kiện lịch | Hỏi Khôi | — | — |
-| Gửi mail/tin | Chỉ khi Khôi nói "gửi đi" sau khi xem bản cuối | ✘ | ✘ |
+| Gửi mail/tin | Chỉ khi Khôi nói "gửi đi" sau khi xem bản cuối — bản cuối có dòng 📤 nguồn cho từng người nhận (§5d) | ✘ | ✘ |
 | Nộp bài, làm quiz, đăng ký, thanh toán, xóa | ✘ | ✘ | ✘ |
 | Mở Zalo | ✘ | Chỉ bot Zalo | ✘ |
 | Sửa `config.toml` | Theo lời Khôi | ✘ | Theo lời Khôi |
@@ -256,6 +268,8 @@ Quyền thường trực của LifeOS: tự đặt Reminder + báo thức khi Kh
 10. (0.3.0) Sao lưu đêm đầu: file trên Drive vẫn là `.json`, không bị đổi sang Google Docs.
 11. (0.3.1) Bot Học tập, Cá nhân báo 🔴 qua chat chính (chưa từng có lần nào); Tiko nhắc bot lỡ lần chạy qua chat chính (chưa từng chạy).
 12. (0.3.1) Lần chạy routine có đặt được Reminder + báo thức trên iPhone không (routine 07:00, 23:00 của LifeOS tự áp dụng kế hoạch). Chưa ai kiểm tra.
+13. (0.3.2) Bot đọc mail có nhận ra thư báo trả về và ghi đúng "Mail bị trả về: …" không (chưa có lần nào chạy thật).
+14. (0.3.2) LifeOS có luôn ghi dòng 📤 nguồn trong bản nháp, và nói "không tìm thấy" thay vì đoán không.
 
 ## 16. Tiêu chí thành công
 

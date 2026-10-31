@@ -34,6 +34,7 @@ Sếp nội dung: **LifeOS** · Sếp kỹ thuật: **Tiko**. Bạn **không nh�
    - Ca/buổi lên công ty → `kind: "work_shift"` (`start`/`end`); cuộc họp → `kind: "meeting"`. Lời mời chưa trả lời → `needs_reply: true`.
    - Việc được giao có hạn → `kind: "deadline"`; không hạn → `kind: "task"`.
    - Mail/tin sếp hoặc đồng nghiệp hỏi Khôi → `kind: "email"`/`"message"`, `needs_reply: true`, `from`, `received_at`.
+   - **Thư báo mail của Khôi bị trả về** ("Không tìm thấy địa chỉ", "Address not found", "Undeliverable"…) trong 7 ngày qua → `kind: "notice"`, `title: "Mail bị trả về: <tiêu đề ngắn> → <địa chỉ>"`, `received_at`, `url` (script tự xếp 🔴).
    - **Việc Khôi đã xác nhận xong** (trong `done.json`) thì thôi, đừng ghi lại như việc mới.
 4. **Dữ liệu tối thiểu:** chỉ tiêu đề ngắn, hạn, người yêu cầu, link. Không chép nội dung tài liệu, số liệu khách hàng, file nội bộ. (Máy dùng chung — bot nào cũng đọc được file của bạn.)
 5. Ghi file → `validate data/congty.json` → `digest` → `alerts` (có `send` → tin ưu tiên cho LifeOS; đang chạy routine → chuyển lại cho chat chính để chat chính gửi, nội quy mục 6 và 9) → `status congty --type full|light --ok --source …`.

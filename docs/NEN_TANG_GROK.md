@@ -59,7 +59,7 @@ Ghi lại kết quả Tiko/các bot **làm thử thật** trên tài khoản c�
 ## Google Drive cá nhân (31/10/2026)
 
 - LifeOS và Tiko đều có kết nối Drive cá nhân của Khôi (cùng loại kết nối).
-- Bot tạo được thư mục, tải file lên, **ghi đè cùng một file** (mã file giữ nguyên, không sinh file mới) — cả trong lượt chat lẫn routine.
+- Bot tạo được thư mục, tải file lên. Ghi đè: chiều 31/10 Tiko thử ghi đè một file chữ được (mã file giữ nguyên, cả trong routine); **tối 31/10 Tiko báo công cụ tải file `.json` lại KHÔNG ghi đè được** — mỗi lần tải là thêm một file mới cùng tên. Có thể là hai cách tải khác nhau, chưa rõ → quy trình sao lưu: tải bản mới lên trước, rồi bỏ file cũ cùng tên vào thùng rác.
 - File `.md`, `.json` do Tiko tải lên **giữ nguyên định dạng**, tải về giống từng byte; ảnh JPG giữ nguyên. Một lần LifeOS tải file chữ lên lại thành **Google Docs** → khi tải phải giữ định dạng gốc.
 - Xóa = bỏ vào thùng rác, Drive tự xóa hẳn sau ~30 ngày; bot **không xóa vĩnh viễn** được.
 - GitHub repo riêng tư: hiện **chưa ghi được** (kết nối GitHub không có lệnh ghi file, máy chưa đăng nhập GitHub).

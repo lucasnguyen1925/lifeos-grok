@@ -146,6 +146,24 @@ class Facts(Base):
         self.assertNotIn("nhà", log, "nhật ký quên chỉ giữ mã, không giữ nội dung")
         self.assertNotIn("Kể chuyện", json.dumps(brain.journal_show(t=self.t), ensure_ascii=False))
 
+    def test_source_contacts_and_dead_address(self):
+        a = brain.add("nguoi_quen", "Thầy X dạy môn Y, email thayx@truong.example", subject="Thầy X",
+                      source="trang môn Y trên BKeL", t=self.t)
+        self.assertEqual(a["source"], "trang môn Y trên BKeL")
+        hit = brain.search("thayx")["results"][0]
+        self.assertEqual((hit["id"], hit["source"]), (a["id"], "trang môn Y trên BKeL"), "tra địa chỉ ra cả nguồn")
+        brain.end(a["id"], note="bị trả về ngày 31/10", t=self.t)
+        hit = brain.search("thayx truong example")["results"][0]
+        self.assertTrue(hit["status"].startswith("trước đây"), "địa chỉ bị trả về → không dùng nữa")
+        page = brain.show("thầy x")["text"]
+        self.assertIn("bị trả về ngày 31/10", page)
+        self.assertIn("(nguồn: trang môn Y trên BKeL)", page)
+        b = brain.add("nguoi_quen", "Thầy X dùng email thayx2@truong.example", subject="Thầy X", t=self.t)
+        self.assertIsNone(b["source"])
+        self.assertEqual(brain.edit(b["id"], source="mail thầy gửi ngày 01/11", t=self.t)["source"], "mail thầy gửi ngày 01/11")
+        with self.assertRaises(ValueError):
+            brain.add("khac", "x", source="y" * 300, t=self.t)
+
     def test_validation(self):
         with self.assertRaises(ValueError):
             brain.add("lung_tung", "x", t=self.t)
@@ -181,6 +199,7 @@ class Proposals(Base):
         res = brain.accept(["a"], t=self.night(2))
         fact = self.facts()[res["results"][0]["fact_id"]]
         self.assertEqual((fact["by"], fact["origin"], fact["section"]), ("hoctap", "de_xuat", "nguoi_quen"))
+        self.assertEqual(fact["source"], "Zalo nhóm học", "nơi bot thấy thành nguồn của điều đó")
         self.assertNotIn(fact["id"], brain.report(self.cfg, self.night(3))["new"], "đã duyệt thì không báo lại")
         with self.assertRaises(ValueError):
             brain.accept(["a"])

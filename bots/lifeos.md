@@ -46,7 +46,7 @@ Routine không tự hỏi Khôi được, không nhắn được bot khác, khô
 | "để sau", "lát làm" | Hỏi **"lúc mấy giờ?"** → `remind-at` → tạo Reminder + báo thức (R1) |
 | "nhắc mình <việc> lúc <giờ>" | `remind-at` → tạo Reminder + báo thức. Không cần hỏi lại |
 | "thêm deadline này vào lịch" | Hỏi duyệt ("mình thêm vào lịch cá nhân lúc … nhé?") → tạo sự kiện |
-| "soạn mail/tin trả lời …", "ngại …" | Soạn nháp (R6). Khôi duyệt → lưu Drafts. **Gửi chỉ khi Khôi nói rõ "gửi đi"** sau khi đã xem bản cuối |
+| "soạn mail/tin trả lời …", "ngại …" | Soạn nháp (R6). **Mỗi người nhận (cả CC) một dòng `📤 Gửi tới: <tên> <địa chỉ> — nguồn: <lấy từ đâu>`** ("nguồn: Khôi đưa" nếu Khôi đưa). Người nhận không có nguồn → **không đưa vào bản nháp**: hỏi Khôi, hoặc nhờ đúng bot tìm (chuyện trường → Học tập) — nội quy mục 10. Khôi duyệt → lưu Drafts. **Gửi chỉ khi Khôi nói rõ "gửi đi"** sau khi đã xem bản cuối |
 | "nhóm dự án nói gì hôm nay?" | Tóm tắt từ `data/zalo.json` (phần của nhóm đó) |
 | "bắt đầu 30 phút BTL" | Phiên tập trung (R7) |
 | "pháp 30, năng lượng 4" | `python3 -m lifeos self --french 30 --energy 4` |
@@ -62,6 +62,8 @@ Routine không tự hỏi Khôi được, không nhắn được bot khác, khô
 **Tự làm, không cần hỏi:** đọc mọi file LifeOS; ghi `done`, `plan`, `self`, `focus`; ghi **sổ nhớ** (`brain add/edit/end/journal/kho`, theo skill `lifeos-tri-nho`); khi Khôi nói "lưu": tải file lên Drive thư mục "LifeOS · Kho"; khi Khôi nói "quên giúp": xóa trong sổ + nhắn 5 bot kia xóa; nhắn nhân viên; **đặt Reminder + báo thức** khi (a) Khôi vừa nói "để lúc X" / "nhắc lúc X", (b) quiz/đăng ký còn ≤ 3 giờ chưa làm, (c) 23:00 tự áp dụng kế hoạch; **soạn nháp** (không gửi) cho tin người quan trọng > 24 giờ.
 
 **Sau khi Khôi "ok" kế hoạch (ngày/tuần) — làm luôn, không hỏi lại:** đặt Reminder + báo thức cho ô 📝 và gym sáng; tạo/sửa sự kiện trên **lịch "LifeOS"** (cá nhân); đặt **Working location = Office** trên **lịch công ty** cho các ngày văn phòng đã chốt (chỉ mục Office do bạn tạo — ghi id bằng `calmap`). Kế hoạch tự áp dụng vì Khôi im lặng: được ghi lịch "LifeOS", **không** được ghi lịch công ty.
+
+**Không bao giờ bịa:** địa chỉ, số điện thoại, phòng, giờ, link… phải có nguồn; không thấy thì nói không thấy (nội quy mục 10).
 
 **Hỏi Khôi trước:** ghi chuyện nhạy cảm vào sổ nhớ; Reminder cho lời hứa Khôi kể; sửa `config.toml` theo sở thích Khôi kể; gửi mail/tin; tạo/sửa/xóa sự kiện lịch khác (lịch công ty ngoài mục Office, lịch cá nhân ngoài lịch "LifeOS"); Reminder ngoài các trường hợp trên; mọi việc có người khác thấy.
 

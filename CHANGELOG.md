@@ -2,6 +2,26 @@
 
 Mỗi bản ghi rõ **Tiko phải làm gì** khi cập nhật (skill `lifeos-cap-nhat`).
 
+## 0.3.2 — không bịa dữ kiện, bản nháp ghi nguồn, báo mail bị trả về (31/10)
+
+Chuyện xảy ra: mail gửi thầy bị trả về vì địa chỉ không dùng được, và Khôi duyệt gửi mà không biết địa chỉ lấy từ đâu. Quyết định: SPEC §5d (N1–N4).
+
+**Tiko làm:**
+1. `git pull`, chạy test (phải OK, 42 bài).
+2. Chép đè skill `lifeos-noi-quy`, `lifeos-tri-nho`, `lifeos-bao-cao`, `lifeos-chong-tri-hoan` vào `/home/box/agent-data/workflows/`.
+3. Thêm khóa `bounce_keywords` vào mục `[rules]` của `/workspace/lifeos/config.toml` (chép từ `config/config.example.toml`, giữ các khóa khác).
+4. Gửi tin ưu tiên cho **LifeOS, Học tập, Công ty, Cá nhân** (Tiko tự áp dụng): "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/<bot>.md (đọc toàn văn, thay hướng dẫn cũ)." Zalo không đổi. **Không routine nào phải đổi.**
+5. Sao lưu đêm từ nay: tải bản mới lên Drive **trước**, thấy lên đủ rồi mới bỏ file cũ cùng tên vào thùng rác (mỗi tên chỉ còn 1 file). Dọn luôn các file trùng tên đang có.
+6. Thử rồi ghi vào `state/cai_dat.md`: nhắn LifeOS "soạn thử một mail cho <một người có trong sổ nhớ>, chưa gửi" → bản nháp phải có dòng `📤 Gửi tới: … — nguồn: …`. Nhắn LifeOS "soạn thử mail cho bạn thử nghiệm Z" (không có trong sổ) → LifeOS phải nói không tìm thấy địa chỉ, không được tự nghĩ ra.
+
+**Khôi làm:** không có gì thêm ngoài việc nhắn Tiko cập nhật. Nếu thấy bot nào đưa ra địa chỉ, số điện thoại hay phòng mà không nói được lấy từ đâu thì chụp lại gửi Claude.
+
+Thay đổi:
+- Nội quy mục 10 (mới): không bịa dữ kiện. LifeOS + R6: bản nháp có dòng `📤 Gửi tới … — nguồn …`, người nhận không có nguồn thì không đưa vào.
+- Sổ nhớ: trường `source` (`brain add/edit --source`), hiện trong `search`/`show`; đề xuất được duyệt mang theo nguồn. Địa chỉ liên lạc lưu kèm nguồn; số điện thoại cá nhân chỉ lưu khi "nhớ giúp".
+- `lifeos/urgency.py`: thư báo mail bị trả về (`rules.bounce_keywords`) → 🔴 "mail bạn gửi bị trả về — người nhận CHƯA nhận được" trong 72 giờ. Học tập, Công ty, Cá nhân ghi thư trả về thành `notice` "Mail bị trả về: …"; LifeOS báo ngay và đánh dấu địa chỉ trong sổ.
+- Sao lưu: tải mới trước, bỏ cũ sau (Drive không ghi đè được file `.json`).
+
 ## 0.3.1 — sửa hướng dẫn cho khớp cách routine chạy thật (31/10)
 
 Thử thật 31/10: routine **không nhắn được bot khác** (kể cả tự nhắn cho chính mình), nhưng khi có việc chuyển lại thì **chat chính của bot đó tự dậy và làm**. Báo 🔴 và tự đăng nhập lại vẫn chạy được là nhờ bot tự xoay xở theo đường này; bản này ghi đúng cách làm vào hướng dẫn. Không đổi quyết định nào.

@@ -138,6 +138,7 @@ Nhận tin ưu tiên từ bot mảng → `python3 -m lifeos digest` → `python3
   ```
   rồi `python3 -m lifeos alerts --mark <các id vừa gửi>`.
 - Việc quiz/đăng ký còn ≤ 3 giờ chưa làm → **tự đặt Reminder + báo thức** (đã được Khôi cấp quyền), giờ lấy từ `remind-at`.
+- Lý do "mail bạn gửi bị trả về" → báo riêng một dòng: `🚨 Mail gửi <người> lúc <giờ> bị trả về: địa chỉ không dùng được. Mình tìm địa chỉ khác nhé?` Rồi ghi sổ nhớ: địa chỉ đó đang có trong sổ → `brain end <mã> --note "bị trả về <ngày>"`; chưa có → `brain add --section tranh --subject "<người>" --text "Không gửi tới <địa chỉ>: bị trả về <ngày>" --source "thư báo trả về <ngày>"`. Tìm địa chỉ khác theo nội quy mục 10 — không đoán.
 
 ## Tổng kết tuần (trong tin Chủ nhật 20:00) và tháng
 

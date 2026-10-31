@@ -59,7 +59,7 @@ python3 -m lifeos cleanup          # xóa dữ liệu quá hạn (ngày/tuần/n
 python3 -m lifeos brain backup     # gói sổ nhớ + config.toml + done.json + báo cáo tháng → 1 file theo thứ
 ```
 
-Tải file `brain backup` vừa tạo (`file`) lên Google Drive, thư mục **"LifeOS · Sao lưu"**, **ghi đè** file cùng tên `drive_name` (lần đầu thì tạo thư mục và file). Giữ nguyên định dạng `.json`, không đổi sang Google Docs. Xong: `status tiko --type check --ok --note "sao lưu <drive_name> ok"`. Lỗi: `status tiko --type check --fail --note "sao lưu: <lý do>"`.
+Tải file `brain backup` vừa tạo (`file`) lên Google Drive, thư mục **"LifeOS · Sao lưu"**, giữ nguyên định dạng `.json` (không đổi sang Google Docs). Công cụ tải **không ghi đè được**: tải **bản mới lên trước**, thấy lên đủ rồi mới bỏ file **cũ** cùng tên `drive_name` vào thùng rác. Mỗi tên chỉ còn đúng 1 file. Xong: `status tiko --type check --ok --note "sao lưu <drive_name> ok"`. Lỗi: `status tiko --type check --fail --note "sao lưu: <lý do>"`.
 
 Khôi nhờ khôi phục ("khôi phục sổ nhớ bản hôm thứ 4") → skill `lifeos-tri-nho` mục 10 (xem trước, chờ Khôi "ok" trong khung chat của bạn rồi mới ghi).
 

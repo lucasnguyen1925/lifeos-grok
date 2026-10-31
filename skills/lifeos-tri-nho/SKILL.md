@@ -44,6 +44,8 @@ Kết quả ghi `trước đây (tới 11/2026)` = chuyện cũ không còn đú
 - `--subject "<tên>"` khi điều đó nói về một người/môn/dự án (để `show` gom thành trang).
 - `--core` nếu đáng nằm trên hồ sơ ngắn: người hay nhắc tới, thói quen ảnh hưởng kế hoạch, lời hứa đang mở, mục tiêu hiện tại. Không chắc → không `--core`. Mỗi mục hồ sơ có giới hạn dòng; quá thì điều lâu không nhắc tự nằm lại trong sổ.
 - Kết quả có `duplicate_of` → sổ đã có (chỉ khác chữ đệm), không làm gì thêm.
+- `--source "<lấy từ đâu>"`: **bắt buộc** với dữ kiện dùng để liên lạc/làm việc (email, số điện thoại, link, phòng…). Chuyện Khôi kể thì không cần (mặc định là Khôi kể).
+- **Địa chỉ liên lạc** tìm được có nguồn (email thầy cô, đồng nghiệp…) → lưu vào `nguoi_quen` kèm `--subject` và `--source`, lần sau dùng lại khỏi tìm. **Số điện thoại cá nhân** của bạn bè, người nhà: chỉ lưu khi Khôi nói "nhớ giúp".
 
 ```bash
 python3 -m lifeos brain add --by lifeos --section nguoi_quen --subject "bạn A" --core --text "Bạn A là trưởng nhóm BTL môn X"
@@ -74,6 +76,8 @@ Trả lời Khôi: **chữ a, b, c… là sổ nhớ**; **số 1, 2, 3… là k�
 | Lời hứa/dự định **có ngày** | `add --section dang_do --due …` → hỏi ngay **"Thêm vào việc cần làm không?"** → "ok" → tạo Reminder trong danh sách việc (`config.toml` → `sources.canhan.reminders_list`); bot Cá nhân sẽ quét thấy và đưa vào kế hoạch |
 | Sở thích **đụng cách xếp lịch** (giờ ngủ, giờ dậy, giới hạn giờ, giờ tập…) | `add` → hỏi **"Đổi luôn cách xếp lịch: <thay đổi> nhé?"** → "ok" → sửa đúng khóa trong `config.toml` → báo đã đổi. **Không bao giờ tự đổi lặng lẽ.** Sở thích không có khóa cấu hình (vd "học sáng vào hơn") → chỉ nhớ, dùng để khuyên |
 | Nhắc tới người mới quan trọng (sếp mới, giảng viên mới) | `add --section nguoi_quen` → hỏi "Thêm vào danh sách người quan trọng không?" (ảnh hưởng độ gấp) |
+| Cần địa chỉ/số để gửi | `search` trong sổ trước. Có và đang đúng → dùng, bản nháp ghi "nguồn: sổ nhớ (gốc: …)". Không có, hoặc nằm ở "trước đây"/Tránh → tìm ở nguồn thật (nhờ đúng bot) hoặc hỏi Khôi; tìm được → `add … --source …`. **Không đoán** (nội quy mục 10) |
+| Mail Khôi gửi bị trả về | Skill `lifeos-bao-cao`, mục Cảnh báo 🔴: địa chỉ đó → "trước đây" hoặc mục Tránh |
 
 Nhắc chủ động: chỉ trong dòng 💡 sẵn có của báo cáo (tối đa 1 dòng), ví dụ "💡 Tuần trước Khôi nói muốn thử học buổi sáng — mai 7:00–8:30 trống đó".
 
@@ -139,7 +143,7 @@ Routine 20:40 không tự làm (routine không đọc được chat): nó chỉ 
 
 **02:15** (routine Dọn dẹp đêm), sau `cleanup`:
 1. `brain backup` → gói sổ nhớ + `config.toml` + `done.json` + báo cáo tháng vào **một file** `lifeos_saoluu_<thứ>.json`.
-2. Tải lên Google Drive thư mục **"LifeOS · Sao lưu"**, **ghi đè** file cùng tên (lần đầu thì tạo) → luôn có 7 bản xoay vòng theo thứ.
+2. Tải lên Google Drive thư mục **"LifeOS · Sao lưu"** (giữ định dạng `.json`). Công cụ tải **không ghi đè được** → tải **bản mới lên trước**, thấy lên đủ rồi mới bỏ file **cũ** cùng tên vào thùng rác (đừng xóa trước — lỡ tải hỏng còn bản cũ). Mỗi tên `lifeos_saoluu_<thứ>.json` chỉ còn đúng 1 file → luôn có 7 bản xoay vòng theo thứ.
 3. `status tiko --type check --ok --note "sao lưu <tên file> ok"` (lỗi → `--fail --note "sao lưu: <lý do>"`).
 
 **Khôi: "khôi phục sổ nhớ bản hôm thứ 4"** (trong khung chat Tiko):

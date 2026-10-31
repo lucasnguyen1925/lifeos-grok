@@ -26,6 +26,10 @@ group = "canhan"
 # ---------- Luật ----------
 [rules]
 urgent_keywords = ["hoãn thi", "nghỉ học", "đổi phòng", "đổi lịch thi", "khẩn", "hoãn", "huỷ", "hủy"]
+# Thư báo mail của Khôi bị trả về → 🔴 (bot đọc mail ghi thành notice "Mail bị trả về: …")
+bounce_keywords = ["bị trả về", "không tìm thấy địa chỉ", "address not found", "undeliverable",
+                   "delivery status notification", "mail delivery subsystem", "delivery has failed",
+                   "message not delivered", "không gửi được thư"]
 stale_hours = 14          # file mảng cũ hơn chừng này giờ thì báo "dữ liệu cũ"
 
 [alerts]

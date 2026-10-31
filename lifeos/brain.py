@@ -189,8 +189,12 @@ def _month_label(value: str | None) -> str:
 
 def add(section: str, text: str, *, subject: str | None = None, tags: Iterable[str] = (), due: str | None = None,
         core: bool = False, pin: bool = False, sensitive: bool = False, by: str = "lifeos", origin: str = "chat",
-        replaces: str | None = None, t: datetime | None = None) -> dict[str, Any]:
-    """Ghi một điều. Trùng với điều đang đúng → không ghi thêm, chỉ làm mới 'lần cuối nhắc tới'."""
+        replaces: str | None = None, source: str | None = None, t: datetime | None = None) -> dict[str, Any]:
+    """Ghi một điều. Trùng với điều đang đúng → không ghi thêm, chỉ làm mới 'lần cuối nhắc tới'.
+
+    source = điều này lấy từ đâu ("trang môn GT2 trên BKeL", "Khôi kể"…). Bắt buộc với dữ kiện dùng để
+    liên lạc/làm việc (email, số điện thoại, link, phòng…) — luật "không bịa" (SPEC §5d).
+    """
     if section not in SECTIONS:
         raise ValueError(f"--section phải là một trong {', '.join(SECTIONS)}.")
     if origin not in ORIGINS:
@@ -214,6 +218,8 @@ def add(section: str, text: str, *, subject: str | None = None, tags: Iterable[s
                     f["tags"] = sorted(set(f.get("tags", [])) | set(tags))
                     f["core"] = f.get("core", False) or core
                     f["pinned"] = f.get("pinned", False) or pin
+                    if source:
+                        f["source"] = _clean_source(source)
                     write_json(_p("so_nho.json"), store)
                     return {"ok": True, "duplicate_of": f["id"], **_brief(f),
                             "note": "Sổ đã có điều này — chỉ ghi nhận là vừa được nhắc lại."}
@@ -222,7 +228,7 @@ def add(section: str, text: str, *, subject: str | None = None, tags: Iterable[s
             "subject": subject or (old or {}).get("subject"), "tags": tags or list((old or {}).get("tags", [])),
             "due": _parse_due(due), "status": "current",
             "core": bool(core or (old or {}).get("core")), "pinned": bool(pin or (old or {}).get("pinned")),
-            "sensitive": bool(sensitive), "by": by, "origin": origin,
+            "sensitive": bool(sensitive), "by": by, "origin": origin, "source": _clean_source(source),
             "created_at": iso(t), "confirmed_at": iso(t), "edited_at": None,
             "ended_at": None, "end_note": None, "replaces": replaces, "replaced_by": None, "merged_into": None,
             # chuyển từ trí nhớ cũ, hoặc Khôi vừa "ghi" từ đề xuất → không báo lại ở dòng 🧠
@@ -239,11 +245,22 @@ def add(section: str, text: str, *, subject: str | None = None, tags: Iterable[s
 
 
 def _brief(f: dict[str, Any]) -> dict[str, Any]:
-    return {k: f.get(k) for k in ("section", "text", "subject", "due", "core", "pinned", "sensitive", "status")}
+    return {k: f.get(k) for k in ("section", "text", "subject", "due", "source", "core", "pinned", "sensitive", "status")}
+
+
+def _clean_source(source: str | None) -> str | None:
+    source = " ".join((source or "").split())
+    if len(source) > 200:
+        raise ValueError("Nguồn ghi ngắn thôi (tối đa 200 ký tự): trang nào, mail ngày nào, ai nói.")
+    return source or None
+
+
+def _source_label(f: dict[str, Any]) -> str:
+    return f" (nguồn: {f['source']})" if f.get("source") else ""
 
 
 def edit(fid: str, *, text: str | None = None, section: str | None = None, subject: str | None = None,
-         due: str | None = None, t: datetime | None = None) -> dict[str, Any]:
+         due: str | None = None, source: str | None = None, t: datetime | None = None) -> dict[str, Any]:
     """Sửa vì ghi SAI (không giữ bản sai). Điều đổi theo thời gian thì dùng add --replaces."""
     t = t or now()
     with _locked():
@@ -259,6 +276,8 @@ def edit(fid: str, *, text: str | None = None, section: str | None = None, subje
             f["subject"] = subject or None
         if due is not None:
             f["due"] = _parse_due(due) if due else None
+        if source is not None:
+            f["source"] = _clean_source(source)
         f.update(edited_at=iso(t), confirmed_at=iso(t), unconfirmed=False)
         write_json(_p("so_nho.json"), store)
     return {"ok": True, "id": f["id"], **_brief(f)}
@@ -440,8 +459,9 @@ def _documents() -> list[dict[str, Any]]:
             continue
         label = "đang đúng" if f["status"] == "current" else f"trước đây (tới {_month_label(f.get('ended_at'))})"
         docs.append({"type": "sổ nhớ", "id": f["id"], "text": f["text"] + _due_label(f),
-                     "section": SECTIONS[f["section"]][1], "status": label,
-                     "index": " ".join([f["text"], f.get("subject") or "", " ".join(f.get("tags", []))]),
+                     "section": SECTIONS[f["section"]][1], "status": label, "source": f.get("source"),
+                     "index": " ".join([f["text"], f.get("subject") or "", " ".join(f.get("tags", [])),
+                                        f.get("end_note") or ""]),
                      "penalty": 0.0 if f["status"] == "current" else 0.5})
     for k in _load_kho()["items"]:
         docs.append({"type": "kho", "id": k["id"], "text": f"{k['title']} — {k.get('summary') or ''}".strip(" —"),
@@ -504,9 +524,11 @@ def show(name: str) -> dict[str, Any]:
     journal = [d for d in _documents() if d["type"] == "nhật ký" and match(d["text"])][-10:]
     lines = [f"# {name}"]
     if cur:
-        lines += ["## Đang đúng"] + [f"- {f['id']} · {f['text']}{_due_label(f)}" for f in cur]
+        lines += ["## Đang đúng"] + [f"- {f['id']} · {f['text']}{_due_label(f)}{_source_label(f)}" for f in cur]
     if past:
-        lines += ["## Trước đây"] + [f"- {f['id']} · {f['text']} (tới {_month_label(f.get('ended_at'))})" for f in past]
+        lines += ["## Trước đây"] + [f"- {f['id']} · {f['text']} (tới {_month_label(f.get('ended_at'))}"
+                                     f"{' — ' + f['end_note'] if f.get('end_note') else ''}){_source_label(f)}"
+                                     for f in past]
     if kho:
         lines += ["## Kho"] + [f"- {k['id']} · {k['title']} {k.get('url') or k.get('drive') or ''}".rstrip() for k in kho]
     if journal:
@@ -598,7 +620,8 @@ def _decide(tokens: Iterable[str], accept_it: bool, t: datetime | None = None) -
     results = []
     for p in todo:
         if accept_it:
-            res = add(p["section"], p["text"], subject=p.get("subject"), by=p["by"], origin="de_xuat", t=t)
+            res = add(p["section"], p["text"], subject=p.get("subject"), by=p["by"], origin="de_xuat",
+                      source=p.get("source"), t=t)
             p.update(status="accepted", fact_id=res.get("id") or res.get("duplicate_of"))
         else:
             p["status"] = "rejected"

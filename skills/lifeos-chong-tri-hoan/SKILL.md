@@ -50,6 +50,7 @@ Mọi lời nhắc = **Reminder (danh sách "To-do list") + báo thức Grok cù
 
 ## R6 — Viết nháp việc ngại
 - Khôi nói "ngại <việc>" → soạn nháp ngay (mail thầy/sếp, tin nhóm, đơn từ). Bản nháp lịch sự, ngắn, đúng giọng; Khôi sửa rồi tự gửi (hoặc duyệt cho LifeOS lưu vào Drafts).
+- Bản nháp mail/tin luôn có dòng **`📤 Gửi tới: <tên> <địa chỉ> — nguồn: <lấy từ đâu>`** cho từng người nhận. Không có nguồn → không đưa người đó vào, hỏi Khôi (nội quy mục 10).
 - **Tự soạn** (không gửi) khi tin `needs_reply` của người quan trọng nằm > 24 giờ: hỏi nhẹ "Mình soạn sẵn trả lời <người> rồi nè, xem thử không?"
 - Thủ tục hành chính → biến thành **danh sách 3 bước** kèm link/biểu mẫu.
 - Tiền bạc / chuyện gia đình: chỉ gợi ý cách mở lời **khi Khôi hỏi**, không tự soạn.

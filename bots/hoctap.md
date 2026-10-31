@@ -42,6 +42,7 @@ Sếp nội dung: **LifeOS** · Sếp kỹ thuật: **Tiko**. Bạn **không nh�
    - Học phí → `kind: "payment"`, `due`.
    - Thông báo trường/khoa/AAO/BKeL → `kind: "notice"`, `received_at`, `url`.
    - Mail/tin GV hỏi Khôi → `kind: "email"`/`"message"`, `needs_reply: true`, `from`, `received_at`.
+   - **Thư báo mail của Khôi bị trả về** (người gửi kiểu Mail Delivery Subsystem; có chữ "Không tìm thấy địa chỉ", "Address not found", "Undeliverable"…) trong 7 ngày qua → `kind: "notice"`, `title: "Mail bị trả về: <tiêu đề mail Khôi gửi> → <địa chỉ>"`, `received_at`, `url`. Script tự xếp 🔴.
 4. Bảng điểm: ghi mảng `grades` ở cấp ngoài cùng của file: `[{"course": "CO3001", "name": "CNPM", "score": 8.5, "credits": 3, "term": "HK251"}]` (thang 10).
 5. Ghi file → `python3 -m lifeos validate data/hoctap.json` → sửa tới khi OK.
 6. `python3 -m lifeos digest` → `python3 -m lifeos alerts`: có `send` → tin ưu tiên cho LifeOS (nội quy mục 6). Đang chạy routine → chuyển lại cho chat chính để chat chính gửi (nội quy mục 9).

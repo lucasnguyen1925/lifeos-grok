@@ -113,6 +113,17 @@ class Urgency(Base):
         n = item(kind="notice", title="Thông báo HOÃN THI giữa kỳ", received_at="2026-11-02T10:00+07:00")
         self.assertEqual(self.level(n), urgency.RED)
 
+    def test_bounced_mail_is_red(self):
+        bounce = item(kind="notice", title="Mail bị trả về: gửi thầy X về lịch thi", received_at="2026-11-02T13:00+07:00")
+        level, why = urgency.classify(bounce, self.now, self.cfg)
+        self.assertEqual(level, urgency.RED)
+        self.assertIn("bị trả về", why[0])
+        english = item(kind="notice", title="Delivery Status Notification (Failure)", notes="Address not found",
+                       received_at="2026-11-02T13:00+07:00")
+        self.assertEqual(urgency.classify(english, self.now, self.cfg)[0], urgency.RED)
+        old = dict(bounce, received_at="2026-10-28T13:00+07:00")
+        self.assertNotEqual(urgency.classify(old, self.now, self.cfg)[0], urgency.RED, "quá 72 giờ thì thôi gấp")
+
     def test_new_quiz_is_orange(self):
         q = item(kind="quiz", due="2026-11-12T23:59+07:00")
         self.assertEqual(self.level(q, first_seen=self.now - timedelta(hours=2)), urgency.ORANGE)
