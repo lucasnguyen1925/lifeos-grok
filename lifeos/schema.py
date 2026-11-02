@@ -126,6 +126,11 @@ def validate_item(item: Any) -> list[str]:
     if item["kind"] in TIMED_KINDS and not (item.get("start") and item.get("end")):
         if not (item["kind"] == "exam" and item.get("start")):
             errors.append(f"kind {item['kind']!r} cần có 'start' và 'end'.")
+    if item["kind"] in ("class", "exam") and item.get("start") and "T" not in item["start"]:
+        errors.append(
+            f"kind {item['kind']!r} cần 'start' có GIỜ cụ thể, ví dụ 2026-11-02T13:00+07:00. Chỉ có ngày sẽ bị hiểu là 00:00 "
+            "(kế hoạch tính sai giờ dậy). Bài kiểm tra trên lớp: lấy giờ buổi học của môn đó hôm đó; không biết giờ thì "
+            "ghi kind 'deadline' với 'due' là ngày.")
     if item.get("start") and item.get("end") and not errors:
         if parse_dt(item["end"]) <= parse_dt(item["start"]):
             errors.append("'end' phải sau 'start'.")

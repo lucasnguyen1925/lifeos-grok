@@ -7,8 +7,8 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
-from . import agenda, urgency
-from .common import DOMAINS, iso, now, parse_dt, path, read_json, vn_date, vn_datetime, write_json
+from . import agenda, lichtong, urgency
+from .common import DOMAINS, iso, now, parse_dt, path, read_json, vn_date, vn_datetime, vn_deadline, write_json
 from .schema import validate_domain_file
 
 TRACKED_FIELDS = ("due", "start", "end", "location", "title")
@@ -93,6 +93,13 @@ def build(t: datetime | None = None, cfg: dict[str, Any] | None = None) -> dict[
             it["changed"], it["change_note"] = True, rec.get("change_note")
 
     conflicts = agenda.find_conflicts(all_items, t)
+    # Lịch tổng: chỗ trùng giữa thứ LifeOS tự xếp (văn phòng, buổi tập, ô 📝) với lịch thật — 3 ngày tới.
+    # Để riêng khỏi `conflicts`: lịch học không nên bị tô 🔴 chỉ vì buổi tập đè lên nó (buổi tập phải dời).
+    try:
+        conflicts_lifeos = lichtong.conflicts([t.date() + timedelta(days=i) for i in range(3)], cfg, include_lich_lich=False)
+    except (KeyError, ValueError, TypeError) as exc:
+        conflicts_lifeos = []
+        problems.append(f"Không dựng được lịch tổng: {exc}")
     in_conflict = {c["a"] for c in conflicts} | {c["b"] for c in conflicts}
 
     ranked = []
@@ -102,7 +109,7 @@ def build(t: datetime | None = None, cfg: dict[str, Any] | None = None) -> dict[
         out = dict(it, level=level, level_label=urgency.LABELS[level], reasons=reasons)
         due = urgency.due_dt(it)
         if due:
-            out["due_label"] = vn_datetime(due)
+            out["due_label"] = vn_deadline(due)
             out["minutes_left"] = int((due - t).total_seconds() // 60)
         if it.get("start"):
             out["start_label"] = vn_datetime(parse_dt(it["start"]))
@@ -129,6 +136,7 @@ def build(t: datetime | None = None, cfg: dict[str, Any] | None = None) -> dict[
         "schedule_today": schedule_for(t.date()),
         "schedule_tomorrow": schedule_for(tomorrow),
         "conflicts": conflicts,
+        "conflicts_lifeos": conflicts_lifeos,
         "new_red": [x["id"] for x in ranked if x["level"] == urgency.RED and x["id"] not in alerted],
     }
     write_json(path("digest.json"), digest)

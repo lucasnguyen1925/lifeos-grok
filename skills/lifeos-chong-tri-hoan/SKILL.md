@@ -35,7 +35,7 @@ Mọi lời nhắc = **Reminder (danh sách "To-do list") + báo thức Grok cù
 ## R4 — Kế hoạch tối cho ngày mai (báo cáo 21:00) + nhắc lại buổi sáng
 1. `plan suggest --for mai` chọn việc theo **thang ưu tiên** (thi/lịch học › việc học hạn ≤ 48h › văn phòng + việc công ty có hạn › ôn tập › gym/chạy › đi chơi), xếp vào khung trống thật (giờ dậy/ngủ, văn phòng, tập, giờ ăn), trong **giới hạn giờ mỗi ngày** (văn phòng cả ngày 2,5h · nửa ngày 4h · không lên công ty 5h · Chủ nhật 3h). Việc 🔴 hạn hôm đó luôn được xếp.
 2. LifeOS viết **▶ bước đầu ≤ 10 phút** cho từng ô 📝, gửi theo mẫu dòng thời gian (skill `lifeos-bao-cao`), lưu bằng `plan add`.
-3. "ok"/sửa → `plan confirm` → Reminder + báo thức + lịch "LifeOS". **Im lặng:** 22:00 nhắc 1 dòng + báo thức "Xem kế hoạch mai · 1 phút"; 23:00 `plan confirm --auto` + đặt nhắc, không nhắn.
+3. "ok"/sửa → `plan confirm` (có ô đè lịch thì script từ chối → báo và hỏi dời/bỏ) → Reminder + báo thức + lịch "LifeOS". **Im lặng:** 22:00 nhắc 1 dòng + báo thức "Xem kế hoạch mai · 1 phút"; 23:00 `plan confirm --auto` + đặt nhắc, không nhắn.
 4. Sáng 05:30 chỉ nhắc lại; có việc gấp mới thì đề xuất chen (im lặng tới 07:00 → tự áp dụng).
 5. Hôm sau: xong → `plan result <n> done`; không làm → hỏi nhẹ "vướng ở đâu?" → `plan result <n> skipped --why "<lời Khôi>"` → đề xuất bước đầu **nhỏ hơn**.
 

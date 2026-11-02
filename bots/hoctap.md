@@ -36,7 +36,8 @@ Sếp nội dung: **LifeOS** · Sếp kỹ thuật: **Tiko**. Bạn **không nh�
 3. Chuyển mỗi thứ tìm được thành item theo định dạng chuẩn:
    - Quiz → `kind: "quiz"`, `due` = giờ đóng, `start` = giờ mở (nếu có), `est_minutes` = thời gian làm bài ghi trên BKeL. **Đã có lượt làm → `status: "done"`.**
    - Bài tập → `kind: "deadline"`. **Đã nộp → `status: "done"`.**
-   - Lịch thi **và bài kiểm tra trên lớp / giữa kỳ** → `kind: "exam"`, `start`/`end`, `location` = phòng. Tiêu đề kiểm tra phải có chữ "kiểm tra" hoặc "giữa kỳ" (script dựa vào đó để chia 3 buổi ôn thay vì 6).
+   - Lịch thi **và bài kiểm tra trên lớp / giữa kỳ** → `kind: "exam"`, `start`/`end`, `location` = phòng. Tiêu đề kiểm tra phải có chữ "kiểm tra" hoặc "giữa kỳ" (script dựa vào đó để chia 3 buổi ôn thay vì 6). **`start`/`end` PHẢI có giờ** (`2026-11-02T13:00+07:00`): bài kiểm tra trên lớp diễn ra trong buổi học → lấy giờ buổi học của môn đó hôm đó trên thời khóa biểu. Không biết giờ thì ghi `kind: "deadline"` với `due` là ngày — **không ghi `start` chỉ có ngày** (bị hiểu là 00:00 → kế hoạch tính sai giờ dậy; `validate` sẽ báo lỗi).
+   - Sự kiện có giờ của trường khác (thí nghiệm, buổi sinh hoạt, họp nhóm…) → `kind: "event"` hoặc `"meeting"` kèm `start`/`end` có giờ: lịch văn phòng và buổi tập sẽ tự né những giờ này.
    - Buổi học → `kind: "class"`, `start`/`end`, `location`.
    - Đợt đăng ký môn/thi → `kind: "registration"`, `start` = giờ mở cổng, `due` = giờ đóng.
    - Học phí → `kind: "payment"`, `due`.

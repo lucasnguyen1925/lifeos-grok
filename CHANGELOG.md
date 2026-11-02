@@ -2,6 +2,47 @@
 
 Mỗi bản ghi rõ **Tiko phải làm gì** khi cập nhật (skill `lifeos-cap-nhat`).
 
+## 0.5.0 — Lịch tổng: hết xếp đè giờ học + bớt tốn credit (02/11)
+
+Chuyện xảy ra: tuần đầu chạy thật, kế hoạch tuần có gym 6:00–8:00 đè lớp 7:00, chạy sáng đè buổi thí nghiệm, văn phòng đè một buổi thí nghiệm — LifeOS không báo trùng gì (giờ gym đóng cứng; dò trùng không tính thứ LifeOS tự xếp; LifeOS sửa tay file kế hoạch nên bỏ qua mọi kiểm tra). Kèm "⏰ Dậy 23:00" và hạn "00:00 Thứ 6" dễ đọc nhầm. Đo credit: LifeOS dùng nhiều nhất. Quyết định: SPEC §5f (L1–L9, C1–C3).
+
+**Tiko làm:**
+1. `git pull`, chạy test (phải OK, 82 bài).
+2. Chép đè 4 skill vào `/home/box/agent-data/workflows/`: `lifeos-bao-cao`, `lifeos-tri-nho`, `lifeos-chong-tri-hoan`, `lifeos-noi-quy`.
+3. Gửi tin ưu tiên cho **LifeOS** và **Học tập** (4 bot còn lại không đổi): "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/<bot>.md (đọc toàn văn, thay hướng dẫn cũ)."
+4. **LifeOS đổi nội dung 3 routine của chính nó** (07:00, 22:00, 23:00) theo bảng "Routine của bạn" trong `bots/lifeos.md` (giờ giữ nguyên, chỉ đổi câu lệnh: chạy `plan pending` trước, không có việc thì dừng). Khôi bấm duyệt thẻ nếu có. Các routine khác giữ nguyên.
+5. Thêm khóa mới `soft_event_minutes = 30` vào mục `[schedule]` của `/workspace/lifeos/config.toml` (không bắt buộc — mặc định cũng là 30). Không đổi gì khác, không ghi đè giá trị Khôi đã điền.
+6. **Kiểm lại tuần 2–8/11 bằng lịch tổng — Tiko KHÔNG tự sửa kế hoạch, KHÔNG chạy lại `week propose`** (sẽ đè kế hoạch tuần đang dùng):
+   ```bash
+   cd /workspace/lifeos-grok
+   python3 -m lifeos digest
+   python3 -m lifeos lichtong check --date 2026-11-02 --days 7
+   ```
+   Gửi **nguyên kết quả** cho LifeOS (tin ưu tiên). LifeOS báo Khôi từng chỗ trùng mức `cao` (gym/chạy/văn phòng đè lớp, thi, sự kiện), hỏi dời/bỏ, rồi sửa bằng `week train <ngày> --type gym|run --label "…"` hoặc `week set <ngày> --training none` và sửa sự kiện tương ứng trên lịch "LifeOS" (lấy id từ `calmap get train:<ngày>`). Tuần này Khôi đã tập PPL: LifeOS dùng `week train` đặt lại cho đúng, **không** sửa tay `state/week.json`.
+7. **Page:** LifeOS chạy `python3 -m lifeos page` và `python3 -m lifeos brain page` → đăng Page "LifeOS" và Page "Trí nhớ" (lần đầu `changed: true`; Page Trí nhớ không còn mục "Toàn bộ sổ" — bình thường) → rồi chạy `python3 -m lifeos page --mark` và `python3 -m lifeos brain page --mark`.
+8. Thử (chỉ đọc, không ghi lịch), ghi kết quả vào `state/cai_dat.md`:
+   - `python3 -m lifeos lichtong show --date 2026-11-04 --days 1` in đúng lịch ngày đó (gồm Văn phòng, buổi tập, ô 📝 nếu có).
+   - `python3 -m lifeos lichtong try --start 2026-11-04T06:30 --end 2026-11-04T07:30 --title "Thử"` báo đè đúng buổi tập/lớp nếu có.
+   - `python3 -m lifeos plan pending --for mai` in `need_confirm` / `week_need_confirm`.
+   - Khôi nhắn LifeOS "tuần này nghỉ chạy, tập PPL" (hoặc một yêu cầu đổi tập tương tự) → LifeOS phải dùng `week train` (không sửa tay file), báo `day_conflicts`.
+   - Bot Học tập quét lần kế tiếp: bài kiểm tra trên lớp có `start` có giờ; `validate` OK.
+9. Sau 2–3 ngày thường: nhìn trang **Mức sử dụng**, gửi Khôi % mỗi bot mỗi ngày (ghi chú: ngày tính theo UTC) để chốt đợt cắt credit tiếp theo.
+
+**Khôi làm:** nhắn Tiko "Cập nhật LifeOS lên bản 0.5.0, làm theo CHANGELOG". Trả lời LifeOS khi nó hỏi dời/bỏ buổi tập trùng giờ học. Bấm duyệt thẻ routine nếu hiện. Muốn soát sổ nhớ → nhắn LifeOS "xem toàn bộ sổ".
+
+Thay đổi:
+- **Lịch tổng** `lifeos/lichtong.py` + lệnh `lichtong show|check|try`: gom mọi lịch + văn phòng + buổi tập + ô 📝, tìm chỗ trùng (mức `cao` / `luu-y`), đệm ~30' di chuyển quanh lớp/thi. `digest.json` có thêm `conflicts_lifeos` (3 ngày tới).
+- **Gym né lịch**: sáng vướng → dời tối cùng ngày, tối kín → bỏ (có lý do trong `training_note`); chạy cũng đệm di chuyển; không chồng văn phòng. Gym tối không tính "ngày gym sáng" (giờ dậy, báo thức, giờ ngủ).
+- **Văn phòng** né mọi sự kiện có giờ của trường (không chỉ buổi học); sự kiện cá nhân > 30' đè văn phòng → mục `luu-y` để Khôi quyết.
+- **Chốt có kiểm tra**: `week confirm` / `plan confirm` từ chối khi còn trùng mức cao (mã thoát 1; `--allow-conflicts` khi Khôi nói giữ nguyên); tự áp dụng lúc im lặng thì bỏ buổi tập/ô đang đè (`dropped`). `plan edit --at` từ chối giờ đè lịch (`--force`). `week set --training` báo `day_conflicts`; lệnh mới `week train` (đổi loại buổi tập theo ngày, tự xếp giờ).
+- **Dậy 23:00**: giờ dậy chỉ tính mục có giờ cụ thể; `validate` từ chối `class`/`exam` có `start` chỉ ngày. Hạn 00:00 hiện "hết ngày Thứ 5 (00:00 Thứ 6)"; kế hoạch ngày không xếp việc đã quá hạn kiểu này.
+- **Dashboard**: khối "Lịch tổng tuần này" (viền đỏ = trùng) + danh sách ⚠️ trong phần Tuần này của Page.
+- **Tiết kiệm credit**: Page "Trí nhớ" hằng đêm bỏ mục "Toàn bộ sổ" (`brain page --full` khi Khôi cần); `page` / `brain page` báo `changed`, bot chỉ đăng khi đổi và ở 05:30 / 21:00 / Khôi "ok" (`--mark` sau khi đăng); lệnh `plan pending` cho 3 routine kiểm tra (không đọc hồ sơ nếu không có việc).
+- Hướng dẫn: `bots/lifeos.md` (routine, lệnh mới, cấm sửa tay `state/`), `bots/hoctap.md` (kiểm tra trên lớp phải có giờ), skill `lifeos-bao-cao`, `lifeos-tri-nho`, `lifeos-chong-tri-hoan`, `lifeos-noi-quy` (mục 1: kế hoạch/lịch chỉ đổi qua lệnh). `docs/NEN_TANG_GROK.md`: số liệu credit, cổng BKeL cho app điện thoại.
+- Test: `tests/test_lichtong.py` (35 bài mới) + sửa `tests/test_brain.py` cho Page rút gọn.
+
+Chưa kiểm chứng trên máy Grok: xem SPEC §15 mục 17–20. Chưa làm: lấy BKeL qua cổng app (SPEC §5f), bớt lần quét nhẹ bot Cá nhân.
+
 ## 0.4.0 — Bản đồ phân công: LifeOS biết ai lo mảng nào để giao đúng (31/10)
 
 Chuyện xảy ra: hỏi việc nhóm thí nghiệm, LifeOS tự lục Zalo rồi Drive cá nhân, Khôi phải nhắc 2 lần mới chuyển cho Học tập. Quyết định: SPEC §5e (G1–G5).

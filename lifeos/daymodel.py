@@ -35,11 +35,20 @@ def training_label(day: date, cfg: dict[str, Any]) -> tuple[str, str] | None:
     return None
 
 
+MORNING_UNTIL = "12:00"
+
+
+def is_morning(training: dict[str, Any] | None) -> bool:
+    """Buổi tập bắt đầu trước 12:00 (gym sáng: có báo thức, dậy sớm, ngủ sớm tối hôm trước)."""
+    return bool(training and training.get("start", "99:99") < MORNING_UNTIL)
+
+
 def is_gym_day(day: date, cfg: dict[str, Any]) -> bool:
+    """Ngày có gym SÁNG. Gym đã dời sang tối (vì sáng có lớp) thì không tính — không cần dậy 5:30."""
     entry = week_entry(day)
     if entry is not None:
         t = entry.get("training")
-        return bool(t and t.get("type") == "gym")
+        return bool(t and t.get("type") == "gym" and is_morning(t))
     lab = training_label(day, cfg)
     return bool(lab and lab[0] == "gym")
 
@@ -75,9 +84,11 @@ def profile(day: date, cfg: dict[str, Any]) -> dict[str, Any]:
     wake = hm(d.get("wake_gym", "05:30") if gym else d.get("wake_normal", "07:00"), day)
     from .tracking import all_items  # tránh import vòng
     from .common import parse_dt
+    # Chỉ tính mục CÓ GIỜ cụ thể. Mục chỉ có ngày (ví dụ "bài kiểm tra trên lớp" ghi 2026-11-02) bị đọc thành 00:00
+    # → lùi 60 phút ra "dậy 23:00 tối hôm trước" (lỗi 0.4.0).
     first_fixed = min((parse_dt(it["start"]) for it in all_items()
-                       if it["kind"] in FIXED_KINDS and it.get("start") and it["status"] == "open"
-                       and parse_dt(it["start"]).date() == day), default=None)
+                       if it["kind"] in FIXED_KINDS and it.get("start") and "T" in it["start"]
+                       and it["status"] == "open" and parse_dt(it["start"]).date() == day), default=None)
     before = timedelta(minutes=d.get("wake_before_first_class", 60))
     if first_fixed and first_fixed - before < wake:
         wake = first_fixed - before
@@ -92,7 +103,7 @@ def profile(day: date, cfg: dict[str, Any]) -> dict[str, Any]:
 
     meals = [("Ăn trưa", *(hm(x, day) for x in d.get("lunch", ["12:00", "13:00"])))]
     dinner = [hm(x, day) for x in d.get("dinner", ["18:30", "19:30"])]
-    if training and training.get("type") == "run" and training["end_dt"] > dinner[0]:
+    if training and training["end_dt"] > dinner[0]:  # tập tối (chạy hoặc gym dời sang tối): ăn sau buổi tập
         start = training["end_dt"] + timedelta(minutes=15)
         dinner = [start, start + timedelta(minutes=d.get("dinner_after_run_minutes", 45))]
     meals.append(("Ăn tối", *dinner))

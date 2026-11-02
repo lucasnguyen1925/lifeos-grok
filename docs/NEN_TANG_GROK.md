@@ -88,3 +88,14 @@ Ghi lại kết quả Tiko/các bot **làm thử thật** trên tài khoản c�
 ## Lịch Google
 
 - Lịch công ty dùng **Working location = Office** (biểu tượng tòa nhà, thanh dọc theo khung giờ) để sếp theo dõi ngày lên văn phòng.
+
+## Credit / mức sử dụng (02/11/2026)
+
+- Trang **Mức sử dụng** của Grok cho xem phần đã dùng, chia được **theo bot và theo ngày**, nhưng chỉ ghi **tỷ lệ %**, không ghi số credit cụ thể. Ngày tính theo **giờ UTC** (chậm hơn giờ VN 7 tiếng). Hạn mức **đặt lại hằng tuần** (Chủ nhật ~14:07 giờ VN) và **dùng chung với các app khác trong gói**, không riêng Grok Bot.
+- Hai ngày cuối tuần đầu chạy thật (31/10 và 01/11): mỗi ngày ~37–40% hạn mức tuần; LifeOS chiếm gần một nửa (16–19 phần trên tổng ~40), các bot quét nguồn cộng lại ít hơn LifeOS. Ngày thường đo sau (thứ 2 buổi sáng: ~3%, các bot quét nhẹ). Hai ngày đầu có thêm việc thiết lập nên chưa đại diện cho ngày thường.
+- Chưa xác nhận được: có nút "chat mới" trong khung chat của một bot không (bản đồ giao diện chỉ ghi một khung chat/bot, chưa ai bấm thử).
+
+## BKeL (Moodle) — cổng cho app điện thoại (02/11/2026)
+
+- Trang đăng nhập cổng cho app điện thoại của Moodle (`login/token.php?service=moodle_mobile_app`) mở và chờ tên đăng nhập (`missingparam: username`); phần cài đặt công khai ghi `enablemobilewebservice: 1`. → Trường có bật dịch vụ cho app di động.
+- Chưa thử đăng nhập: tài khoản đăng nhập qua SSO của trường thường **không lấy được chìa khóa** bằng cách gõ mật khẩu vào cổng này. Nếu làm được thì chìa khóa tương đương mật khẩu BKeL (phải chốt nơi cất, trái nguyên tắc P5). Chưa làm ở 0.5.0.

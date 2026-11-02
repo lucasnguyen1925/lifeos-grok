@@ -37,6 +37,7 @@ Sau khi gửi xong: `python3 -m lifeos mark-reported` (để không bắn lại 
 ## ☀️ Báo cáo sáng (05:30)
 
 1. `digest`, `health`, `plan timeline --for today`.
+1b. **Mọi buổi sáng:** `digest.json` có `conflicts_lifeos` (3 ngày tới: văn phòng/buổi tập/ô 📝 LifeOS đã xếp đè lịch thật). Có mục mức `cao` → thêm một dòng ⚠️ ("T4 gym 6:00 đè Lớp B 7:00 — dời gym tối nhé?") và xử lý theo `week train`/`plan edit`. Tối qua/đêm qua có ô hoặc buổi tập bị script **bỏ** vì trùng lịch (`dropped` của `plan confirm --auto` / `week confirm --auto`) → nói rõ một dòng.
 2. **Đã có kế hoạch chốt tối qua:** chỉ cần kiểm tra việc 🔴 MỚI từ tối qua (`alerts`). Không có → báo cáo 2–3 dòng:
 ```
 ☀️ Thứ 3, 03/11 · đã chốt tối qua
@@ -53,7 +54,7 @@ Sau khi gửi xong: `python3 -m lifeos mark-reported` (để không bắn lại 
 
 ## 🌙 Báo cáo tối (21:00)
 
-1. `digest` → `nightly --png` → `plan timeline --for today` (đối chiếu hôm nay) → `plan suggest --for mai` → `brain report` (khối 🧠).
+1. `digest` → `nightly --png` → `plan timeline --for today` (đối chiếu hôm nay) → `plan suggest --for mai` (kết quả có `conflicts`: chỗ trùng của ngày mai gồm cả văn phòng/buổi tập LifeOS đã xếp — mức "cao" thì thêm dòng ⚠️ vào tin và đề xuất dời/bỏ, **đừng chốt kế hoạch có trùng**) → `brain report` (khối 🧠).
 2. Gửi:
 ```
 🌙 Thứ 2, 02/11 · xong 3/4 việc trong kế hoạch 👏
@@ -81,20 +82,22 @@ Không đủ giờ cho "Báo cáo dài" — để T4 nhé?
    → "ghi a" · "bỏ b" · "ghi hết"
 ```
    Khối 🧠 chép **nguyên văn** `text` của `brain report` (rỗng → bỏ cả khối). Ngày cuối tháng nó có thêm tối đa 5 câu "🔎 Còn đúng không?".
-3. Ngay khi gửi: lưu từng ô 📝 bằng `plan add --for mai …` (chưa chốt). Việc Khôi chọn "dời mai" → `plan suggest` xếp ưu tiên (đã nằm trong candidates). Rồi `brain report --mark` → `brain page` → cập nhật Grok Page "LifeOS · Trí nhớ" từ `dashboard/tri_nho.md`.
+3. Ngay khi gửi: lưu từng ô 📝 bằng `plan add --for mai …` (chưa chốt). Việc Khôi chọn "dời mai" → `plan suggest` xếp ưu tiên (đã nằm trong candidates). Rồi `brain report --mark` → `brain page` → **chỉ khi `changed: true`**: cập nhật Grok Page "LifeOS · Trí nhớ" từ `dashboard/tri_nho.md`, xong chạy `brain page --mark`.
 4. Chủ nhật/cuối tháng: gửi kèm **ảnh dashboard** + 3 dòng nhận xét. Ghi nhận xét vào file `context/…md`.
 
 ## Khôi trả lời kế hoạch (sáng, tối)
 
 | Khôi nói | Làm |
 |---|---|
-| "ok" | `plan confirm --for <ngày>` → mỗi ô 📝: **Reminder + báo thức Grok** đúng giờ bắt đầu (kiểm `remind-at`), tên "▶ bước đầu · N phút" → ghi ô 📝 lên **lịch "LifeOS"** (`calmap set plan:<ngày>:<n> <id>`) → `page` + cập nhật Grok Page → "Đặt nhắc xong ✅". |
-| "đổi 2 sang 15h" / "bỏ 3" | Kiểm giờ bằng `free` → `plan edit 2 --at 15:00` / `plan edit 3 --remove` → gửi lại phần 🎯 rút gọn. Đã chốt trước đó → sửa luôn Reminder/báo thức/sự kiện LifeOS (lấy id từ `calmap get`). |
+| "ok" | `plan confirm --for <ngày>` (mã thoát 1 / `ok: false` = có ô đè lịch → báo `text`, hỏi dời/bỏ; Khôi nói "giữ nguyên" → `--allow-conflicts`) → mỗi ô 📝: **Reminder + báo thức Grok** đúng giờ bắt đầu (kiểm `remind-at`), tên "▶ bước đầu · N phút" → ghi ô 📝 lên **lịch "LifeOS"** (`calmap set plan:<ngày>:<n> <id>`) → `page` (đăng Page nếu `changed`) → "Đặt nhắc xong ✅". |
+| "đổi 2 sang 15h" / "bỏ 3" | Kiểm giờ bằng `free` → `plan edit 2 --at 15:00` (đè lịch → script từ chối và giữ giờ cũ: báo `text`, đề xuất giờ khác; Khôi nói "giữ nguyên" → `--force`) / `plan edit 3 --remove` → gửi lại phần 🎯 rút gọn. Đã chốt trước đó → sửa luôn Reminder/báo thức/sự kiện LifeOS (lấy id từ `calmap get`). |
 | "thêm <việc> lúc <giờ>" | `plan add …` → gửi lại phần 🎯 rút gọn. |
-| "xong 2" / "xong <việc>" | `done "<việc>"` + `plan result 2 done` → `page`. |
+| "xong 2" / "xong <việc>" | `done "<việc>"` + `plan result 2 done`. **Không đăng Page ngay** (Page cập nhật ở báo cáo 05:30/21:00 và khi Khôi "ok" kế hoạch — tiết kiệm credit). |
 | "ghi a" · "bỏ b" · "ghi hết" · "đúng d" · "sai e" · "quên f" | Sổ nhớ — skill `lifeos-tri-nho` mục 3. **Chữ = sổ nhớ, số = kế hoạch.** |
-| Im lặng (tối) | 22:00 nhắc 1 dòng + báo thức "Xem kế hoạch mai · 1 phút". 23:00: `plan confirm --for mai --auto` + nhắc + lịch LifeOS, không nhắn. |
+| Im lặng (tối) | 22:00 nhắc 1 dòng + báo thức "Xem kế hoạch mai · 1 phút". 23:00: `plan confirm --for mai --auto` + nhắc + lịch LifeOS, không nhắn. Ô nào đè lịch bị bỏ (`dropped`) → báo cáo sáng nói rõ. |
 | Im lặng (sáng, khi có đề xuất chen việc) | 07:00: tự áp dụng như "ok", không nhắn. |
+
+**Ba lần dậy chỉ để kiểm tra (07:00, 22:00, 23:00):** KHÔNG chạy `brain core`, không đọc thêm skill. Chạy một lệnh duy nhất `python3 -m lifeos plan pending --for <today|mai>` — `need_confirm: false` (và `week_need_confirm: false` với 23:00 Chủ nhật) → **dừng ngay, không làm gì thêm**. Chỉ khi `true` mới làm việc ghi ở bảng trên.
 
 ## 📅 Kế hoạch tuần (Chủ nhật 20:00)
 
@@ -113,18 +116,23 @@ Không đủ giờ cho "Báo cáo dài" — để T4 nhé?
 
 "ok" là mình ghi lịch · hoặc sửa: "T4 lên 9–12", "bỏ gym T6"
 ```
-   Dòng văn phòng lấy từ `days.*.office` / `office_note`; tập từ `training`; cảnh báo từ `conflicts` + `notes` — gợi ý theo thang ưu tiên (học > làm > tập > đi chơi), Khôi quyết.
-3. Khôi sửa → `week set <ngày> --office 09:00-12:00|none` / `--training none|17:30-18:45` → gửi lại phần đã đổi.
-4. **"ok"** → `week confirm` → với mỗi ngày:
+   Dòng văn phòng lấy từ `days.*.office` / `office_note`; tập từ `training` (+ `training_note`: gym sáng vướng lớp thì script đã **dời sang tối** hoặc **bỏ** — nói rõ cho Khôi, ví dụ "T4 gym dời 17:45 vì sáng có lớp"); cảnh báo từ `conflicts` (mỗi mục có `text` viết sẵn tiếng Việt) + `notes`.
+   - `severity: "cao"` (buổi tập/văn phòng/ô 📝 đè giờ học, thi, sự kiện): **phải xử lý trước khi "ok"** — đề xuất dời/bỏ theo thang ưu tiên (học > làm > tập > đi chơi), Khôi quyết.
+   - `severity: "luu-y"` (hai sự kiện trên lịch đè nhau; văn phòng đè một sự kiện cá nhân > 30 phút): báo một dòng để Khôi quyết, không chặn.
+   - **Muốn xem lại cả tuần**: `lichtong show --date <thứ 2> --days 7` (mọi lịch + thứ LifeOS xếp, đã đối chiếu). Hình lịch tổng nằm trong ảnh dashboard (mục "Lịch tổng tuần này", viền đỏ = đang trùng). **Không tự đối chiếu bằng mắt qua nhiều lịch** — luôn hỏi script.
+3. Khôi sửa → `week set <ngày> --office 09:00-12:00|none` / `--training none|17:30-18:45`; đổi **loại** buổi tập ("tuần này nghỉ chạy, tập PPL") → `week train <ngày> --type gym|run --label "Gym: PUSH"` (không đưa `--time` thì script tự xếp và tự né lịch). Kết quả có `day_conflicts` / `day_ok`: `day_ok=false` → báo chỗ trùng, đừng coi là xong. Gửi lại phần đã đổi.
+   **Cấm sửa tay `state/week.json`** (và mọi file trong `state/`): sửa tay bỏ qua bước kiểm tra trùng — chính vì vậy tuần đầu tiên từng có gym đè giờ học mà không ai báo.
+4. **"ok"** → `week confirm` (mã thoát 1 / `ok: false` = còn trùng mức cao → báo Khôi, KHÔNG ghi lịch nào; Khôi nói "giữ nguyên" → `week confirm --allow-conflicts`). Chốt được rồi mới, với mỗi ngày:
    - **Lịch công ty** (trình duyệt, tài khoản công ty — phiên do bot Công ty giữ; bị đăng xuất → nhờ bot Công ty đăng nhập lại trước): đặt **Working location = Office** đúng khung giờ. Không mời ai. Ngày nghỉ văn phòng: không ghi. Chỉ sửa/xóa mục Office do LifeOS tạo (`calmap set office:<ngày> <id>`). Xong → `week company-written`.
    - **Lịch "LifeOS"** (Google Calendar cá nhân): tạo sự kiện buổi tập với tiêu đề đúng nhãn ("Gym: PUSH", "Chạy: INTERVAL"…), không ghi chi tiết bài tập (`calmap set train:<ngày> <id>`). Chạy nhóm đã có trên lịch → không tạo thêm.
-   - `page` → cập nhật Grok Page.
-5. **Im lặng:** 23:00 Chủ nhật → `week confirm --auto` + ghi buổi tập lên lịch "LifeOS". **KHÔNG ghi lịch công ty** cho tới khi Khôi "ok" (báo cáo sáng T2 hỏi lại).
-6. Trong tuần Khôi nói "mai không lên công ty" / "T5 lên 13h–18h" → `week set …` → sửa/xóa mục Office trên lịch công ty (tin nhắn của Khôi là lời duyệt) → `plan suggest` lại cho ngày đó nếu là hôm nay/mai.
+   - Trước khi tạo/sửa BẤT KỲ sự kiện nào trên lịch (ví dụ Khôi nhờ "thêm deadline này vào lịch"): `lichtong try --start … --end … --title …` — `ok: false` → báo chỗ đè, hỏi lại.
+   - `page` → cập nhật Grok Page (theo mục "Grok Page" bên dưới).
+5. **Im lặng:** 23:00 Chủ nhật → `week confirm --auto` (buổi tập nào đè lịch thì script **bỏ** và ghi trong `dropped` — báo cáo sáng T2 nói rõ) + ghi buổi tập còn lại lên lịch "LifeOS". **KHÔNG ghi lịch công ty** cho tới khi Khôi "ok" (báo cáo sáng T2 hỏi lại).
+6. Trong tuần Khôi nói "mai không lên công ty" / "T5 lên 13h–18h" / "bỏ gym mai" → `week set …` / `week train …` (đọc `day_conflicts`) → sửa/xóa mục Office trên lịch công ty (tin nhắn của Khôi là lời duyệt) → `plan suggest` lại cho ngày đó nếu là hôm nay/mai.
 
 ## Grok Page "LifeOS"
 
-Một Page duy nhất, link cố định, ghim sẵn. Nội dung lấy từ `dashboard/page.md` (lệnh `page` dựng lại phần Hôm nay + Tuần này; `nightly` dựng lại cả phần Hiệu suất). Cập nhật sau mỗi lần: báo cáo 05:30 và 21:00, Khôi "ok"/sửa kế hoạch, "xong" một việc, kế hoạch tuần.
+Một Page duy nhất, link cố định, ghim sẵn. Nội dung lấy từ `dashboard/page.md` (lệnh `page` dựng lại phần Hôm nay + Tuần này; `nightly` dựng lại cả phần Hiệu suất). **Chỉ đăng lại khi cần** (mỗi lần viết lại Page là tốn credit): chạy `page` → kết quả có `changed`. Chỉ đăng khi `changed: true` **và** đang ở một trong các lúc: báo cáo 05:30, báo cáo 21:00, Khôi "ok" kế hoạch (ngày/tuần), Khôi nhắn xem Page/dashboard. Đăng xong chạy `page --mark` (ghi nhớ bản đã đăng). Các tin lẻ như "xong 1", "đổi 2 sang 15h" **không** đăng Page — chỉ cập nhật file; bản đúng sẽ lên ở lần đăng kế tiếp.
 
 ## Cảnh báo 🔴 giữa ngày
 

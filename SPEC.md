@@ -1,6 +1,6 @@
 # LifeOS trên Grok Bot — Đặc tả hệ thống
 
-> Phiên bản 0.1 · chốt qua buổi grill 29–31/10/2026. Bổ sung §5b Kế hoạch (0.2.0), §5c Trí nhớ (0.3.0), §5d Không bịa (0.3.2), §5e Bản đồ phân công (0.4.0) cùng ngày 31/10.
+> Phiên bản 0.1 · chốt qua buổi grill 29–31/10/2026. Bổ sung §5b Kế hoạch (0.2.0), §5c Trí nhớ (0.3.0), §5d Không bịa (0.3.2), §5e Bản đồ phân công (0.4.0) cùng ngày 31/10. §5f Lịch tổng + tiết kiệm credit (0.5.0, 02/11).
 > Thay thế hoàn toàn spec cũ (LifeOS chạy trên Claude + Supabase — đã tắt ngày 31/10/2026).
 > Repo này public: không ghi thông tin cá nhân vào đây; thông tin cá nhân nằm trong `config.toml` trên máy bot.
 
@@ -73,7 +73,7 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 | 11:30 · 14:30 · 17:30 | Học tập · Công ty · Cá nhân | Quét nhẹ: BKeL + mail/lịch trường · mail/lịch công ty · lịch cá nhân |
 | 05:20 · 20:50 | Tiko | Kiểm tra sức khỏe, xử lý sự cố trước giờ báo cáo |
 | **05:30** | **LifeOS** | **Báo cáo sáng** — nhắc lại kế hoạch đã chốt tối qua, chen việc gấp mới (chưa có kế hoạch → lên đầy đủ) |
-| 07:00 | LifeOS | Khôi chưa trả lời việc chen buổi sáng → tự áp dụng |
+| 07:00 | LifeOS | Khôi chưa trả lời việc chen buổi sáng → tự áp dụng (**chỉ chạy `plan pending`**, không có gì thì dừng ngay — §5f C3) |
 | **CN 20:00** | **LifeOS** | **Kế hoạch tuần** + tổng kết tuần (ảnh dashboard) |
 | **21:00** | **LifeOS** | **Báo cáo tối** — tổng kết hôm nay, chốt sổ ngày, kế hoạch mai (dòng thời gian) |
 | 20:40 | LifeOS | Soát chat cả ngày → bổ sung sổ nhớ + nhật ký bị sót (§5c) |
@@ -93,11 +93,11 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 | K5 | **Giới hạn giờ 📝/ngày:** văn phòng ≥ 6h → 150' (3 ô) · văn phòng ít hơn → 240' (4 ô) · không lên công ty → 300' (5 ô) · Chủ nhật → 180' (3 ô). Việc 🔴 hạn hôm đó luôn được xếp |
 | K6 | **Ôn thi:** kiểm tra 3 buổi × 90' trong 5 ngày trước · thi cuối kỳ 6 buổi × 90' mỗi môn trong 14 ngày trước · buổi cuối nhẹ · 2 buổi cuối lên bậc 2 |
 | K7 | **Văn phòng T2–T7** đề xuất mỗi Chủ nhật (mặc định 9–18, trừ giờ học + di chuyển, ngày có thi/kiểm tra → nghỉ, khung < 4h → nghỉ) |
-| K8 | **Tập:** Gym PUSH T2 · PULL T4 · LEGS T6 (6:00–8:00) · Chạy INTERVAL T3 (75') · EASY T5 (60') · LONG RUN T7 (90') buổi tối (ngày văn phòng 18:15, ngày khác 17:00, dời sau sự kiện đè). Buổi chạy nhóm (từ khóa trong `config.toml`) đã nhận lời thay buổi EASY. Lỡ buổi không dồn. Tiêu đề chỉ ghi nhóm cơ/loại chạy |
+| K8 | **Tập:** Gym PUSH T2 · PULL T4 · LEGS T6 (6:00–8:00; **sáng vướng lớp/thi/sự kiện → dời sang tối cùng ngày, tối kín → bỏ buổi đó**, §5f L2) · Chạy INTERVAL T3 (75') · EASY T5 (60') · LONG RUN T7 (90') buổi tối (ngày văn phòng 18:15, ngày khác 17:00, dời sau sự kiện đè). Buổi chạy nhóm (từ khóa trong `config.toml`) đã nhận lời thay buổi EASY. Lỡ buổi không dồn. Tiêu đề chỉ ghi nhóm cơ/loại chạy |
 | K9 | **Hiển thị:** dòng thời gian cả ngày; chỉ ô 📝 có ▶ bước đầu + Reminder + báo thức; gym sáng có báo thức; không hiện giờ ăn |
 | K10 | **Lịch công ty:** Khôi "ok" kế hoạch tuần → LifeOS đặt **Working location = Office** đúng khung giờ (không mời ai, ngày nghỉ không ghi). Đổi trong tuần qua tin nhắn → sửa/xóa. **Im lặng thì không ghi lịch công ty** |
 | K11 | **Lịch "LifeOS"** (cá nhân): buổi tập + ô 📝 đã chốt (cả khi tự áp dụng vì im lặng) |
-| K12 | **Grok Page "LifeOS"**: Hôm nay · Tuần này · Hiệu suất — một link cố định, cập nhật sau mỗi lần kế hoạch đổi |
+| K12 | **Grok Page "LifeOS"**: Hôm nay · Tuần này · Hiệu suất — một link cố định. **Đăng lại chỉ khi nội dung đổi** và ở lúc 05:30 / 21:00 / Khôi "ok" kế hoạch (§5f C2). Phần Tuần này có danh sách chỗ đang trùng; ảnh dashboard có hình lịch tổng tuần |
 | K13 | Trả lời một chữ: "ok" · "đổi 2 sang 15h" · "bỏ 3" · "xong 1" · "mai không lên công ty" |
 
 ## 5c. Trí nhớ (chốt 31/10/2026)
@@ -153,6 +153,27 @@ Chuyện xảy ra: Khôi hỏi LifeOS việc của một nhóm thí nghiệm. Li
 | G4 | **Luật giao việc**: xác định mảng + nguồn → giao kèm việc gì · tìm ở đâu · cần trả lời gì (`giao add`) → báo Khôi một dòng. Nguồn chưa kết nối → nói ngay Khôi cần làm gì. Không chắc mảng → hỏi một câu. Bot nhận việc trả lời **LifeOS** (không nhắn Khôi) kèm nguồn. **Quá 10 phút** chưa trả lời → LifeOS báo Khôi + nhờ Tiko kiểm tra |
 | G5 | Chỗ cụ thể tìm được (sheet, thư mục, link) → ghi sổ nhớ kèm nguồn, lần sau giao việc kèm luôn |
 
+## 5f. Lịch tổng + tiết kiệm credit (chốt 02/11/2026)
+
+Chuyện xảy ra (tuần đầu chạy thật): kế hoạch tuần có gym 6:00–8:00 đè lớp 7:00, chạy sáng đè buổi thí nghiệm, văn phòng đè một buổi thí nghiệm — mà LifeOS không báo trùng gì. Nguyên nhân: (1) giờ gym bị đóng cứng, không đối chiếu với lịch học; (2) bước dò trùng chỉ so các sự kiện lịch với nhau, không tính thứ LifeOS tự xếp; (3) LifeOS tự sửa tay file kế hoạch tuần nên mọi bước kiểm tra bị bỏ qua. Thêm hai lỗi nhỏ: "⏰ Dậy 23:00" (bài kiểm tra trên lớp chỉ có ngày → đọc thành 00:00 → lùi 60 phút) và hạn "00:00 Thứ 6" dễ bị đọc nhầm thành sáng thứ 6. Số liệu credit đo 02/11: LifeOS dùng nhiều nhất (35/80 phần trong hai ngày cuối tuần), hạn mức dùng chung các app khác trong gói.
+
+| # | Quyết định |
+|---|---|
+| L1 | **Lịch tổng do script dựng** (`lifeos/lichtong.py`): mọi sự kiện có giờ từ mọi nguồn + thứ LifeOS tự xếp (văn phòng, buổi tập, ô 📝). Bot **không** tự đối chiếu nhiều lịch bằng mắt; hỏi `lichtong show/check/try` |
+| L2 | **Gym né giờ học**: sáng vướng lớp/thi/sự kiện (kể cả ~30' di chuyển quanh lớp/thi) → **dời sang tối cùng ngày** (giờ bắt đầu như buổi chạy, thời lượng như `gym_time`); tối cũng kín → **bỏ buổi đó** và ghi lý do. Gym tối thì không dậy 5:30, không báo thức gym sáng. Buổi chạy cũng đệm di chuyển quanh lớp/thi |
+| L3 | **Dò trùng tính cả thứ LifeOS tự xếp**. Mức **cao**: buổi tập/ô 📝 đè lớp, thi, sự kiện; văn phòng đè lớp/thi; hai thứ LifeOS xếp đè nhau. Mức **lưu ý**: hai sự kiện lịch đè nhau; văn phòng đè sự kiện cá nhân/trường dài hơn 30' (LifeOS không tự quyết — hỏi Khôi); sự kiện ≤ 30' kiểu nhắc việc bỏ qua. Họp/ca của công ty không tính trùng với văn phòng |
+| L4 | **Văn phòng né mọi sự kiện có giờ bên trường** (thí nghiệm, họp nhóm…), không chỉ buổi học. Sự kiện cá nhân không tự cắt văn phòng — hiện ở mục lưu ý để Khôi quyết |
+| L5 | **Kế hoạch chỉ đổi qua lệnh**, cấm sửa tay file trong `state/`. Thêm `week train` (đổi buổi tập một ngày, tự né lịch), `week set --training` báo `day_conflicts`, `plan edit --at` từ chối giờ đè lịch (trừ khi Khôi nói giữ nguyên, `--force`) |
+| L6 | **Chỉ chốt/ghi lịch khi không còn trùng mức cao.** Khôi "ok" mà còn trùng → `week confirm` / `plan confirm` **từ chối** (mã thoát 1), LifeOS báo và hỏi dời/bỏ; Khôi nói "giữ nguyên" → `--allow-conflicts`. Im lặng tới 23:00 → tự áp dụng nhưng **bỏ** buổi tập/ô đang đè (ghi `dropped`, báo cáo sáng nói rõ). Tạo sự kiện lịch mới (Khôi nhờ) → `lichtong try` trước |
+| L7 | **Giờ dậy chỉ tính mục có giờ cụ thể.** `class`/`exam` có `start` chỉ ngày → `validate` báo lỗi; bài kiểm tra trên lớp lấy giờ buổi học của môn đó hôm đó, không biết thì ghi `deadline` + `due` ngày |
+| L8 | **Hạn đúng 00:00 hiện là "hết ngày Thứ 5, 05/11 (00:00 Thứ 6, 06/11)"**; kế hoạch ngày không xếp việc đã quá hạn kiểu này vào ngày hôm sau |
+| L9 | Hình **"Lịch tổng tuần này"** trong ảnh dashboard (khối màu: học/thi · văn phòng · tập · 📝 · khác; viền đỏ = đang trùng) + danh sách ⚠️ trong phần Tuần này của Page |
+| C1 | **Page "Trí nhớ" hằng đêm không dựng mục "Toàn bộ sổ"** (dài, lớn dần theo sổ); chỉ dựng khi Khôi nhắn "xem toàn bộ sổ" (`brain page --full`) |
+| C2 | **Chỉ đăng lại Grok Page khi nội dung đổi** (`changed`) và ở lúc 05:30 / 21:00 / Khôi "ok" kế hoạch / Khôi hỏi xem. Tin lẻ ("xong 1", "đổi 2 sang 15h") không đăng Page. Đăng xong chạy `--mark` |
+| C3 | **Ba lần dậy chỉ để kiểm tra (07:00, 22:00, 23:00)**: không đọc hồ sơ, chạy `plan pending`; không có việc → dừng ngay |
+
+Chưa làm (để bản sau): lấy dữ liệu BKeL qua cổng app di động (cổng có bật, nhưng tài khoản đăng nhập SSO thường không lấy được chìa khóa; chìa khóa lại tương đương mật khẩu → phải chốt chỗ cất, trái P5), bớt lần quét nhẹ của bot Cá nhân.
+
 ## 6. Dữ liệu
 
 | File (trong `/workspace/lifeos/`) | Ai ghi | Nội dung |
@@ -160,7 +181,8 @@ Chuyện xảy ra: Khôi hỏi LifeOS việc của một nhóm thí nghiệm. Li
 | `config.toml` | Tiko/LifeOS theo lời Khôi | Thông tin cá nhân, người quan trọng, giờ, thẻ Zalo |
 | `data/{hoctap,congty,canhan}.json` | Bot mảng | Việc/sự kiện theo chuẩn — `docs/DINH_DANG_DU_LIEU.md` |
 | `data/zalo.json` | Bot Zalo | Tin Zalo theo thẻ |
-| `digest.json` | Script `digest` | Tổng hợp đã xếp độ gấp, trùng lịch, lịch hôm nay/mai |
+| `digest.json` | Script `digest` | Tổng hợp đã xếp độ gấp, trùng lịch (lịch–lịch: `conflicts`; thứ LifeOS tự xếp đè lịch thật, 3 ngày tới: `conflicts_lifeos`), lịch hôm nay/mai |
+| `state/page_published.json` | Lệnh `page --mark`, `brain page --mark` | Mã bản Page bot đã đăng lần cuối (để chỉ đăng lại khi đổi) |
 | `done.json` | Script `done` | Việc Khôi đã xác nhận xong — không bao giờ nhắc lại |
 | `_status/<bot>.json`, `health.json` | Script `status`/`health` | Nhịp tim, sức khỏe |
 | `state/` | Script | Đã thấy gì (phát hiện mới/đổi), đã báo gì, kế hoạch nếu–thì |
@@ -288,6 +310,10 @@ Quyền thường trực của LifeOS: tự đặt Reminder + báo thức khi Kh
 14. (0.3.2) LifeOS có luôn ghi dòng 📤 nguồn trong bản nháp, và nói "không tìm thấy" thay vì đoán không.
 15. (0.4.0) LifeOS tự tạo được routine chạy 1 lần sau 10 phút để kiểm tra việc đã giao không (Tiko từng tạo routine cho chính mình không cần thẻ duyệt; LifeOS chưa thử). Không được → việc quá hạn chỉ hiện ở lượt LifeOS thức dậy kế tiếp.
 16. (0.4.0) LifeOS có giao ngay thay vì tự lục, và các bot có trả lời đều đặn kèm nguồn không (Học tập đã nhận việc LifeOS giao 1 lần ngày 31/10).
+17. (0.5.0) Grok chạy được routine mới của LifeOS (07:00/22:00/23:00 chỉ chạy `plan pending` rồi dừng) và LifeOS đổi được nội dung routine của chính mình (cần Khôi bấm duyệt thẻ không).
+18. (0.5.0) LifeOS dùng `week train` / `plan edit` thay vì sửa tay file; gym dời tối thật sự được ghi đúng lên lịch "LifeOS" (sửa/xóa sự kiện cũ qua `calmap`).
+19. (0.5.0) Bot Học tập ghi bài kiểm tra trên lớp có giờ buổi học (không còn "Dậy 23:00"); `validate` không làm bot Học tập kẹt vòng sửa.
+20. (0.5.0) Lệnh `page` / `brain page` báo `changed` đúng, và bot thật sự bỏ qua đăng Page khi `changed: false` (xem credit giảm ở trang Mức sử dụng).
 
 ## 16. Tiêu chí thành công
 

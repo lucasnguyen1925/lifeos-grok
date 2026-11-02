@@ -68,11 +68,34 @@ def vn_datetime(dt: datetime) -> str:
     return f"{dt:%H:%M} {vn_date(dt)}"
 
 
+def vn_deadline(dt: datetime) -> str:
+    """Nhãn hạn chót. Hạn đúng 00:00 thực chất là hết ngày hôm trước: '00:00 Thứ 6, 06/11' dễ bị hiểu nhầm
+    thành sáng thứ 6 → ghi 'hết ngày Thứ 5, 05/11 (00:00 Thứ 6, 06/11)'."""
+    dt = dt.astimezone(VN)
+    if dt.hour == 0 and dt.minute == 0:
+        return f"hết ngày {vn_date(dt - timedelta(days=1))} (00:00 {vn_date(dt)})"
+    return vn_datetime(dt)
+
+
 def load_config() -> dict[str, Any]:
     """Đọc config.toml (nằm trên máy bot, không có trong repo)."""
     cfg_path = Path(os.environ.get("LIFEOS_CONFIG", str(path("config.toml"))))
     with cfg_path.open("rb") as f:
         return tomllib.load(f)
+
+
+def page_changed(key: str, text: str, mark: bool = False) -> bool:
+    """Nội dung Grok Page có khác bản bot ĐÃ ĐĂNG lần trước không (bỏ dòng "_Cập nhật …" vì giờ nào cũng đổi).
+    Không đổi thì bot khỏi viết lại Page (tiết kiệm credit). `mark=True`: bot vừa đăng xong → ghi nhớ bản này."""
+    import hashlib
+    body = "\n".join(line for line in text.split("\n") if not line.startswith("_Cập nhật"))
+    digest = hashlib.sha256(body.encode("utf-8")).hexdigest()[:16]
+    state = read_json(path("state", "page_published.json"), {}) or {}
+    changed = state.get(key) != digest
+    if mark:
+        state[key] = digest
+        write_json(path("state", "page_published.json"), state)
+    return changed
 
 
 def read_json(p: Path, default: Any = None) -> Any:

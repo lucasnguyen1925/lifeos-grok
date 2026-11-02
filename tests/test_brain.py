@@ -255,7 +255,7 @@ class Report(Base):
         self.assertFalse(f[a["id"]]["unconfirmed"])
         self.assertTrue(f[b["id"]]["unconfirmed"], "không trả lời → giữ, đánh dấu chưa xác nhận lại")
         self.assertEqual(f[b["id"]]["status"], "current", "không tự xóa")
-        self.assertIn("chưa xác nhận lại", Path(brain.page(self.cfg, end_nov)["page_md"]).read_text(encoding="utf-8"))
+        self.assertIn("chưa xác nhận lại", Path(brain.page(self.cfg, end_nov, full=True)["page_md"]).read_text(encoding="utf-8"))
 
 
 class JournalKhoPage(Base):
@@ -286,7 +286,10 @@ class JournalKhoPage(Base):
         brain.add("ve_khoi", "Chuyện riêng tư", sensitive=True, t=self.t)
         brain.propose("hoctap", "Nhóm học họp thứ 5", "Zalo", t=self.t)
         brain.report(self.cfg, self.t, mark=True)
-        md = Path(brain.page(self.cfg, self.t)["page_md"]).read_text(encoding="utf-8")
+        short = Path(brain.page(self.cfg, self.t)["page_md"]).read_text(encoding="utf-8")
+        self.assertNotIn("## Toàn bộ sổ", short, "bản thường không dựng mục dài 'Toàn bộ sổ' (tiết kiệm credit)")
+        self.assertIn("xem toàn bộ sổ", short)
+        md = Path(brain.page(self.cfg, self.t, full=True)["page_md"]).read_text(encoding="utf-8")
         for part in ("# LifeOS · Trí nhớ", "## Hồ sơ ngắn", "## Nhớ thêm 7 ngày qua", "## Đang chờ Khôi duyệt",
                      "## Kho — 10 món lưu gần đây", "## Toàn bộ sổ (đang đúng)", "m1 · Bạn A", "a. Nhóm học"):
             self.assertIn(part, md)

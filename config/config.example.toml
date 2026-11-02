@@ -43,6 +43,7 @@ travel_minutes = 30
 travel_kinds = ["class", "exam", "work_shift"]
 focus_default_minutes = 30
 reminder_lead_minutes = 5        # nhắc sau khi tan học/tan làm bao nhiêu phút
+soft_event_minutes = 30         # sự kiện ngắn hơn mức này (kiểu "nhắc việc") không làm hỏng ngày văn phòng; lịch tổng không báo trùng với văn phòng
 
 # Giờ ăn, giờ dậy/ngủ, văn phòng, tập luyện: xem [day], [office], [training] bên dưới.
 # Các khung bảo vệ thêm (nếu có) khai báo dạng:
@@ -86,7 +87,8 @@ company_calendar_title = "Office"   # ghi bằng Working location = Office trên
 
 # ---------- Tập luyện (bot tạo lịch mỗi Chủ nhật trên lịch "LifeOS") ----------
 [training]
-gym_time = ["06:00", "08:00"]
+gym_time = ["06:00", "08:00"]       # gym sáng. Sáng vướng lớp/thi/sự kiện → tự dời sang tối cùng ngày (cùng giờ bắt đầu với buổi chạy), tối kín → bỏ buổi đó
+# gym_evening_minutes = 120          # (tùy chọn) thời lượng gym buổi tối; mặc định bằng gym_time
 gym = { 1 = "Gym: PUSH", 3 = "Gym: PULL", 5 = "Gym: LEGS" }
 run = { 2 = "Chạy: INTERVAL", 4 = "Chạy: EASY", 6 = "Chạy: LONG RUN" }
 run_minutes = { 2 = 75, 4 = 60, 6 = 90 }

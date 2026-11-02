@@ -27,7 +27,7 @@ cd /workspace/lifeos-grok && python3 -m lifeos validate data/<mảng>.json
 | `title` | ✔ | chuỗi | ngắn, đủ hiểu: "Quiz 4 – Giải tích 2" |
 | `status` | ✔ | chuỗi | `open` · `done` (đã nộp/đã làm ở nguồn) · `cancelled` |
 | `due` | | ISO | hạn chót. Chỉ có ngày → `"2026-11-08"` (hiểu là 23:59) |
-| `start`, `end` | | ISO | bắt buộc với `class`, `work_shift`, `meeting`, `event`; `exam` cần ít nhất `start` |
+| `start`, `end` | | ISO | bắt buộc với `class`, `work_shift`, `meeting`, `event`; `exam` cần ít nhất `start`. **`class` và `exam`: `start` phải có giờ** (chỉ có ngày bị từ chối — sẽ bị hiểu là 00:00). Lịch tổng dùng các mục này để né văn phòng và buổi tập |
 | `url` | | chuỗi | link để bấm vào làm ngay |
 | `from` | | chuỗi | người gửi/người yêu cầu (tên như Khôi gọi) |
 | `needs_reply` | | true/false | có người đang chờ Khôi trả lời |

@@ -23,6 +23,8 @@ description: Nội quy chung của đội bot LifeOS (LifeOS, Tiko, Học tập,
 
 Mỗi bot chỉ ghi vào file của mình. Không sửa tay `done.json`, `digest.json`, `_status/`, `state/`.
 
+**Kế hoạch và lịch chỉ đổi qua lệnh** (`week set|train|confirm`, `plan add|edit|confirm`, `calmap`): lệnh nào cũng đối chiếu với **lịch tổng** (`lichtong`) — mọi lịch + văn phòng + buổi tập + ô 📝 — còn sửa tay file thì bỏ qua bước này (0.4.0 từng có gym đè giờ học vì vậy). Trước khi tạo/sửa bất kỳ sự kiện nào trên lịch Google: `lichtong try` (hoặc `lichtong check`) phải `ok`, hoặc Khôi nói rõ "giữ nguyên".
+
 ## 2. Lệnh dùng chung
 
 Luôn chạy từ thư mục bộ cài:
@@ -41,7 +43,9 @@ cd /workspace/lifeos-grok && python3 -m lifeos <lệnh>
 | `done "<một phần tên>"` | Khôi nói đã xong một việc |
 | `free --date mai --min 20` | Tìm khung trống |
 | `remind-at --at 2026-11-02T14:00` | Trước khi đặt Reminder/báo thức |
-| `brain core` | Đầu **mỗi** lượt chat với Khôi và **mỗi** lần chạy routine (mục 8) |
+| `lichtong show\|check\|try` | Lịch tổng (mọi lịch + văn phòng + buổi tập + ô 📝) và chỗ trùng — hỏi lệnh này, **đừng tự đối chiếu nhiều lịch bằng mắt**. `try` = thử một sự kiện sắp tạo |
+| `plan pending --for mai` | Routine chỉ để kiểm tra (07:00/22:00/23:00): `need_confirm` false → dừng ngay |
+| `brain core` | Đầu **mỗi** lượt chat với Khôi và **mỗi** lần chạy routine (mục 8; trừ ba routine kiểm tra của LifeOS) |
 | `brain search "<từ khóa>"` | Trước khi trả lời/xử lý chuyện về Khôi, người quen, sở thích, chuyện cũ |
 | `brain propose --by <bot> …` | Bot quét nguồn thấy điều lâu dài đáng nhớ (skill `lifeos-tri-nho` mục 6) |
 | `bando show` · `bando ai "<nguồn>"` | Xem bản đồ phân công · nguồn này bot nào lo (mục 11) |

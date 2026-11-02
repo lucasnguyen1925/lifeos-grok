@@ -8,10 +8,11 @@ from __future__ import annotations
 import html
 import shutil
 import subprocess
-from datetime import timedelta
+from datetime import date, timedelta
 from typing import Any
 
-from .common import now, path, vn_datetime, write_text
+from .common import now, page_changed, path, vn_datetime, write_text
+from . import lichtong
 from .history import LABELS, LOWER_IS_BETTER, _load_days, summarize
 
 # Bảng màu: dễ đọc trên nền sáng, phân biệt được với người mù màu đỏ–lục.
@@ -94,6 +95,65 @@ def _tile(key: str, label: str, unit: str, cur: Any, prev: Any) -> str:
     return f'<div class="tile"><div class="tl">{html.escape(label)}</div><div class="tv">{value}</div>{delta}</div>'
 
 
+C_TRAIN, C_OTHER = "#1a7f5a", "#8b949e"
+WEEK_FROM, WEEK_TO = 6, 24  # giờ hiển thị trên lịch tổng
+
+
+def _week_start(today: date) -> date:
+    """Tuần đang có kế hoạch (Chủ nhật sau 20:00 là tuần kế tiếp), mặc định tuần chứa hôm nay."""
+    from .week import show
+    ws = show().get("week_start")
+    if ws:
+        d = date.fromisoformat(ws)
+        if d - timedelta(days=7) < today <= d + timedelta(days=6):
+            return d
+    return today - timedelta(days=today.weekday())
+
+
+def _week_svg(start: date, cfg: dict[str, Any]) -> str:
+    """Lịch tổng cả tuần (như Google Calendar nhiều tài khoản + thứ LifeOS tự xếp). Viền đỏ = đang trùng."""
+    w, left, top, hour_h = 640, 34, 24, 21
+    col = (w - left) / 7
+    height = top + (WEEK_TO - WEEK_FROM) * hour_h + 6
+    days = [start + timedelta(days=i) for i in range(7)]
+    bad: set[str] = set()
+    for c in lichtong.conflicts(days, cfg):
+        if c["severity"] == lichtong.HIGH:
+            bad |= {c["a"], c["b"]}
+    out = [f'<svg viewBox="0 0 {w} {height}" width="100%" role="img" aria-label="Lịch tổng cả tuần">']
+    for h in range(WEEK_FROM, WEEK_TO + 1, 2):
+        y = top + (h - WEEK_FROM) * hour_h
+        out.append(f'<line x1="{left}" x2="{w}" y1="{y}" y2="{y}" stroke="{GRID}"/>')
+        out.append(f'<text x="{left - 5}" y="{y + 4}" font-size="11" fill="{MUTED}" text-anchor="end">{h % 24:02d}</text>')
+    for i, day in enumerate(days):
+        x0 = left + col * i
+        out.append(f'<text x="{x0 + col / 2:.1f}" y="15" font-size="12" fill="{INK}" text-anchor="middle" font-weight="600">'
+                   f'{"CN" if day.weekday() == 6 else f"T{day.weekday() + 2}"} {day:%d}</text>')
+        out.append(f'<line x1="{x0:.1f}" x2="{x0:.1f}" y1="{top}" y2="{height - 6}" stroke="{GRID}"/>')
+        for ev in lichtong.events_for(day, cfg):
+            s_h = max(WEEK_FROM, ev["start"].hour + ev["start"].minute / 60) if ev["start"].date() == day else WEEK_FROM
+            e_h = min(WEEK_TO, ev["end"].hour + ev["end"].minute / 60) if ev["end"].date() == day else WEEK_TO
+            if e_h <= s_h:
+                continue
+            kind = ev["kind"]
+            color = (C_HOC if kind in ("class", "exam") else C_LAM if kind == "office" else C_TRAIN if kind == "training"
+                     else C_CANHAN if kind == "plan" else C_OTHER)
+            y, h = top + (s_h - WEEK_FROM) * hour_h, max((e_h - s_h) * hour_h, 6)
+            stroke = f'stroke="{C_BAD}" stroke-width="2.5"' if ev["id"] in bad else f'stroke="{BG}" stroke-width="0.5"'
+            opacity = "0.35" if kind == "office" else "0.9"
+            out.append(f'<rect x="{x0 + 1.5:.1f}" y="{y:.1f}" width="{col - 3:.1f}" height="{h:.1f}" rx="3" fill="{color}" '
+                       f'fill-opacity="{opacity}" {stroke}><title>{html.escape(ev["title"])} {ev["start"]:%H:%M}–{ev["end"]:%H:%M}</title></rect>')
+            if h >= 12:
+                label = ev["title"] if len(ev["title"]) <= 13 else ev["title"][:12] + "…"
+                fill = INK if kind == "office" else "#ffffff"
+                out.append(f'<text x="{x0 + 4:.1f}" y="{y + 11:.1f}" font-size="9.5" fill="{fill}">{html.escape(label)}</text>')
+    out.append("</svg>")
+    legend = (f'<div class="legend"><span style="background:{C_HOC}"></span>Học/thi <span style="background:{C_LAM}"></span>Văn phòng '
+              f'<span style="background:{C_TRAIN}"></span>Tập <span style="background:{C_CANHAN}"></span>Kế hoạch 📝 '
+              f'<span style="background:{C_OTHER}"></span>Sự kiện khác <span style="background:{BG};border:2px solid {C_BAD}"></span>Đang trùng</div>')
+    return "".join(out) + legend
+
+
 def build(png: bool = False, cfg: dict[str, Any] | None = None) -> dict[str, Any]:
     t = now()
     today = t.date()
@@ -107,6 +167,7 @@ def build(png: bool = False, cfg: dict[str, Any] | None = None) -> dict[str, Any
                     for k, lab, u in TILES)
     on_time = [round(100 * d["tasks"]["on_time"] / d["tasks"]["done_with_due"]) if d["tasks"]["done_with_due"] else None for d in days]
     sections = [
+        ("Lịch tổng tuần này", _week_svg(_week_start(today), cfg or {})),
         ("Việc xong mỗi ngày", _bars([d["tasks"]["done"] for d in days], labels, C_NEUTRAL)),
         ("% xong đúng hạn mỗi ngày", _bars(on_time, labels, C_GOOD)),
         ("Giờ học · làm · cá nhân (theo lịch)",
@@ -140,14 +201,17 @@ h1{{font-size:22px;margin:0 0 2px}} .sub{{color:{MUTED};font-size:13px;margin-bo
     write_text(out_dir / "index.html", doc)
     write_text(out_dir / "page.md", _page_markdown(t, this_week, last_week, days, cfg or {}))
 
-    result: dict[str, Any] = {"html": str(out_dir / "index.html"), "page_md": str(out_dir / "page.md")}
+    result: dict[str, Any] = {"html": str(out_dir / "index.html"), "page_md": str(out_dir / "page.md"),
+                              "page_changed": page_changed("lifeos", (out_dir / "page.md").read_text(encoding="utf-8"))}
     if png:
         result["png"] = _screenshot(out_dir / "index.html", out_dir / "dashboard.png", cfg or {})
     return result
 
 
-def build_page(cfg: dict[str, Any] | None = None) -> dict[str, Any]:
-    """Chỉ dựng lại page.md (gọi mỗi khi kế hoạch đổi: sau "ok", dời giờ, 5:30, 21:00)."""
+def build_page(cfg: dict[str, Any] | None = None, mark: bool = False) -> dict[str, Any]:
+    """Chỉ dựng lại page.md. Kết quả có `changed`: nội dung khác bản bot đã đăng lần trước không.
+    Bot chỉ cập nhật Grok Page khi `changed` và đang ở lúc được phép (báo cáo sáng/tối, Khôi "ok" kế hoạch),
+    đăng xong chạy lại với `--mark`."""
     t = now()
     today = t.date()
     days = _load_days(today - timedelta(days=13), today)
@@ -155,8 +219,9 @@ def build_page(cfg: dict[str, Any] | None = None) -> dict[str, Any]:
     this_week = summarize(_load_days(week_start, today))
     last_week = summarize(_load_days(week_start - timedelta(days=7), week_start - timedelta(days=1)))
     out = path("dashboard", "page.md")
-    write_text(out, _page_markdown(t, this_week, last_week, days, cfg or {}))
-    return {"page_md": str(out)}
+    text = _page_markdown(t, this_week, last_week, days, cfg or {})
+    write_text(out, text)
+    return {"page_md": str(out), "changed": page_changed("lifeos", text, mark)}
 
 
 def _today_section(t, cfg) -> list[str]:
@@ -173,8 +238,8 @@ def _today_section(t, cfg) -> list[str]:
     return lines + [""]
 
 
-def _week_section() -> list[str]:
-    from .week import show
+def _week_section(cfg: dict[str, Any] | None = None) -> list[str]:
+    from .week import _week_days, show
     wk = show()
     if not wk.get("days"):
         return ["## Tuần này", "", "_Chưa có kế hoạch tuần (lập vào 20:00 Chủ nhật)._", ""]
@@ -187,6 +252,9 @@ def _week_section() -> list[str]:
         lines.append(f"| {d['label']} | {office} | {train} |")
     if wk.get("big_items"):
         lines += ["", "**Việc lớn:** " + " · ".join(f"{b['title']} ({b.get('due_label') or ''})" for b in wk["big_items"])]
+    found = lichtong.conflicts(_week_days(wk), cfg or {})  # tính lại từ lịch tổng, không dùng bản cũ trong file
+    if found:
+        lines += ["", "**⚠️ Đang trùng lịch:**"] + [f"- {'🔴' if c['severity'] == lichtong.HIGH else '🟡'} {c['text']}" for c in found]
     return lines + [""]
 
 
@@ -197,7 +265,7 @@ def _page_markdown(t, this_week, last_week, days, cfg) -> str:
         lines += _today_section(t, cfg)
     except Exception as exc:  # Page vẫn phải dựng được dù thiếu dữ liệu ngày
         lines += ["## Hôm nay", "", f"_Chưa dựng được: {exc}_", ""]
-    lines += _week_section()
+    lines += _week_section(cfg)
     lines += ["## Hiệu suất — tuần này so với tuần trước", "",
              "| Chỉ số | Tuần này | Tuần trước |", "|---|---|---|"]
     for key, label in LABELS.items():

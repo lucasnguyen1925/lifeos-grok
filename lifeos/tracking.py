@@ -165,29 +165,73 @@ def plan_result(for_day: date, n: int, status: str, why: str | None = None) -> d
     raise KeyError(f"Không có kế hoạch số {n} cho ngày {for_day}.")
 
 
-def plan_edit(for_day: date, n: int, at: str | None = None, remove: bool = False) -> list[dict[str, Any]]:
-    """Khôi sửa kế hoạch: dời giờ khối số n, hoặc bỏ khối đó."""
+class PlanConflict(ValueError):
+    """Kế hoạch ngày đè lên lịch (học, thi, sự kiện, buổi tập…) — mang theo danh sách chỗ trùng."""
+
+    def __init__(self, why: str, conflicts: list[dict[str, Any]]):
+        super().__init__(why)
+        self.conflicts = conflicts
+
+
+def _plan_conflicts(for_day: date, cfg: dict[str, Any] | None, only_n: int | None = None) -> list[dict[str, Any]]:
+    """Chỗ trùng mức "cao" có dính tới các ô 📝 của ngày `for_day` (hoặc riêng ô số `only_n`)."""
+    from . import lichtong
+    prefix = f"_plan:{for_day}:" + (f"{only_n}" if only_n else "")
+    found = lichtong.high(lichtong.conflicts([for_day], cfg or {}))
+    return [c for c in found if any(m.startswith(prefix) and (only_n is None or m == prefix) for m in c["movable"])]
+
+
+def plan_edit(for_day: date, n: int, at: str | None = None, remove: bool = False,
+              cfg: dict[str, Any] | None = None, force: bool = False) -> list[dict[str, Any]]:
+    """Khôi sửa kế hoạch: dời giờ khối số n, hoặc bỏ khối đó. Giờ mới đè lịch → từ chối (PlanConflict),
+    trừ khi Khôi nói rõ giữ nguyên (`force`)."""
     plans = read_json(path("state", "plans.json"), {}) or {}
     day_plans = plans.get(for_day.isoformat(), [])
     target = next((r for r in day_plans if r["n"] == n), None)
     if target is None:
         raise KeyError(f"Không có kế hoạch số {n} cho ngày {for_day}.")
+    old_at = target["at"]
     if remove:
         target["status"] = "removed"
     if at:
         target["at"] = at
     write_json(path("state", "plans.json"), plans)
+    if at and not remove and not force:
+        found = _plan_conflicts(for_day, cfg, only_n=n)
+        if found:
+            target["at"] = old_at
+            write_json(path("state", "plans.json"), plans)
+            raise PlanConflict(f"{at} đè lịch — không đổi. Chọn giờ khác (`free`) hoặc Khôi nói giữ nguyên.", found)
     return [r for r in day_plans if r["status"] != "removed"]
 
 
-def plan_confirm(for_day: date, auto: bool = False) -> list[dict[str, Any]]:
-    """Khôi trả lời "ok" (hoặc 23:00 tự áp dụng khi im lặng): đánh dấu kế hoạch ngày đó đã chốt."""
+def plan_confirm(for_day: date, auto: bool = False, cfg: dict[str, Any] | None = None,
+                 allow_conflicts: bool = False) -> list[dict[str, Any]]:
+    """Khôi trả lời "ok" (hoặc 23:00 tự áp dụng khi im lặng): đánh dấu kế hoạch ngày đó đã chốt.
+    Ô nào đè lịch: Khôi "ok" → từ chối (PlanConflict) để LifeOS báo và hỏi; tự áp dụng khi im lặng → BỎ ô đó
+    (ghi `removed_reason`, xem `plan_dropped`) — không ghi lịch có trùng."""
     plans = read_json(path("state", "plans.json"), {}) or {}
     day_plans = plans.get(for_day.isoformat(), [])
+    found = [] if allow_conflicts else _plan_conflicts(for_day, cfg)
+    if found and not auto:
+        raise PlanConflict("Còn ô 📝 đè lịch — báo Khôi dời/bỏ rồi chốt lại (hoặc Khôi nói giữ nguyên).", found)
+    for c in found:
+        for mid in c["movable"]:
+            if mid.startswith(f"_plan:{for_day}:"):
+                n = int(mid.rsplit(":", 1)[1])
+                for rec in day_plans:
+                    if rec["n"] == n and rec["status"] != "removed":
+                        rec.update(status="removed", removed_reason=c["text"])
     for rec in (r for r in day_plans if r["status"] != "removed"):
         rec.update(confirmed=True, auto_applied=auto or rec.get("auto_applied", False), confirmed_at=iso(now()))
     write_json(path("state", "plans.json"), plans)
     return day_plans
+
+
+def plan_dropped(for_day: date) -> list[dict[str, Any]]:
+    """Các ô bị bỏ vì đè lịch lúc tự áp dụng (để báo cáo sáng nói rõ)."""
+    day_plans = (read_json(path("state", "plans.json"), {}) or {}).get(for_day.isoformat(), [])
+    return [{"n": r["n"], "title": r["title"], "why": r["removed_reason"]} for r in day_plans if r.get("removed_reason")]
 
 
 def plan_list(for_day: date) -> list[dict[str, Any]]:

@@ -904,7 +904,8 @@ def unmerge(fid: str) -> dict[str, Any]:
 
 # ---------------------------------------------------------------- Grok Page "LifeOS · Trí nhớ"
 
-def page(cfg: dict[str, Any] | None = None, t: datetime | None = None) -> dict[str, Any]:
+def page(cfg: dict[str, Any] | None = None, t: datetime | None = None, full: bool = False,
+         mark: bool = False) -> dict[str, Any]:
     t, s = t or now(), _settings(cfg)
     facts = _load_facts()["facts"]
     st = stats()
@@ -942,19 +943,25 @@ def page(cfg: dict[str, Any] | None = None, t: datetime | None = None) -> dict[s
         lines.append("- (trống)")
     lines.append("")
 
-    lines += ["## Toàn bộ sổ (đang đúng)", ""]
-    for key, (icon, title) in SECTIONS.items():
-        rows = [f for f in facts if f["status"] == "current" and f["section"] == key]
-        if not rows:
-            continue
-        lines.append(f"**{icon} {title}** ({len(rows)})")
-        lines += [f"- {f['id']} · {_page_text(f)}{_due_label(f)}{' 📌' if f.get('pinned') else ''}"
-                  f"{' ⚠️ chưa xác nhận lại' if f.get('unconfirmed') else ''}" for f in rows]
-        lines.append("")
+    if full:
+        lines += ["## Toàn bộ sổ (đang đúng)", ""]
+        for key, (icon, title) in SECTIONS.items():
+            rows = [f for f in facts if f["status"] == "current" and f["section"] == key]
+            if not rows:
+                continue
+            lines.append(f"**{icon} {title}** ({len(rows)})")
+            lines += [f"- {f['id']} · {_page_text(f)}{_due_label(f)}{' 📌' if f.get('pinned') else ''}"
+                      f"{' ⚠️ chưa xác nhận lại' if f.get('unconfirmed') else ''}" for f in rows]
+            lines.append("")
+    else:
+        # Mục này dài và lớn dần theo sổ → chỉ dựng khi Khôi cần soát (tiết kiệm credit mỗi đêm).
+        lines += ["_Muốn soát toàn bộ sổ (có mã để sửa/quên): nhắn LifeOS \"xem toàn bộ sổ\"._", ""]
     out = path("dashboard", "tri_nho.md")
     text = "\n".join(lines) + "\n"
     write_text(out, text)
-    return {"page_md": str(out), "chars": len(text)}
+    from .common import page_changed
+    return {"page_md": str(out), "chars": len(text), "full": full,
+            "changed": page_changed("tri_nho_full" if full else "tri_nho", text, mark)}
 
 
 def _page_text(f: dict[str, Any]) -> str:

@@ -103,9 +103,13 @@ def main(argv: list[str] | None = None) -> int:
     pe.add_argument("--for", dest="for_day", default="today")
     pe.add_argument("--at")
     pe.add_argument("--remove", action="store_true")
-    pc = ps.add_parser("confirm", help="Khôi trả lời ok (hoặc --auto khi im lặng tới 23:00)")
+    pe.add_argument("--force", action="store_true", help="Khôi nói giữ nguyên dù giờ mới đè lịch")
+    pc = ps.add_parser("confirm", help="Khôi trả lời ok (hoặc --auto khi im lặng tới 23:00). Ô đè lịch → từ chối")
     pc.add_argument("--for", dest="for_day", default="tomorrow")
     pc.add_argument("--auto", action="store_true")
+    pc.add_argument("--allow-conflicts", action="store_true", help="Khôi nói giữ nguyên dù có ô đè lịch")
+    pp = ps.add_parser("pending", help="Kiểm tra nhanh cho routine 07:00/22:00/23:00: có ô chưa chốt cần làm gì không")
+    pp.add_argument("--for", dest="for_day", default="today")
     pr = ps.add_parser("result")
     pr.add_argument("n", type=int)
     pr.add_argument("status", choices=["done", "skipped", "moved"])
@@ -121,8 +125,15 @@ def main(argv: list[str] | None = None) -> int:
     wset.add_argument("date")
     wset.add_argument("--office", help="09:00-12:00 hoặc none")
     wset.add_argument("--training", help="17:30-18:45 hoặc none")
-    wc = ws.add_parser("confirm")
+    wtr = ws.add_parser("train", help="Đổi buổi tập của một ngày (tự né lịch; không đưa --time thì script tự xếp giờ)")
+    wtr.add_argument("date")
+    wtr.add_argument("--type", required=True, choices=["gym", "run"])
+    wtr.add_argument("--label", required=True, help='ví dụ "Gym: PUSH", "Chạy: EASY"')
+    wtr.add_argument("--time", help="HH:MM-HH:MM (bỏ trống → script tự xếp)")
+    wtr.add_argument("--minutes", type=int)
+    wc = ws.add_parser("confirm", help="Khôi ok. Còn trùng mức cao → từ chối (mã thoát 1)")
     wc.add_argument("--auto", action="store_true")
+    wc.add_argument("--allow-conflicts", action="store_true", help="Khôi nói giữ nguyên dù còn trùng")
     wcw = ws.add_parser("company-written", help="Đã ghi Office lên lịch công ty (cả tuần, hoặc --date)")
     wcw.add_argument("--date")
 
@@ -136,7 +147,22 @@ def main(argv: list[str] | None = None) -> int:
     c3 = cs.add_parser("del")
     c3.add_argument("key")
 
+    s = sub.add_parser("lichtong", help="Lịch tổng: mọi lịch + thứ LifeOS tự xếp, kèm chỗ trùng")
+    ls = s.add_subparsers(dest="action", required=True)
+    l1 = ls.add_parser("show", help="Lịch tổng theo ngày (--days 7 cho cả tuần)")
+    l1.add_argument("--date", default="today")
+    l1.add_argument("--days", type=int, default=1)
+    l2 = ls.add_parser("check", help="Chỉ chỗ trùng; mã thoát 1 nếu có trùng mức cao")
+    l2.add_argument("--date", default="today")
+    l2.add_argument("--days", type=int, default=7)
+    l3 = ls.add_parser("try", help="Thử một sự kiện sắp tạo, không ghi gì")
+    l3.add_argument("--start", required=True, help="YYYY-MM-DDTHH:MM")
+    l3.add_argument("--end", required=True, help="YYYY-MM-DDTHH:MM")
+    l3.add_argument("--title", default="")
+
     s = sub.add_parser("page", help="Nội dung Grok Page LifeOS: Hôm nay · Tuần này · Hiệu suất")
+    s.add_argument("--mark", action="store_true",
+                   help="Bot đã cập nhật Grok Page xong → ghi nhớ bản đã đăng (lần sau chỉ đăng lại khi nội dung đổi)")
 
     s = sub.add_parser("free", help="Khung trống trong ngày")
     s.add_argument("--date", default="today")
@@ -256,9 +282,25 @@ def main(argv: list[str] | None = None) -> int:
             plans = tracking.plan_list(day)
             _print({"date": vn_date(day), "confirmed": bool(plans) and all(x.get("confirmed") for x in plans), "plans": plans})
         elif a.action == "edit":
-            _print({"date": vn_date(day), "plans": tracking.plan_edit(day, a.n, a.at, a.remove)})
+            try:
+                _print({"date": vn_date(day), "plans": tracking.plan_edit(day, a.n, a.at, a.remove, cfg, a.force)})
+            except tracking.PlanConflict as exc:
+                _print({"ok": False, "why": str(exc), "conflicts": exc.conflicts, "text": [c["text"] for c in exc.conflicts]})
+                return 1
         elif a.action == "confirm":
-            _print({"date": vn_date(day), "plans": tracking.plan_confirm(day, a.auto)})
+            try:
+                plans = tracking.plan_confirm(day, a.auto, cfg, a.allow_conflicts)
+            except tracking.PlanConflict as exc:
+                _print({"ok": False, "why": str(exc), "conflicts": exc.conflicts, "text": [c["text"] for c in exc.conflicts]})
+                return 1
+            _print({"date": vn_date(day), "plans": plans, "dropped": tracking.plan_dropped(day)})
+        elif a.action == "pending":
+            from . import week as week_mod
+            plans = tracking.plan_list(day)
+            wk = week_mod.show()
+            _print({"date": vn_date(day), "plans": len(plans),
+                    "need_confirm": bool(plans) and not all(x.get("confirmed") for x in plans),
+                    "week_need_confirm": bool(wk.get("days")) and not wk.get("confirmed")})
         else:
             _print(tracking.plan_result(day, a.n, a.status, a.why))
     elif a.cmd == "week":
@@ -267,10 +309,19 @@ def main(argv: list[str] | None = None) -> int:
             _print(week.propose(date.fromisoformat(a.start) if a.start else None, cfg))
         elif a.action == "show":
             _print(week.show())
-        elif a.action == "set":
-            _print(week.set_day(_day(a.date), a.office, a.training))
+        elif a.action in ("set", "train"):
+            try:
+                if a.action == "set":
+                    _print(week.set_day(_day(a.date), cfg, a.office, a.training))
+                else:
+                    _print(week.train_day(_day(a.date), cfg, a.type, a.label, a.time, a.minutes))
+            except (KeyError, ValueError) as exc:
+                _print({"ok": False, "why": str(exc.args[0] if exc.args else exc)})
+                return 1
         elif a.action == "confirm":
-            _print(week.confirm(a.auto))
+            res = week.confirm(cfg, a.auto, a.allow_conflicts)
+            _print(res)
+            return 0 if res.get("ok") else 1
         else:
             _print(week.mark_company_written(_day(a.date) if a.date else None))
     elif a.cmd == "calmap":
@@ -283,8 +334,23 @@ def main(argv: list[str] | None = None) -> int:
             from .common import write_json
             write_json(path("state", "calendar_map.json"), cm)
         _print({"key": a.key, "event_id": cm.get(a.key)})
+    elif a.cmd == "lichtong":
+        from . import lichtong
+        if a.action == "try":
+            try:
+                res = lichtong.try_event(parse_dt(a.start), parse_dt(a.end), a.title, cfg)
+            except ValueError as exc:
+                _print({"ok": False, "why": str(exc)})
+                return 1
+            _print(res)
+        elif a.action == "check":
+            res = lichtong.check(_day(a.date), a.days, cfg)
+            _print(res)
+            return 0 if res["ok"] else 1
+        else:
+            _print(lichtong.show(_day(a.date), a.days, cfg))
     elif a.cmd == "page":
-        _print(dashboard.build_page(cfg))
+        _print(dashboard.build_page(cfg, mark=a.mark))
     elif a.cmd == "free":
         from . import agenda, daymodel
         day = _day(a.date)
@@ -434,7 +500,9 @@ def _brain_parser(sub) -> None:
     x = bs.add_parser("unmerge", help="Gộp nhầm → tách lại")
     x.add_argument("id")
     bs.add_parser("tidy", help="'Đang dở' quá hạn → 'trước đây' (nightly tự chạy)")
-    bs.add_parser("page", help="Dựng dashboard/tri_nho.md cho Grok Page 'LifeOS · Trí nhớ'")
+    x = bs.add_parser("page", help="Dựng dashboard/tri_nho.md cho Grok Page 'LifeOS · Trí nhớ' (kết quả có `changed`)")
+    x.add_argument("--full", action="store_true", help="Kèm mục 'Toàn bộ sổ' (chỉ khi Khôi nhắn xem/soát toàn bộ sổ)")
+    x.add_argument("--mark", action="store_true", help="Bot đã cập nhật Page xong → ghi nhớ bản đã đăng")
     bs.add_parser("stats", help="Đếm số điều theo mục / nguồn")
     bs.add_parser("backup", help="Gói bản sao lưu theo thứ (Tiko 02:15)")
     x = bs.add_parser("restore", help="Khôi phục từ bản sao lưu (mặc định chỉ xem trước)")
@@ -494,7 +562,7 @@ def _brain_run(a, cfg) -> dict:
     if act == "tidy":
         return brain.tidy()
     if act == "page":
-        return brain.page(cfg)
+        return brain.page(cfg, full=a.full, mark=a.mark)
     if act == "stats":
         return brain.stats()
     if act == "backup":

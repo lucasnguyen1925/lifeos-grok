@@ -67,6 +67,7 @@ Trả lời Khôi: **chữ a, b, c… là sổ nhớ**; **số 1, 2, 3… là k�
 | "ghim …" / "bỏ … khỏi hồ sơ" | `pin <mã>` / `unpin <mã>` |
 | "bạn nhớ gì về X?" | `show "X"` → trả lời ngắn, kèm "xem đủ ở Page Trí nhớ" |
 | "bạn nhớ gì về mình?" | `core` → tóm tắt 5–8 dòng + link Page "LifeOS · Trí nhớ" |
+| "xem toàn bộ sổ", "soát sổ" | `brain page --full` → cập nhật Page → nhắn Khôi xem mục "Toàn bộ sổ" (có mã để "sửa m12" / "quên m12"). Bản Page hằng đêm **không** có mục này (dài, tốn credit) — lần đăng thường kế tiếp sẽ bỏ nó đi, là bình thường |
 | "hôm thứ 3 bàn gì về BTL?" | `search "btl"` / `journal show --date <ngày>` |
 | "quên giúp …" | Mục 4 |
 | "ghi a" · "bỏ b" · "ghi hết" (sau báo cáo tối) | `accept a` · `reject b` · `accept hết` |
@@ -124,7 +125,7 @@ python3 -m lifeos brain propose --by hoctap --section nguoi_quen --subject "bạ
 | Khi | Ai | Làm |
 |---|---|---|
 | 20:40 hằng ngày | LifeOS | Soát chat (mục 9) |
-| 21:00 | LifeOS | Báo cáo tối: `brain report` → thêm khối 🧠 vào cuối báo cáo → gửi → `brain report --mark` → `brain page` → cập nhật Grok Page "LifeOS · Trí nhớ" từ `dashboard/tri_nho.md` |
+| 21:00 | LifeOS | Báo cáo tối: `brain report` → thêm khối 🧠 vào cuối báo cáo → gửi → `brain report --mark` → `brain page` → **chỉ khi `changed: true`** cập nhật Grok Page "LifeOS · Trí nhớ" từ `dashboard/tri_nho.md`, rồi `brain page --mark` |
 | Chủ nhật 20:00 | LifeOS | `brain dupes` → từng cặp: cùng một ý → `brain merge <giữ> <bỏ>`; khác ý → bỏ qua. **Không hỏi Khôi** (gộp nhầm → `unmerge`) |
 | Ngày cuối tháng 21:00 | LifeOS | `brain report` tự có tối đa 5 câu "Còn đúng không?" · gom nhật ký tháng (mục 5) |
 | 02:15 | Tiko | Sao lưu (mục 10) |
@@ -160,6 +161,6 @@ LifeOS và Tiko **mỗi bot tự làm với trí nhớ riêng của mình**, khi
 3. Điều thường → `brain add --by <bot> --origin grok …` (không cần hỏi; kết quả trùng thì thôi).
 4. Điều **nhạy cảm** → không ghi. Gom thành **một** tin hỏi Khôi trong khung chat của mình: "Có N chuyện riêng mình đang nhớ: 1… 2… Muốn ghi cái nào vào sổ (cả đội đọc được)?" → chỉ ghi cái Khôi chọn, kèm `--sensitive`.
 5. Riêng LifeOS: đọc `/workspace/lifeos/notes.md` (nếu có) → mỗi điều → `brain add --origin notes …` → đổi tên file thành `notes.da_chuyen.md`.
-6. `brain stats` → `brain page` → cập nhật Page → nhắn Khôi: *"Đã chuyển N điều vào sổ. Xem ở Page 'LifeOS · Trí nhớ', mục Toàn bộ sổ; sai thì nhắn 'quên m5, m12' hoặc 'sửa m7: …'. Có thể sót vài điều — lần sau nhắc tới mình sẽ ghi."*
+6. `brain stats` → `brain page --full` → cập nhật Page → `brain page --mark` → nhắn Khôi: *"Đã chuyển N điều vào sổ. Xem ở Page 'LifeOS · Trí nhớ', mục Toàn bộ sổ; sai thì nhắn 'quên m5, m12' hoặc 'sửa m7: …'. Có thể sót vài điều — lần sau nhắc tới mình sẽ ghi."*
 
 **Không xóa** trí nhớ riêng sau khi chuyển.

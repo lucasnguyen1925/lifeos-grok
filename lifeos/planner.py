@@ -14,9 +14,9 @@ import copy
 from datetime import date, datetime, time, timedelta
 from typing import Any
 
-from . import agenda, urgency
+from . import agenda, lichtong, urgency
 from .common import VN, iso, now, parse_dt, path, read_json
-from .daymodel import profile, synthetic_events
+from .daymodel import is_morning, profile, synthetic_events
 from .tracking import all_items, plan_list
 
 DEFAULT_MINUTES = {
@@ -93,8 +93,8 @@ def _candidates(ranked: list[dict[str, Any]], day: date) -> list[dict[str, Any]]
         if it["kind"] not in ACTIONABLE:
             continue
         due = urgency.due_dt(it)
-        if due and due < datetime.combine(day, time(0, 0), VN):
-            continue
+        if due and due <= datetime.combine(day, time(0, 0), VN):
+            continue  # đã quá hạn (hạn đúng 00:00 = hết ngày hôm trước)
         level = it.get("level", 4)
         if (due and due <= horizon) or level == urgency.RED or it.get("needs_reply") or (due is None and level <= urgency.ORANGE):
             out.append(it)
@@ -209,6 +209,7 @@ def suggest(day: date | None = None, cfg: dict[str, Any] | None = None, t: datet
         "date": day.isoformat(), "day_type": prof["day_type"],
         "capacity_minutes": cap_min, "planned_minutes": used_minutes, "overload": overload,
         "blocks": blocks, "unplaced": unplaced, "at_office": at_office,
+        "conflicts": lichtong.conflicts([day], cfg),  # lịch tổng: kể cả văn phòng/buổi tập/ô 📝 LifeOS tự xếp
         "timeline": timeline(day, cfg, extra_blocks=blocks),
     }
 
@@ -223,7 +224,7 @@ def timeline(day: date, cfg: dict[str, Any], extra_blocks: list[dict[str, Any]] 
     if prof["training"]:
         tr = prof["training"]
         rows.append({"start": tr["start"], "end": tr["end"], "icon": ICONS[tr["type"]], "title": tr["label"],
-                     "type": "training", "alarm": tr["type"] == "gym"})
+                     "type": "training", "alarm": tr["type"] == "gym" and is_morning(tr)})
     if prof["office"]:
         s, e = prof["office"]
         rows.append({"start": f"{s:%H:%M}", "end": f"{e:%H:%M}", "icon": "🏢", "title": "Văn phòng", "type": "office"})
