@@ -2,6 +2,7 @@
 
 > Dành cho AI sẽ code bản này. Quyết định đã chốt nằm ở **SPEC.md §5g** (M1–M5, H1–H14), đừng hỏi lại Khôi từng điều. Đọc thêm `CLAUDE.md` (quy trình ra bản, quy tắc bắt buộc), `docs/NEN_TANG_GROK.md` và `skills/lifeos-noi-quy/SKILL.md`.
 > **Không làm giao diện mới** (khuôn HTML, ảnh, Page): đã tạm gác sang bản sau.
+> **Trạng thái (03/11): đã code xong trong bản 0.6.0**, xem `CHANGELOG.md`. File này giữ làm lý lịch yêu cầu.
 
 ## 0. Ràng buộc cứng
 

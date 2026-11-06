@@ -264,7 +264,7 @@ Chi tiết: skill `lifeos-chong-tri-hoan`. Chẩn đoán: không bắt đầu đ
 | R2 | Nhắc = **Reminder + báo thức Grok**, không bao giờ trong giờ học/làm (script `remind-at`); quiz/đăng ký nhắc khi mở → 24h → 3h |
 | R3 | Việc lớn cắt mốc, mỗi mốc có bước đầu ≤ 10 phút; việc nhóm hẹn tiến độ với người khác |
 | R4 | Tối 21:00: tổng kết kế hoạch hôm nay; mai: 1 việc chính + khối việc nhanh (xếp bằng `plan suggest`), câu NẾU–THÌ; "ok" là xong; im lặng → 22:00 nhắc, 23:00 tự áp dụng |
-| R5 | Đăng ký môn: chuẩn bị danh sách trước, báo thức giờ mở cổng, Khôi tự bấm |
+| R5 | Đăng ký môn: chuẩn bị danh sách trước, báo thức giờ mở cổng, Khôi tự bấm (hoặc duyệt phiếu V nếu đã bật loại `dang_ky_mon`, §5g) |
 | R6 | LifeOS viết nháp việc ngại; tin người quan trọng > 24h → tự soạn nháp (không gửi) |
 | R7 | Phiên tập trung 30 phút mặc định, nghỉ 5 phút, bị kéo đi thì thử lại 15 phút |
 | R8 | Ma sát mức vừa trên thiết bị của Khôi (Focus và các chặn Khôi tự cài); bot không theo dõi nội dung |

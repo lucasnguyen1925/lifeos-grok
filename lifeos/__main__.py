@@ -11,9 +11,9 @@ import sys
 from datetime import date, timedelta
 from pathlib import Path
 
-from . import brain, dashboard, digest, health, history, tracking
+from . import brain, dashboard, digest, health, history, lamho, tracking
 from .common import load_config, now, parse_dt, path, read_json, vn_date
-from .schema import validate_domain_file
+from .schema import validate_domain_file, warnings_domain_file
 
 
 def _print(obj) -> None:
@@ -213,6 +213,48 @@ def main(argv: list[str] | None = None) -> int:
     g = gs.add_parser("check", help="Việc quá hạn chờ chưa có trả lời")
     g.add_argument("--mark", action="store_true", help="Đã báo Khôi + nhờ Tiko")
 
+    s = sub.add_parser("lamho", help="LifeOS làm hộ: phiếu V1, V2… Khôi duyệt thì bot làm luôn (SPEC §5g)")
+    hs = s.add_subparsers(dest="action", required=True)
+    h = hs.add_parser("add", help="Lập phiếu (chỉ loại đã bật trong config.toml [lamho] bat)")
+    h.add_argument("--loai", required=True, help="một trong: " + ", ".join(lamho.LOAI))
+    h.add_argument("--tieu-de", required=True)
+    h.add_argument("--noi-dung", required=True, help="Đúng thứ sẽ làm: thân mail, đáp án form, mô tả thao tác")
+    h.add_argument("--nguon", required=True, help="Dữ kiện lấy từ đâu (nội quy mục 10)")
+    h.add_argument("--nguoi-nhan", action="append", metavar="TÊN|ĐỊA CHỈ|NGUỒN", help="Phiếu gửi: mỗi người một lần, phải có nguồn")
+    h.add_argument("--item-id", help="id việc trong digest (việc đó sẽ không xếp giờ cho Khôi nữa)")
+    h.add_argument("--han", help="Hạn của chính việc này (ISO, có +07:00)")
+    h.add_argument("--so-tien", type=int, help="Thanh toán: số tiền (đồng)")
+    h.add_argument("--noi-nhan", help="Thanh toán: trả cho ai, vào đâu")
+    h.add_argument("--cach", choices=sorted(lamho.CACH_XOA), help="Xóa: thung_rac hoặc luu_tru")
+    h.add_argument("--lam-o", default="lifeos", help="lifeos (mặc định) hoặc bot mảng khi LifeOS không vào được nguồn")
+    h.add_argument("--phut", type=int, help="Số phút Khôi tiết kiệm (mặc định tính từ việc gắn kèm)")
+    h.add_argument("--thay", help="Thay phiếu làm không được / chưa rõ kết quả / hết hạn (mã V cũ)")
+    h = hs.add_parser("list", help="Danh sách phiếu; --de-xuat: các phiếu chờ Khôi, tối đa 5")
+    h.add_argument("--de-xuat", action="store_true")
+    h.add_argument("--het", action="store_true", help="Khôi nói 'xem thêm': hiện cả những phiếu còn lại")
+    h.add_argument("--mark", action="store_true", help="Sau khi gửi Khôi: ghi đã hỏi (đủ lần mà vẫn im thì phiếu hết hạn)")
+    for name, hlp in (("show", "Xem một phiếu"), ("approve", "Khôi nói 'làm V…': ghi duyệt đúng bản đã xem"),
+                      ("start", "Cổng kiểm tra trước khi làm"), ("drop", "Khôi nói 'bỏ V…'")):
+        h = hs.add_parser(name, help=hlp)
+        h.add_argument("id")
+    h = hs.add_parser("edit", help="Khôi nói 'sửa V…': sửa là mất duyệt")
+    h.add_argument("id")
+    h.add_argument("--tieu-de")
+    h.add_argument("--noi-dung")
+    h.add_argument("--so-tien", type=int)
+    h.add_argument("--noi-nhan")
+    h.add_argument("--cach", choices=sorted(lamho.CACH_XOA))
+    h.add_argument("--nguoi-nhan", action="append", metavar="TÊN|ĐỊA CHỈ|NGUỒN")
+    h.add_argument("--han")
+    h = hs.add_parser("result", help="Báo kết quả sau khi làm")
+    h.add_argument("id")
+    h.add_argument("--ket-qua", required=True, choices=["ok", "loi", "khong-chac"])
+    h.add_argument("--bang-chung", help="Mã xác nhận, mô tả ảnh chụp xác nhận. Không thấy xác nhận → khong-chac")
+    hs.add_parser("tick", help="Đầu báo cáo 05:30/21:00: phiếu hỏi đủ lần mà im lặng thì hết hạn; phiếu có hạn gần thì nhắc")
+    hs.add_parser("report", help="Dòng '🤖 Đã làm giúp hôm nay' cho báo cáo 21:00")
+    h = hs.add_parser("tong", help="Số việc bot làm giúp và phút ước tính tiết kiệm")
+    h.add_argument("--days", type=int, default=7)
+
     a = p.parse_args(argv)
 
     if a.cmd == "validate":
@@ -221,7 +263,7 @@ def main(argv: list[str] | None = None) -> int:
             _print({"ok": False, "errors": [f"Không tìm thấy file {a.file}."]})
             return 1
         errors = validate_domain_file(data)
-        _print({"ok": not errors, "errors": errors})
+        _print({"ok": not errors, "errors": errors, "warnings": [] if errors else warnings_domain_file(data)})
         return 0 if not errors else 1
 
     if a.cmd == "date":
@@ -402,6 +444,12 @@ def main(argv: list[str] | None = None) -> int:
         except ValueError as exc:
             _print({"ok": False, "why": str(exc)})
             return 1
+    elif a.cmd == "lamho":
+        try:
+            _print(_lamho_run(a, cfg))
+        except ValueError as exc:
+            _print({"ok": False, "why": str(exc)})
+            return 1
     elif a.cmd == "brain":
         try:
             _print(_brain_run(a, cfg))
@@ -413,6 +461,44 @@ def main(argv: list[str] | None = None) -> int:
     elif a.cmd == "dashboard":
         _print(dashboard.build(png=a.png, cfg=cfg))
     return 0
+
+
+def _people(raw: list[str] | None) -> list[dict[str, str]] | None:
+    if raw is None:
+        return None
+    out = []
+    for r in raw:
+        ten, dia_chi, nguon = ([x.strip() for x in r.split("|", 2)] + ["", "", ""])[:3]
+        out.append({"ten": ten, "dia_chi": dia_chi, "nguon": nguon})
+    return out
+
+
+def _lamho_run(a, cfg):
+    act = a.action
+    if act == "add":
+        return lamho.add(a.loai, a.tieu_de, a.noi_dung, a.nguon, item_id=a.item_id, han=a.han, so_tien=a.so_tien,
+                         noi_nhan=a.noi_nhan, cach=a.cach, lam_o=a.lam_o, nguoi_nhan=_people(a.nguoi_nhan),
+                         phut=a.phut, thay=a.thay, cfg=cfg)
+    if act == "list":
+        return lamho.list_items(de_xuat=a.de_xuat, het=a.het, mark=a.mark, cfg=cfg)
+    if act == "show":
+        return lamho.show(a.id, cfg)
+    if act == "approve":
+        return lamho.approve(a.id)
+    if act == "start":
+        return lamho.start(a.id, cfg)
+    if act == "drop":
+        return lamho.drop(a.id)
+    if act == "edit":
+        return lamho.edit(a.id, tieu_de=a.tieu_de, noi_dung=a.noi_dung, so_tien=a.so_tien, noi_nhan=a.noi_nhan,
+                          cach=a.cach, nguoi_nhan=_people(a.nguoi_nhan), han=a.han, cfg=cfg)
+    if act == "result":
+        return lamho.result(a.id, a.ket_qua, a.bang_chung)
+    if act == "tick":
+        return lamho.tick(cfg)
+    if act == "report":
+        return lamho.report()
+    return lamho.tong(a.days)
 
 
 def _brain_parser(sub) -> None:

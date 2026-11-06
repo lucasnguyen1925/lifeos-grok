@@ -95,6 +95,28 @@ def validate_domain_file(data: Any, expected_domain: str | None = None) -> list[
     return errors
 
 
+MAIL_ZALO_HINTS = ("mail", "zalo")
+READ_KINDS = {"email", "message", "notice"}
+
+
+def warnings_domain_file(data: Any) -> list[str]:
+    """Cảnh báo (KHÔNG phải lỗi, không chặn bot): chỗ ghi sai làm kế hoạch xếp việc nhanh quá dài (SPEC §5g M3)."""
+    out: list[str] = []
+    if not isinstance(data, dict) or not isinstance(data.get("items"), list):
+        return out
+    for i, item in enumerate(data["items"]):
+        if not isinstance(item, dict):
+            continue
+        kind, src = item.get("kind"), str(item.get("source") or "")
+        label = f"items[{i}] ({item.get('id')})"
+        if kind in {"task", "deadline"} and any(h in src.casefold() for h in MAIL_ZALO_HINTS):
+            out.append(f"{label}: việc từ nguồn '{src}' ghi loại '{kind}'. Mail ghi 'email', tin Zalo ghi 'message' "
+                       "(script tính thời lượng theo loại này; chỉ giữ 'task'/'deadline' nếu đó là việc thật cần làm lâu).")
+        if kind in READ_KINDS and item.get("est_minutes"):
+            out.append(f"{label}: 'est_minutes' của loại '{kind}' bị bỏ qua (script tự tính thời lượng). Xóa trường này đi.")
+    return out
+
+
 def validate_item(item: Any) -> list[str]:
     if not isinstance(item, dict):
         return ["mỗi item phải là object."]

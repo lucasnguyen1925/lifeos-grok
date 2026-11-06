@@ -14,7 +14,7 @@ import copy
 from datetime import date, datetime, time, timedelta
 from typing import Any
 
-from . import agenda, lichtong, urgency
+from . import agenda, lamho, lichtong, urgency
 from .common import VN, iso, now, parse_dt, path, read_json
 from .daymodel import is_morning, profile, synthetic_events
 from .tracking import all_items, plan_list
@@ -25,12 +25,54 @@ DEFAULT_MINUTES = {
 }
 ACTIONABLE = set(DEFAULT_MINUTES)
 QUICK_KINDS = {"email", "message", "notice", "payment", "registration"}
+READ_KINDS = {"email", "message", "notice"}   # thời lượng do script quyết, bỏ qua est_minutes bot ghi (SPEC §5g M3)
 MAX_BLOCK = 120
+# Thời lượng việc nhanh (SPEC §5g M1-M2). Ghi đè được trong config.toml [estimate].
+ESTIMATE = {
+    "doc_mail": 3,              # đọc mail, thông báo
+    "tra_loi": 7,               # trả lời mail/tin ngắn
+    "thanh_toan_dang_ky": 10,   # đóng tiền, đăng ký (Khôi tự bấm)
+    "form_ngan": 10,            # khảo sát, form ngắn (việc `task` có từ khóa dưới đây, không ghi est_minutes)
+    "cum_toi_da": 30,           # mỗi cụm việc nhanh tối đa bấy nhiêu phút
+    "nghi_sau_cum": 5,          # nghỉ sau cụm việc nhanh
+    "form_keywords": ["khảo sát", "khao sat", "form", "biểu mẫu"],
+}
 ICONS = {"class": "🏫", "exam": "🏫", "work_shift": "🏢", "meeting": "👥", "event": "📌", "gym": "🏋️", "run": "🏃"}
 
 
-def _minutes(it: dict[str, Any]) -> int:
-    return it.get("est_minutes") or DEFAULT_MINUTES.get(it["kind"], 30)
+def _est(cfg: dict[str, Any] | None) -> dict[str, Any]:
+    out = dict(ESTIMATE)
+    out.update((cfg or {}).get("estimate", {}) or {})
+    return out
+
+
+def _is_form_task(it: dict[str, Any], est: dict[str, Any]) -> bool:
+    if it["kind"] != "task" or it.get("est_minutes"):
+        return False
+    title = it["title"].casefold()
+    return any(k.casefold() in title for k in est["form_keywords"])
+
+
+def _is_quick(it: dict[str, Any], cfg: dict[str, Any] | None = None) -> bool:
+    return it["kind"] in QUICK_KINDS or _is_form_task(it, _est(cfg))
+
+
+def _minutes(it: dict[str, Any], cfg: dict[str, Any] | None = None) -> int:
+    """Phút Khôi cần cho một việc. Mail/tin/thông báo/đóng tiền/đăng ký: script quyết theo bảng [estimate]."""
+    est = _est(cfg)
+    kind = it["kind"]
+    if kind in READ_KINDS:
+        asked = it.get("needs_reply") or (kind == "message" and it.get("mentions_khoi"))
+        return int(est["tra_loi"] if kind in {"email", "message"} and asked else est["doc_mail"])
+    if kind in {"payment", "registration"}:
+        return int(est["thanh_toan_dang_ky"])
+    if _is_form_task(it, est):
+        return int(est["form_ngan"])
+    return it.get("est_minutes") or DEFAULT_MINUTES.get(kind, 30)
+
+
+def _round_up5(minutes: int) -> int:
+    return -(-minutes // 5) * 5
 
 
 def _tier(it: dict[str, Any], day_start: datetime, cfg: dict[str, Any]) -> int:
@@ -127,19 +169,21 @@ def suggest(day: date | None = None, cfg: dict[str, Any] | None = None, t: datet
     used_minutes = sum(p.get("minutes") or 0 for p in planned)
     used_blocks = len(planned)
 
-    cands = [c for c in _candidates(ranked, day) + prep_sessions(day, items, cfg) if c["id"] not in already]
+    has_ticket = lamho.active_item_ids()    # việc đã thành phiếu làm hộ thì không xếp giờ cho Khôi (SPEC §5g M5)
+    cands = [c for c in _candidates(ranked, day) + prep_sessions(day, items, cfg)
+             if c["id"] not in already and c["id"] not in has_ticket]
     for c in cands:
         c["_tier"] = _tier(c, day_start, cfg)
     cands.sort(key=lambda x: (x["_tier"], urgency.due_dt(x) or day_start + timedelta(days=60)))
-    quick = [c for c in cands if c["kind"] in QUICK_KINDS]
-    main = [c for c in cands if c["kind"] not in QUICK_KINDS]
+    quick = [c for c in cands if _is_quick(c, cfg)]
+    main = [c for c in cands if not _is_quick(c, cfg)]
 
     blocks, unplaced, overload, at_office = [], [], False, []
 
     # Việc công ty: ưu tiên làm trong giờ văn phòng. Chỉ xếp vào giờ riêng khi hạn rơi trước buổi văn phòng kế tiếp.
     def office_before_due(it: dict[str, Any]) -> str | None:
         due = urgency.due_dt(it)
-        mins = timedelta(minutes=_minutes(it))
+        mins = timedelta(minutes=_minutes(it, cfg))
         for i in range(0, 7):
             d = day + timedelta(days=i)
             o = prof["office"] if i == 0 else profile(d, cfg)["office"]
@@ -162,34 +206,53 @@ def suggest(day: date | None = None, cfg: dict[str, Any] | None = None, t: datet
     main = keep
     cap_min, cap_blocks = prof["capacity_minutes"], prof["capacity_blocks"]
 
-    def place(title: str, minutes: int, its: list[dict[str, Any]], deadline: datetime | None, tier: int) -> bool:
+    def place(title: str, minutes: int, its: list[dict[str, Any]], deadline: datetime | None, tier: int,
+              gap: int = 10, best_fit: bool = False) -> bool:
+        """Xếp vào khe trống đầu tiên đủ chỗ; best_fit: khe NGẮN nhất đủ chỗ (cụm việc nhanh, chừa khe dài cho việc lớn)."""
         need = timedelta(minutes=minutes)
-        for slot in slots:
-            s, e = slot
-            if e - s < need or (deadline and s + need > deadline):
-                continue
-            blocks.append({"start": iso(s), "end": iso(s + need), "minutes": minutes, "title": title, "tier": tier,
-                           "items": [{k: it.get(k) for k in ("id", "title", "kind", "level_label", "due_label", "url", "from", "exam_id")}
-                                     for it in its]})
-            slot[0] = s + need + timedelta(minutes=10)
-            return True
-        return False
+        fits = [sl for sl in slots if sl[1] - sl[0] >= need and not (deadline and sl[0] + need > deadline)]
+        if not fits:
+            return False
+        slot = min(fits, key=lambda sl: (sl[1] - sl[0], sl[0])) if best_fit else fits[0]
+        s = slot[0]
+        blocks.append({"start": iso(s), "end": iso(s + need), "minutes": minutes, "title": title, "tier": tier,
+                       "items": [{k: it.get(k) for k in ("id", "title", "kind", "level_label", "due_label", "url", "from", "exam_id")}
+                                 for it in its]})
+        slot[0] = s + need + timedelta(minutes=gap)
+        return True
 
     def must_do_today(it: dict[str, Any]) -> bool:
         due = urgency.due_dt(it)
         return it.get("level") == urgency.RED and due is not None and due.date() == day
 
-    if quick:
-        mins = min(sum(_minutes(q) for q in quick), 45)
-        earliest = min((urgency.due_dt(q) for q in quick if urgency.due_dt(q)), default=None)
-        if place("Việc nhanh", mins, quick, earliest, min(q["_tier"] for q in quick)):
+    est = _est(cfg)
+    cap_q, gap_q = int(est["cum_toi_da"]), int(est["nghi_sau_cum"])
+    clusters, cur, cur_min = [], [], 0          # gom việc nhanh thành cụm ≤ cum_toi_da phút (M2)
+    for q in quick:
+        m = _minutes(q, cfg)
+        if cur and cur_min + m > cap_q:
+            clusters.append((cur, cur_min))
+            cur, cur_min = [], 0
+        cur.append(q)
+        cur_min += m
+    if cur:
+        clusters.append((cur, cur_min))
+    for n, (members, total) in enumerate(clusters):
+        mins = min(_round_up5(total), cap_q)
+        if n > 0 and (used_minutes + mins > cap_min or used_blocks >= cap_blocks):
+            unplaced += [{"id": q["id"], "title": q["title"], "why": "vượt giới hạn giờ việc hôm nay, việc nhanh dồn sang sáng mai"}
+                         for q in members]
+            continue
+        earliest = min((urgency.due_dt(q) for q in members if urgency.due_dt(q)), default=None)
+        title = "Việc nhanh" if n == 0 else f"Việc nhanh {n + 1}"
+        if place(title, mins, members, earliest, min(q["_tier"] for q in members), gap=gap_q, best_fit=True):
             used_minutes += mins
             used_blocks += 1
         else:
-            unplaced += [{"id": q["id"], "title": q["title"], "why": "không còn khung trống"} for q in quick]
+            unplaced += [{"id": q["id"], "title": q["title"], "why": "không còn khung trống"} for q in members]
 
     for it in main:
-        mins = min(_minutes(it), MAX_BLOCK)
+        mins = min(_minutes(it, cfg), MAX_BLOCK)
         forced = must_do_today(it)
         if not forced and (used_minutes + mins > cap_min or used_blocks >= cap_blocks):
             unplaced.append({"id": it["id"], "title": it["title"], "why": "vượt giới hạn giờ việc hôm nay"})
@@ -199,8 +262,8 @@ def suggest(day: date | None = None, cfg: dict[str, Any] | None = None, t: datet
             used_blocks += 1
             if forced and (used_minutes > cap_min or used_blocks > cap_blocks):
                 overload = True
-            if _minutes(it) > MAX_BLOCK:
-                blocks[-1]["note"] = f"việc dài ~{_minutes(it)} phút: hôm nay làm phiên đầu {MAX_BLOCK} phút"
+            if _minutes(it, cfg) > MAX_BLOCK:
+                blocks[-1]["note"] = f"việc dài ~{_minutes(it, cfg)} phút: hôm nay làm phiên đầu {MAX_BLOCK} phút"
         else:
             unplaced.append({"id": it["id"], "title": it["title"], "why": "không còn khung trống đủ dài trước hạn"})
 

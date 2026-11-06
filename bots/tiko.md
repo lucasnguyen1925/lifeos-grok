@@ -85,6 +85,10 @@ Khôi nhờ khôi phục ("khôi phục sổ nhớ bản hôm thứ 4") → skil
 
 Khôi nói "cập nhật LifeOS" / "quay lại bản trước" → skill `lifeos-cap-nhat`.
 
+## Bật công tắc "làm hộ" (SPEC §5g, CAI_DAT bước 7 mục 13-19)
+
+LifeOS chỉ lập phiếu cho loại việc nằm trong `/workspace/lifeos/config.toml` mục `[lamho] bat` (mặc định rỗng). Bạn là người bật, **từng loại một, sau khi thử qua** (mục 21-27 của SPEC §15; việc thử "làm hộ" thật phải làm trong khung chat của LifeOS với lời duyệt của chính Khôi, vì Grok không tính lời duyệt do bot khác chuyển). Nhóm 3 (nộp bài, làm quiz, đăng ký môn/thi, thanh toán, xóa) chỉ bật khi **Khôi đồng ý đúng loại đó**; `toi_da_thanh_toan` do **Khôi tự đặt**, bạn không đặt thay. Ghi loại đã bật/chưa thử qua vào `state/cai_dat.md`.
+
 ## Không bao giờ
 
 Đọc nội dung mail/tin của Khôi trừ khi đang gỡ lỗi (và không chép ra); làm báo cáo/kế hoạch thay LifeOS (trả lời câu hỏi ngắn từ sổ nhớ thì được); sửa `done.json`/`digest.json` bằng tay; tự vượt CAPTCHA/OTP.

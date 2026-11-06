@@ -51,6 +51,7 @@ Sau khi gửi xong: `python3 -m lifeos mark-reported` (để không bắn lại 
 3. **Chưa có kế hoạch:** `plan suggest --for today` → gửi theo **mẫu dòng thời gian** (bên dưới), lưu từng ô 📝 bằng `plan add` (chưa chốt).
 4. Thứ 2: kế hoạch tuần chưa được "ok" → thêm dòng "📅 Lịch văn phòng tuần này chưa ghi lên lịch công ty — ok không?".
 5. 🔑 / ⚙️ chỉ khi có vấn đề.
+6. **🤖 Phiếu làm hộ**: theo mục "Phiếu làm hộ" bên dưới (`lamho tick` trước, lập phiếu, `list --de-xuat --mark`, chép nguyên văn).
 
 ## 🌙 Báo cáo tối (21:00)
 
@@ -82,6 +83,7 @@ Không đủ giờ cho "Báo cáo dài" — để T4 nhé?
    → "ghi a" · "bỏ b" · "ghi hết"
 ```
    Khối 🧠 chép **nguyên văn** `text` của `brain report` (rỗng → bỏ cả khối). Ngày cuối tháng nó có thêm tối đa 5 câu "🔎 Còn đúng không?".
+   Khối 🤖: (a) dòng "🤖 Đã làm giúp hôm nay" chép nguyên văn `text` của `lamho report` (rỗng → bỏ); (b) phiếu mới "🤖 Mình làm giúp được" theo mục "Phiếu làm hộ" bên dưới.
 3. Ngay khi gửi: lưu từng ô 📝 bằng `plan add --for mai …` (chưa chốt). Việc Khôi chọn "dời mai" → `plan suggest` xếp ưu tiên (đã nằm trong candidates). Rồi `brain report --mark` → `brain page` → **chỉ khi `changed: true`**: cập nhật Grok Page "LifeOS · Trí nhớ" từ `dashboard/tri_nho.md`, xong chạy `brain page --mark`.
 4. Chủ nhật/cuối tháng: gửi kèm **ảnh dashboard** + 3 dòng nhận xét. Ghi nhận xét vào file `context/…md`.
 
@@ -93,6 +95,7 @@ Không đủ giờ cho "Báo cáo dài" — để T4 nhé?
 | "đổi 2 sang 15h" / "bỏ 3" | Kiểm giờ bằng `free` → `plan edit 2 --at 15:00` (đè lịch → script từ chối và giữ giờ cũ: báo `text`, đề xuất giờ khác; Khôi nói "giữ nguyên" → `--force`) / `plan edit 3 --remove` → gửi lại phần 🎯 rút gọn. Đã chốt trước đó → sửa luôn Reminder/báo thức/sự kiện LifeOS (lấy id từ `calmap get`). |
 | "thêm <việc> lúc <giờ>" | `plan add …` → gửi lại phần 🎯 rút gọn. |
 | "xong 2" / "xong <việc>" | `done "<việc>"` + `plan result 2 done`. **Không đăng Page ngay** (Page cập nhật ở báo cáo 05:30/21:00 và khi Khôi "ok" kế hoạch — tiết kiệm credit). |
+| "làm V1 V3" · "bỏ V2" · "sửa V1: …" · "làm hết" · "xem thêm" | Phiếu làm hộ — skill `lifeos-lam-ho` mục 4. **V + số = phiếu làm hộ.** Im lặng = không làm gì |
 | "ghi a" · "bỏ b" · "ghi hết" · "đúng d" · "sai e" · "quên f" | Sổ nhớ — skill `lifeos-tri-nho` mục 3. **Chữ = sổ nhớ, số = kế hoạch.** |
 | Im lặng (tối) | 22:00 nhắc 1 dòng + báo thức "Xem kế hoạch mai · 1 phút". 23:00: `plan confirm --for mai --auto` + nhắc + lịch LifeOS, không nhắn. Ô nào đè lịch bị bỏ (`dropped`) → báo cáo sáng nói rõ. |
 | Im lặng (sáng, khi có đề xuất chen việc) | 07:00: tự áp dụng như "ok", không nhắn. |
@@ -130,6 +133,19 @@ Không đủ giờ cho "Báo cáo dài" — để T4 nhé?
 5. **Im lặng:** 23:00 Chủ nhật → `week confirm --auto` (buổi tập nào đè lịch thì script **bỏ** và ghi trong `dropped` — báo cáo sáng T2 nói rõ) + ghi buổi tập còn lại lên lịch "LifeOS". **KHÔNG ghi lịch công ty** cho tới khi Khôi "ok" (báo cáo sáng T2 hỏi lại).
 6. Trong tuần Khôi nói "mai không lên công ty" / "T5 lên 13h–18h" / "bỏ gym mai" → `week set …` / `week train …` (đọc `day_conflicts`) → sửa/xóa mục Office trên lịch công ty (tin nhắn của Khôi là lời duyệt) → `plan suggest` lại cho ngày đó nếu là hôm nay/mai.
 
+## 🤖 Phiếu làm hộ (V1, V2…)
+
+SPEC §5g. Hiện ở **ba chỗ, không thêm lượt dậy nào**: báo cáo 05:30, báo cáo 21:00, tin 🔴 giữa ngày. Cách chọn việc, lập phiếu, làm từng loại: skill `lifeos-lam-ho`.
+1. Đầu báo cáo: `python3 -m lifeos lamho tick`. `expired` (hỏi đủ lần mà Khôi im lặng) → bỏ qua, việc về lại danh sách của Khôi. `nhac_gap` (phiếu có hạn gần, Khôi chưa duyệt) → **không tự làm**: đặt Reminder + báo thức theo `remind-at` và nhắc Khôi.
+2. Việc nào đủ 3 điều kiện (skill `lifeos-lam-ho` mục 1) → `lamho add …`. Loại đang tắt thì script từ chối: chuẩn bị sẵn cho Khôi tự làm, không có phiếu.
+3. `python3 -m lifeos lamho list --de-xuat --mark` → chép **nguyên văn** `text` dưới tiêu đề:
+   ```
+   🤖 Mình làm giúp được (trả lời "làm V1 V3", "bỏ V2", "sửa V1: …", "làm hết")
+   <text của lamho list>
+   ```
+   Có `ghi_chu` ("…và N việc khác, nói 'xem thêm'") thì chép luôn. Tối đa 5 phiếu mỗi tin. Không có phiếu nào → bỏ cả khối.
+4. Việc nhanh đã thành phiếu **không** vào kế hoạch của Khôi (script tự bỏ). Việc nhanh còn lại hiện trong ô "Việc nhanh" theo thời lượng mới (đọc 3', trả lời 7', đóng tiền/đăng ký 10', khảo sát 10'; mỗi cụm ≤ 30').
+
 ## Grok Page "LifeOS"
 
 Một Page duy nhất, link cố định, ghim sẵn. Nội dung lấy từ `dashboard/page.md` (lệnh `page` dựng lại phần Hôm nay + Tuần này; `nightly` dựng lại cả phần Hiệu suất). **Chỉ đăng lại khi cần** (mỗi lần viết lại Page là tốn credit): chạy `page` → kết quả có `changed`. Chỉ đăng khi `changed: true` **và** đang ở một trong các lúc: báo cáo 05:30, báo cáo 21:00, Khôi "ok" kế hoạch (ngày/tuần), Khôi nhắn xem Page/dashboard. Đăng xong chạy `page --mark` (ghi nhớ bản đã đăng). Các tin lẻ như "xong 1", "đổi 2 sang 15h" **không** đăng Page — chỉ cập nhật file; bản đúng sẽ lên ở lần đăng kế tiếp.
@@ -146,6 +162,7 @@ Nhận tin ưu tiên từ bot mảng → `python3 -m lifeos digest` → `python3
   ```
   rồi `python3 -m lifeos alerts --mark <các id vừa gửi>`.
 - Việc quiz/đăng ký còn ≤ 3 giờ chưa làm → **tự đặt Reminder + báo thức** (đã được Khôi cấp quyền), giờ lấy từ `remind-at`.
+- Việc gấp mà bot làm được (đủ 3 điều kiện của skill `lifeos-lam-ho`) → kèm phiếu V trong cùng tin (mục "Phiếu làm hộ"). Phiếu có hạn gần mà Khôi chưa duyệt vẫn **không tự làm**.
 - Lý do "mail bạn gửi bị trả về" → báo riêng một dòng: `🚨 Mail gửi <người> lúc <giờ> bị trả về: địa chỉ không dùng được. Mình tìm địa chỉ khác nhé?` Rồi ghi sổ nhớ: địa chỉ đó đang có trong sổ → `brain end <mã> --note "bị trả về <ngày>"`; chưa có → `brain add --section tranh --subject "<người>" --text "Không gửi tới <địa chỉ>: bị trả về <ngày>" --source "thư báo trả về <ngày>"`. Tìm địa chỉ khác theo nội quy mục 10 — không đoán.
 
 ## Tổng kết tuần (trong tin Chủ nhật 20:00) và tháng

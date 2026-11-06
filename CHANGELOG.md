@@ -2,6 +2,35 @@
 
 Mỗi bản ghi rõ **Tiko phải làm gì** khi cập nhật (skill `lifeos-cap-nhat`).
 
+## 0.6.0 — Việc nhanh tính đúng giờ + LifeOS làm hộ (03/11)
+
+Chuyện xảy ra: Khôi thấy kế hoạch xếp quá nhiều thời gian cho việc nhanh (check mail, phản hồi mail…) và muốn bot **tự giải quyết những việc nó làm được, Khôi chỉ duyệt**; việc khó thì Khôi làm. Về thời gian: mỗi mail/tin tính 10' (đóng tiền, đăng ký 15'), cả ô "Việc nhanh" tới 45', nghỉ 10' sau mỗi ô, và mail bị bot quét ghi thành `task` (30') hoặc `deadline` (90') thì thành ô dài riêng. Quyết định: SPEC §5g (M1–M5, H1–H14). **Giao diện mới (ảnh từ khuôn) để bản sau.**
+
+**Tiko làm:**
+1. `git pull`, chạy test (phải OK, **110 bài**).
+2. Chép đè skill vào `/home/box/agent-data/workflows/`: `lifeos-noi-quy`, `lifeos-bao-cao`, `lifeos-chong-tri-hoan`, và chép **mới** `lifeos-lam-ho` (chạy lại vòng chép skill ở CAI_DAT bước 3 là đủ; phải thấy 8 skill).
+3. Gửi tin ưu tiên cho **cả 5 bot** LifeOS, Học tập, Công ty, Cá nhân, Zalo (Tiko không đổi hướng dẫn): "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/<bot>.md (đọc toàn văn, thay hướng dẫn cũ)."
+4. Thêm hai mục mới vào `/workspace/lifeos/config.toml`, chép từ `config/config.example.toml` (không ghi đè gì Khôi đã điền): `[estimate]` (bảng thời lượng việc nhanh, không cần chỉnh) và `[lamho]` (**giữ nguyên `bat = []` và `toi_da_thanh_toan = 0`**: chưa bật loại việc nào).
+5. Không có routine mới; LifeOS không đổi giờ routine nào.
+6. Kiểm ngay (chỉ đọc), ghi vào `state/cai_dat.md`:
+   - `python3 -m lifeos validate data/<mảng>.json` cho 3 mảng vẫn `ok: true` (có thể có `warnings`, không phải lỗi: chuyển cho bot mảng sửa theo thông báo).
+   - `python3 -m lifeos plan suggest --for mai`: ô "Việc nhanh" ngắn lại (mỗi cụm ≤ 30', nghỉ 5' sau cụm).
+   - `python3 -m lifeos lamho list` in `{"items": []}`; `lamho add --loai gui_mail …` báo "chưa bật" (đúng, vì công tắc đang tắt).
+7. **Thử "làm hộ", từng loại một** theo CAI_DAT bước 7 (mục 13–19) và SPEC §15 mục 21–27. Việc thử phải diễn ra **trong khung chat LifeOS với lời duyệt của chính Khôi** (Grok không tính lời duyệt do bot khác chuyển lại). Chỉ dùng dữ liệu thử (mail gửi chính Khôi, sự kiện "[thử LifeOS]"). Loại nào qua thử thì thêm vào `[lamho] bat`. **Nhóm 3 (nộp bài, làm quiz, đăng ký môn/thi, thanh toán, xóa) không có cách thử vô hại**: chỉ "chạy khô" tới sát nút cuối với form đăng ký/khảo sát (không thử với quiz); bật từng loại khi có việc thật và Khôi đồng ý đúng loại đó. `toi_da_thanh_toan` do **Khôi tự đặt**, Tiko không đặt hộ.
+8. Sau tuần đầu: gửi Khôi số ô "Việc nhanh" và thời lượng trong kế hoạch, và `python3 -m lifeos lamho tong --days 7`.
+
+**Khôi làm:** nhắn Tiko "Cập nhật LifeOS lên bản 0.6.0, làm theo CHANGELOG". Khi LifeOS đưa phiếu V: trả lời "làm V1", "bỏ V2", "sửa V1: …" (im lặng = không làm gì). Tự đặt `toi_da_thanh_toan` nếu muốn cho bot thanh toán. Đồng ý từng loại ở nhóm 3 trước khi Tiko bật. Bấm duyệt thẻ Grok nếu hiện.
+
+Thay đổi:
+- **Thời lượng việc nhanh (M1–M5)**: bảng `[estimate]` (đọc mail/thông báo 3' · trả lời mail/tin 7' · đóng tiền, đăng ký 10' · khảo sát/form 10'); mỗi cụm ≤ 30' (cũ 45'), làm tròn lên 5', nghỉ 5' sau cụm, xếp vào khe NGẮN nhất đủ chỗ; cụm dư vào cụm sau nếu còn giờ, không thì để sáng mai. Script **bỏ `est_minutes`** của `email`/`message`/`notice`/`payment`/`registration`; `validate` có thêm `warnings` (không phải lỗi) khi `task`/`deadline` đến từ nguồn mail/Zalo hoặc khi ghi `est_minutes` cho mail/tin. Việc đã có phiếu V không xếp giờ cho Khôi. `lifeos/planner.py`, `lifeos/schema.py`.
+- **Làm hộ**: `lifeos/lamho.py` + lệnh `lamho add|list|show|approve|start|result|edit|drop|tick|report|tong`. 15 loại việc / 3 nhóm, mỗi loại một công tắc `[lamho] bat` (mặc định tắt); `start` là cổng kiểm tra (đã duyệt đúng bản, loại đang bật, còn hạn, thanh toán ≤ `toi_da_thanh_toan` và mặc định 0 = không cho, xóa chỉ vào thùng rác/lưu trữ, người nhận mail/tin phải có nguồn); sửa phiếu là mất duyệt; tiền/nộp bài/xóa không tự thử lại (phiếu mới + duyệt mới); nhóm 3 báo `ok` phải kèm bằng chứng; tối đa 5 phiếu mỗi tin; hỏi 2 lần mà Khôi im lặng thì hết hạn; phiếu có hạn ≤ 3h chưa duyệt → nhắc Reminder + báo thức, không tự làm. State `state/lamho.json`, sổ `log/lamho.jsonl`.
+- **Số liệu**: sổ ngày có `lamho`; chỉ số tuần `H_lamho_viec`, `H_lamho_phut` (Page, bảng so tuần, thêm một ô trong dashboard hiện tại, không đổi thiết kế).
+- **P4 sửa**: "Mọi việc gửi đi/làm thay phải có phiếu Khôi duyệt" (SPEC §2, §12, rủi ro §14). Khôi chấp nhận rủi ro nhóm 3 và cho biết đang thí điểm có phép của trường (không kiểm chứng ở repo).
+- Hướng dẫn: skill mới `lifeos-lam-ho`; sửa `lifeos-noi-quy` (mục 2, 3, 4), `lifeos-bao-cao` (mục "Phiếu làm hộ"), `lifeos-chong-tri-hoan` (R1, R5); `bots/lifeos.md`, `bots/hoctap.md`, `bots/congty.md`, `bots/canhan.md`, `bots/zalo.md`, `bots/tiko.md`; `docs/DINH_DANG_DU_LIEU.md`; `config/config.example.toml`; `CAI_DAT.md` bước 3 và 7; `docs/NEN_TANG_GROK.md` (kết quả thử 02–03/11).
+- Test: `tests/test_lamho.py` (28 bài mới).
+
+Chưa kiểm chứng trên máy Grok: **toàn bộ phần làm hộ thật** (gửi mail, điền form, nộp, thanh toán… SPEC §15 mục 21–27). Đã thử 03/11: LifeOS vào được BKeL và mail trường bằng phiên dùng chung (MyBK hết phiên, mail công ty bị Google hỏi xác minh). Chưa làm: giao diện mới (khuôn HTML, ảnh, Page).
+
 ## 0.5.0 — Lịch tổng: hết xếp đè giờ học + bớt tốn credit (02/11)
 
 Chuyện xảy ra: tuần đầu chạy thật, kế hoạch tuần có gym 6:00–8:00 đè lớp 7:00, chạy sáng đè buổi thí nghiệm, văn phòng đè một buổi thí nghiệm — LifeOS không báo trùng gì (giờ gym đóng cứng; dò trùng không tính thứ LifeOS tự xếp; LifeOS sửa tay file kế hoạch nên bỏ qua mọi kiểm tra). Kèm "⏰ Dậy 23:00" và hạn "00:00 Thứ 6" dễ đọc nhầm. Đo credit: LifeOS dùng nhiều nhất. Quyết định: SPEC §5f (L1–L9, C1–C3).

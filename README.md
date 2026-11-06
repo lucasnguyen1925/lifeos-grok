@@ -35,6 +35,10 @@ Khôi kể chuyện cho LifeOS (hay Tiko) một lần là **cả 6 bot cùng bi�
 
 LifeOS biết **ai lo mảng nào**: chuyện trường (mail, Drive, BKeL, MyBK) → Học tập · việc công ty → Công ty · đời sống → Cá nhân · Zalo → bot Zalo · sự cố, kết nối → Tiko. Khôi nhờ việc gì, LifeOS giao ngay cho đúng bot và báo lại khi có kết quả (quá 10 phút chưa xong thì báo Khôi). Bản đồ in trong hồ sơ ngắn nên cả đội cùng biết. Chi tiết: [SPEC.md §5e](SPEC.md).
 
+## LifeOS làm hộ — bot đề xuất, Khôi duyệt
+
+Việc nào bot làm được (trả lời mail, điền form, đăng ký, nộp bài, thanh toán…), LifeOS lập một **phiếu V1, V2…** trong báo cáo sáng/tối: Khôi nói "làm V1" là bot làm luôn, "bỏ V2", "sửa V1: …" thì sửa. Im lặng = không làm gì. Việc khó, cần đầu tư thời gian vẫn là của Khôi. Từng loại việc có công tắc, mặc định tắt; thanh toán có mức tối đa mỗi lần do Khôi đặt; xóa chỉ vào thùng rác. Việc nhanh trong kế hoạch tính theo bảng ngắn (đọc mail 3', trả lời 7', đăng ký 10'). Chi tiết: [SPEC.md §5g](SPEC.md), skill [lifeos-lam-ho](skills/lifeos-lam-ho/SKILL.md).
+
 ## Lịch một ngày
 
 | Giờ | Việc |

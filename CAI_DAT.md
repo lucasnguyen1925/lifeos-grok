@@ -49,7 +49,7 @@ done
 ls /home/box/agent-data/workflows
 ```
 
-Phải thấy 7 skill: `lifeos-noi-quy`, `lifeos-dang-nhap-lai`, `lifeos-zalo`, `lifeos-bao-cao`, `lifeos-chong-tri-hoan`, `lifeos-cap-nhat`, `lifeos-tri-nho`.
+Phải thấy 8 skill: `lifeos-noi-quy`, `lifeos-dang-nhap-lai`, `lifeos-zalo`, `lifeos-bao-cao`, `lifeos-chong-tri-hoan`, `lifeos-cap-nhat`, `lifeos-tri-nho`, `lifeos-lam-ho`.
 
 ## Bước 4 — Tạo bot Zalo
 
@@ -91,6 +91,20 @@ Làm từng mục, ghi kết quả vào `state/cai_dat.md`:
 | 12 | Sao lưu | Tiko `brain backup`, tải lên Drive "LifeOS · Sao lưu" → file trên Drive vẫn là `.json` (không thành Google Docs) |
 
 Mục 6 không đạt (routine chỉ gửi được chữ) → không sao: báo cáo tuần gửi link Page thay cho ảnh.
+
+**Thử "làm hộ" (bản 0.6.0, SPEC §15 mục 21-27).** Việc thử làm hộ phải diễn ra **trong khung chat LifeOS với lời duyệt của chính Khôi** (Grok không tính lời duyệt do bot khác chuyển lại). Chỉ dùng dữ liệu thử: mail gửi cho chính Khôi, sự kiện "[thử LifeOS]". **Không thử bằng việc thật.** Tiko đưa Khôi tin sau để dán vào khung chat LifeOS, rồi ghi kết quả vào `state/cai_dat.md`:
+
+| # | Thử | Đạt khi |
+|---|---|---|
+| 13 | Mở (chỉ xem, không bấm gì, không đăng nhập) BKeL, MyBK, mail trường, mail công ty trong cửa sổ trình duyệt của LifeOS | Mỗi nơi báo: đã đăng nhập sẵn / hiện trang đăng nhập / lỗi |
+| 14 | Gửi một mail "[thử LifeOS]" tới chính Gmail cá nhân của Khôi (địa chỉ lấy từ kết nối, ghi nguồn), Khôi nói "gửi đi" | Biết gửi được thật hay chỉ lưu được nháp |
+| 15 | Trên đúng mail thử đó: gắn nhãn, lưu trữ, bỏ thùng rác | Từng thao tác làm được và lấy lại được hay không |
+| 16 | Tạo sự kiện "[thử LifeOS]" trên lịch "LifeOS", sửa giờ, rồi xóa; mỗi bước hỏi Khôi duyệt | Làm được từng bước |
+| 17 | "Chạy khô": với một form đăng ký hoặc khảo sát đang mở (**không phải quiz**: mở quiz có thể bắt đầu tính giờ), đi tới sát nút cuối, chụp màn hình, KHÔNG bấm nút cuối | Tới được nút cuối và chụp được màn hình |
+| 18 | Với một việc thử có phiếu ghi "làm ở bot <X>": Khôi nhắn "làm V…" trong khung chat bot X | Bot X chạy `lamho show/approve/start/result` đúng |
+| 19 | Sau tuần đầu: số ô "Việc nhanh" và thời lượng trong kế hoạch | Ô ngắn lại; bot quét không còn ghi `est_minutes` cho mail |
+
+Loại nào qua thử thì thêm vào `[lamho] bat`. **Nhóm 3 không có cách thử vô hại**: chỉ có "chạy khô" (mục 17); bật từng loại khi có việc thật và Khôi đồng ý đúng loại đó, theo dõi lần đầu.
 
 ## Bước 8 — Bắt đầu tuần chạy thử
 

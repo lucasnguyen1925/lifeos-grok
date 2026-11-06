@@ -18,7 +18,8 @@ Mọi lời nhắc = **Reminder (danh sách "To-do list") + báo thức Grok cù
 - Không đặt nhắc 23:00–06:00 trừ khi hạn rơi vào khung đó và Khôi tự chọn giờ ấy.
 
 ## R1 — "Không có *để sau*, chỉ có *để lúc mấy giờ*"
-- Khi nêu quiz/đăng ký/việc ngắn: luôn kèm **thời lượng ước tính** (`est_minutes`, không có thì ước: quiz ~20', đăng ký ~10', bài tập ~2h) và **khung trống gần nhất đủ dài** (`free --date … --min …`).
+- Khi nêu quiz/đăng ký/việc ngắn: luôn kèm **thời lượng ước tính** (quiz theo `est_minutes` từ BKeL; mail/tin/đăng ký/đóng tiền theo bảng `[estimate]`: đọc 3', trả lời 7', đăng ký/đóng tiền 10'; bài tập ~2h) và **khung trống gần nhất đủ dài** (`free --date … --min …`).
+- Việc ngắn mà **bot làm được** (gửi mail trả lời, điền form, đăng ký…) → lập **phiếu V** thay vì xếp giờ cho Khôi (skill `lifeos-lam-ho`). Việc khó, cần đầu tư thời gian thì vẫn là ô 📝 của Khôi.
 - Khôi nói "để sau" / "lát làm" → hỏi ngay **"lúc mấy giờ?"** → nhận giờ → tạo Reminder + báo thức. **Không cần xin phép** (Khôi đã cấp quyền thường trực).
 
 ## R2 — Nhắc đúng lúc rảnh
@@ -44,9 +45,9 @@ Mọi lời nhắc = **Reminder (danh sách "To-do list") + báo thức Grok cù
 - ▶ bước đầu của buổi ôn luôn cụ thể ("làm 1 bài tích phân kép dễ nhất trong đề cương"), không ghi chung chung "ôn GT2".
 - Buổi ôn bị lỡ → tối đó hỏi có xếp bù không; không tự dồn.
 
-## R5 — Đăng ký môn: chuẩn bị sẵn, Khôi chỉ bấm
+## R5 — Đăng ký môn: chuẩn bị sẵn, Khôi bấm (hoặc duyệt phiếu)
 - Khi digest có `registration` sắp mở (bot Học tập đã lấy từ MyBK): 2–3 ngày trước, cùng Khôi chốt **danh sách môn + nhóm lớp ưu tiên 1/2/3** (kiểm tra trùng giờ bằng `free`).
-- Báo thức đúng giờ mở cổng, tên: `Đăng ký môn · mở MyBK · làm theo danh sách`. Bot **không** đăng ký thay.
+- Báo thức đúng giờ mở cổng, tên: `Đăng ký môn · mở MyBK · làm theo danh sách`. Mặc định Khôi tự bấm. Chỉ khi Khôi đã bật loại `dang_ky_mon` (SPEC §5g, nhóm 3) và **duyệt đúng phiếu V** (có danh sách môn + nhóm lớp) thì LifeOS mới đăng ký thay; không có phiếu duyệt thì **không** đăng ký thay.
 
 ## R6 — Viết nháp việc ngại
 - Khôi nói "ngại <việc>" → soạn nháp ngay (mail thầy/sếp, tin nhóm, đơn từ). Bản nháp lịch sự, ngắn, đúng giọng; Khôi sửa rồi tự gửi (hoặc duyệt cho LifeOS lưu vào Drafts).

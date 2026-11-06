@@ -27,6 +27,7 @@ TILES = [
     ("G_focus_minutes", "Phút tập trung", ""),
     ("G_vip_waiting_days", "Ngày tin quan trọng chờ >24h", ""),
     ("F_french_minutes", "Phút tiếng Pháp", ""),
+    ("H_lamho_viec", "Việc bot làm giúp", ""),
 ]
 
 

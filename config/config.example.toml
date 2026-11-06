@@ -103,6 +103,30 @@ test = { sessions = 3, minutes = 90, days_before = 5, keywords = ["kiểm tra", 
 final = { sessions = 6, minutes = 90, days_before = 14 }
 urgent_last_sessions = 2      # 2 buổi cuối lên bậc 2
 
+# ---------- Thời lượng việc nhanh (SPEC §5g M1-M4) ----------
+# Script tự tính thời lượng cho mail/tin/thông báo/đóng tiền/đăng ký; bot quét nguồn KHÔNG ghi est_minutes cho các loại này.
+# Khôi nói "loại này chỉ 5 phút" → LifeOS hỏi rồi sửa ở đây.
+[estimate]
+doc_mail = 3                # đọc mail, thông báo (phút)
+tra_loi = 7                 # trả lời mail/tin ngắn
+thanh_toan_dang_ky = 10     # đóng tiền, đăng ký (Khôi tự bấm)
+form_ngan = 10              # khảo sát, form ngắn (việc `task` có từ khóa dưới đây và không ghi est_minutes)
+cum_toi_da = 30             # các việc nhanh gom thành cụm, mỗi cụm tối đa bấy nhiêu phút
+nghi_sau_cum = 5            # nghỉ sau mỗi cụm việc nhanh
+form_keywords = ["khảo sát", "khao sat", "form", "biểu mẫu"]
+
+# ---------- LifeOS làm hộ (SPEC §5g H2-H8) ----------
+# Mỗi loại việc có công tắc: chỉ loại nằm trong `bat` mới làm được. Mặc định TẮT hết.
+# Tiko bật từng loại SAU KHI thử qua (SPEC §15 mục 21-27). Nhóm 3 chỉ bật khi Khôi đồng ý đúng loại đó.
+# Loại: nhóm 1 gui_mail, gui_tin, dat_nhac, luu_nhap · nhóm 2 tra_loi_moi_hop, tao_lich, dien_form, dang_ky_mien_phi,
+#       don_mail, sap_xep_drive · nhóm 3 nop_bai, lam_quiz, dang_ky_mon, thanh_toan, xoa
+[lamho]
+bat = []                    # ví dụ ["gui_mail", "dat_nhac"]
+toi_da_thanh_toan = 0       # đồng mỗi lần. 0 = chưa cho thanh toán. Khôi tự đặt, vượt mức thì bot chỉ chuẩn bị
+toi_da_phieu_moi_lan = 5    # mỗi báo cáo hiện tối đa chừng này phiếu, còn lại "xem thêm"
+hoi_lai_toi_da = 2          # hỏi lần đầu + hỏi lại 1 lần, vẫn im lặng thì bỏ
+han_gap_gio = 3             # phiếu có hạn gần hơn chừng này giờ mà chưa duyệt → nhắc bằng Reminder + báo thức, không tự làm
+
 # ---------- Nhịp chạy (Tiko dùng để biết bot nào trễ) ----------
 [health]
 grace_minutes = 45

@@ -14,7 +14,7 @@ from datetime import date, datetime, timedelta
 from statistics import mean
 from typing import Any
 
-from . import urgency
+from . import lamho, urgency
 from .common import (
     iso, now, parse_dt, path, read_json, read_jsonl, vn_date, write_json, write_text,
 )
@@ -108,6 +108,7 @@ def close_day(t: datetime | None = None) -> dict[str, Any]:
             "french_minutes": next((r["french_minutes"] for r in reversed(selfrep) if r.get("french_minutes") is not None), None),
             "energy": next((r["energy"] for r in reversed(selfrep) if r.get("energy") is not None), None),
         },
+        "lamho": lamho.day_stats(day),
         "vip_waiting_over_24h": len(vip_waiting),
         "grades": (read_json(path("data", "hoctap.json"), {}) or {}).get("grades"),
         "done_titles": [r["title"] for r in done_log],
@@ -167,6 +168,8 @@ def summarize(days: list[dict[str, Any]]) -> dict[str, Any]:
         "G_interruptions": total(lambda d: d["focus"]["interrupted"]),
         "G_avg_hours_seen_to_done": avg(d["tasks"]["avg_hours_seen_to_done"] for d in days),
         "G_vip_waiting_days": sum(1 for d in days if d["vip_waiting_over_24h"]),
+        "H_lamho_viec": total(lambda d: (d.get("lamho") or {}).get("viec")),
+        "H_lamho_phut": total(lambda d: (d.get("lamho") or {}).get("phut")),
         "F_french_minutes": total(lambda d: d["self"]["french_minutes"]),
         "F_energy_avg": avg(d["self"]["energy"] for d in days),
         "skip_reasons": [w for d in days for w in d["plans"]["skipped"] if w],
@@ -203,6 +206,8 @@ LABELS = {
     "G_interruptions": "Số lần bị kéo đi",
     "G_avg_hours_seen_to_done": "Giờ từ lúc thấy tới lúc xong (TB)",
     "G_vip_waiting_days": "Số ngày có tin quan trọng chờ > 24h",
+    "H_lamho_viec": "Việc bot làm giúp",
+    "H_lamho_phut": "Phút ước tính bạn tiết kiệm",
     "F_french_minutes": "Phút tiếng Pháp",
     "F_energy_avg": "Năng lượng TB (1–5)",
 }

@@ -34,7 +34,7 @@ cd /workspace/lifeos-grok && python3 -m lifeos validate data/<mảng>.json
 | `mentions_khoi` | | true/false | tin nhắc/gọi tên Khôi |
 | `received_at` | | ISO | lúc tin/mail/thông báo đến |
 | `changed`, `change_note` | | | không bắt buộc — script tự phát hiện đổi hạn/giờ/phòng |
-| `est_minutes` | | số nguyên | thời lượng ước tính (quiz: lấy từ BKeL) |
+| `est_minutes` | | số nguyên | thời lượng ước tính, **chỉ cho `quiz` / `deadline` / `task` thật** (quiz: lấy từ BKeL). **Không ghi cho `email` / `message` / `notice`** (cũng không cho `payment` / `registration`): script tự tính theo bảng `[estimate]`, ghi cũng bị bỏ qua |
 | `location` | | chuỗi | phòng học/phòng thi/địa điểm |
 | `keywords` | | danh sách | từ khóa đáng chú ý |
 | `notes` | | chuỗi | ghi chú ngắn. Trường nào không có trong bảng này → đưa vào đây |
@@ -53,8 +53,8 @@ cd /workspace/lifeos-grok && python3 -m lifeos validate data/<mảng>.json
 | `meeting` | cuộc họp, lời mời họp |
 | `event` | sự kiện lịch khác |
 | `notice` | thông báo trường/khoa/công ty |
-| `message` | tin Zalo |
-| `email` | mail |
+| `message` | tin Zalo (luôn `message`) |
+| `email` | mail. **Mail luôn ghi `email`**, dù cần trả lời (đánh dấu `needs_reply`) hay là việc nhờ làm: đừng ghi thành `task`/`deadline` (bị xếp thành ô dài) |
 | `task` | việc khác |
 
 ## Không ghi
