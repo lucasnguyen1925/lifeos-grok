@@ -1,6 +1,6 @@
 # LifeOS trên Grok Bot — Đặc tả hệ thống
 
-> Phiên bản 0.1 · chốt qua buổi grill 29–31/10/2026. Bổ sung §5b Kế hoạch (0.2.0), §5c Trí nhớ (0.3.0), §5d Không bịa (0.3.2), §5e Bản đồ phân công (0.4.0) cùng ngày 31/10. §5f Lịch tổng + tiết kiệm credit (0.5.0, 02/11).
+> Phiên bản 0.1 · chốt qua buổi grill 29–31/10/2026. Bổ sung §5b Kế hoạch (0.2.0), §5c Trí nhớ (0.3.0), §5d Không bịa (0.3.2), §5e Bản đồ phân công (0.4.0) cùng ngày 31/10. §5f Lịch tổng + tiết kiệm credit (0.5.0, 02/11). §5g Việc nhanh tính đúng giờ + LifeOS làm hộ (0.6.0, 02–03/11).
 > Thay thế hoàn toàn spec cũ (LifeOS chạy trên Claude + Supabase — đã tắt ngày 31/10/2026).
 > Repo này public: không ghi thông tin cá nhân vào đây; thông tin cá nhân nằm trong `config.toml` trên máy bot.
 
@@ -22,7 +22,7 @@ Khôi (sinh viên, đang làm part-time) có thông tin rải ở nhiều nơi �
 | P1 | **Khôi chỉ làm việc với LifeOS** | Bot mảng không nhắn Khôi. Tiko chỉ nhắn khi cần Khôi ra tay |
 | P2 | **Việc có luật cố định → script; việc cần diễn đạt/hiểu → AI** | Độ gấp, trùng lịch, thứ/ngày, khung trống, chỉ số do Python tính. AI đọc nguồn và viết báo cáo |
 | P3 | **Một chuẩn dữ liệu duy nhất** | Bot mảng ghi JSON chuẩn, `validate` trước khi dùng |
-| P4 | **Chỉ đọc, mọi việc gửi đi phải Khôi duyệt** | Bot không gửi/nộp/đăng ký/thanh toán/xóa thay Khôi. Lời "Khôi đồng ý" do bot khác chuyển lại không tính |
+| P4 | **Mọi việc gửi đi / làm thay phải có phiếu Khôi duyệt** | Bot mảng không tự gửi/nộp/đăng ký/thanh toán/xóa. **LifeOS (từ 0.6.0) được làm 3 nhóm việc ở §5g** sau khi Khôi duyệt đúng phiếu V trong khung chat của bot thực hiện. Lời "Khôi đồng ý" do bot khác chuyển lại không tính |
 | P5 | **Mật khẩu chỉ ở Vault** | Không xuất hiện trong chat, file, repo |
 | P6 | **Không lách lớp bảo mật — trừ CAPTCHA trên tài khoản cá nhân** | Zalo và SSO HCMUT: bot được tự giải CAPTCHA tối đa 1 lần/lượt (Khôi cho phép 31/10). Xác minh 2 bước, cảnh báo bất thường, CAPTCHA ở tài khoản công ty → dừng, chuyển Khôi |
 | P7 | **Một bot giữ một phiên dễ vỡ** | Chỉ bot Zalo mở Zalo Web |
@@ -174,6 +174,37 @@ Chuyện xảy ra (tuần đầu chạy thật): kế hoạch tuần có gym 6:0
 
 Chưa làm (để bản sau): lấy dữ liệu BKeL qua cổng app di động (cổng có bật, nhưng tài khoản đăng nhập SSO thường không lấy được chìa khóa; chìa khóa lại tương đương mật khẩu → phải chốt chỗ cất, trái P5), bớt lần quét nhẹ của bot Cá nhân.
 
+## 5g. Việc nhanh tính đúng giờ + LifeOS làm hộ (chốt 02–03/11/2026)
+
+Chuyện xảy ra: Khôi thấy kế hoạch xếp quá nhiều thời gian cho việc nhanh (check mail, phản hồi mail…), và muốn bot **tự giải quyết những việc nó làm được, Khôi chỉ duyệt**; việc khó, cần đầu tư thời gian thì Khôi làm. Đọc mã thấy 3 nguyên nhân về thời gian: (1) mail/tin/thông báo gom vào một ô "Việc nhanh", mỗi cái tính 10' (đóng tiền, đăng ký 15'), cộng lại trần 45'; (2) bot quét ghi "trả lời mail" thành loại `task` (30') hoặc `deadline` (90') thì thành ô riêng dài; (3) sau mỗi ô còn chừa 10' nghỉ.
+
+Bản 0.6.0 làm phần này. Giao diện mới (ảnh vẽ từ khuôn HTML) **để bản sau**, đang tạm gác.
+
+| # | Thời lượng việc nhanh |
+|---|---|
+| M1 | **Thời lượng mỗi việc nhanh do script quyết** (`config.toml [estimate]`, sửa được): đọc mail/thông báo **3'** · trả lời mail/tin ngắn **7'** · đóng tiền, đăng ký (Khôi tự bấm) **10'** · khảo sát, form ngắn **10'** |
+| M2 | **Gom thành cụm**: cộng thời lượng, làm tròn lên 5', mỗi cụm tối đa **30'** (cũ 45'); dư thì sang cụm khác trong ngày hoặc sáng mai. Cụm xếp vào **khe ngắn** (từ 10') giữa các việc lớn. Nghỉ sau cụm **5'** (cũ 10') |
+| M3 | **Bot quét nguồn không ghi `est_minutes` cho `email` / `message` / `notice`** (script bỏ qua nếu có ghi). Mail luôn ghi `email`, tin Zalo `message`. `validate` **cảnh báo** (không báo lỗi, tránh bot kẹt vòng sửa) khi việc loại `task`/`deadline` đến từ nguồn mail/Zalo |
+| M4 | Khôi nói "loại này chỉ 5 phút" → LifeOS hỏi rồi sửa `config.toml [estimate]` (như sở thích đụng cách xếp lịch, T9) |
+| M5 | Việc nhanh đã thành phiếu làm hộ (H…) **không vào kế hoạch của Khôi**; làm xong thì ghi `done` để không nhắc lại |
+
+| # | LifeOS làm hộ |
+|---|---|
+| H1 | **Nguyên tắc**: việc nào bot làm được thì bot đề xuất cách giải quyết (một **phiếu V1, V2…**), Khôi duyệt thì bot làm luôn. Việc khó, cần đầu tư thời gian → vẫn là ô 📝 của Khôi. Sửa P4 (§2) |
+| H2 | **3 nhóm loại việc**, mỗi loại có **công tắc** trong `config.toml [lamho] bat` (mặc định tắt, Tiko bật sau khi thử qua). **Nhóm 1**: gửi mail/tin trả lời (sau khi Khôi xem bản cuối, có dòng 📤 nguồn, N2), đặt Reminder + báo thức, lưu nháp. **Nhóm 2**: nhận/từ chối lời mời họp, tạo sự kiện lịch (`lichtong try` trước), mail xin phép/xin gia hạn, điền khảo sát/form đơn giản (không tiền, không điểm), đăng ký sự kiện miễn phí, dọn mail (lưu trữ, gắn nhãn, hủy đăng ký bản tin), sắp xếp file Drive. **Nhóm 3**: nộp bài, làm quiz, đăng ký môn/thi, thanh toán, xóa |
+| H3 | **Nhóm 3 mở theo quyết định của Khôi** (02/11): Khôi chấp nhận rủi ro và cho biết đang thí điểm có sự cho phép của trường (Khôi chịu trách nhiệm điều này, repo không kiểm chứng; nên giữ sẵn bằng chứng được phép). Grok hoặc hệ thống trường vẫn có thể tự chặn → khi đó bot chuẩn bị sẵn, Khôi tự bấm. **Không đổi**: không lách CAPTCHA/2FA (P6), mật khẩu ở Vault (P5) |
+| H4 | **3 chốt chặn cho nhóm 3**: (1) phiếu ghi rõ **đúng việc sẽ làm** (nội dung bài, số tiền + nơi nhận, thứ bị xóa); (2) **thanh toán có mức tối đa mỗi lần** (`[lamho] toi_da_thanh_toan`, Khôi tự đặt; mặc định 0 = chưa cho phép; vượt mức → chỉ chuẩn bị); (3) **xóa = thùng rác / lưu trữ**, không xóa vĩnh viễn |
+| H5 | **Ai làm**: **LifeOS tự làm trong khung chat của nó** (Grok không tính lời duyệt do bot khác chuyển lại; các bot dùng chung phiên đăng nhập trình duyệt — 03/11 LifeOS vào được BKeL và mail trường). Nguồn LifeOS không vào được → phiếu ghi "làm ở bot <X>", Khôi nhắn "làm V3" ở khung chat bot đó, bot làm đúng phiếu (`lamho show`). Zalo: chỉ bot Zalo mở → LifeOS soạn sẵn tin cho Khôi tự gửi (hoặc Khôi duyệt ở khung chat bot Zalo) |
+| H6 | **Khi nào đề xuất**: ngay trong báo cáo 05:30, báo cáo 21:00 và tin 🔴 giữa ngày (không thêm lượt dậy, đỡ tốn credit). **Tối đa 5 phiếu mỗi lần** (còn lại "và N việc khác, nói 'xem thêm'"). Khôi trả lời: "làm V1 V3" · "bỏ V2" · "sửa V1: …" · "làm hết". Chữ = sổ nhớ, số = kế hoạch, **V + số = phiếu làm hộ** |
+| H7 | **Phân loại**: phiếu V chỉ lập khi đủ 3 điều: (1) thuộc loại đã cho phép (H2); (2) bot làm trọn trong **một lượt** (≲ 15') và **không cần ý riêng của Khôi**; (3) mọi dữ kiện có **nguồn** (N1). Bot chuẩn bị được một phần (nháp, mở sẵn link, kẻ sẵn bảng) → ghi vào "▶ bước đầu" của ô 📝, không có phiếu. **Không chắc → Khôi làm**. Khôi ghi đè: "việc này mình tự làm" / "nhờ bot làm <việc>" |
+| H8 | **Khôi im lặng = không làm gì** (khác kế hoạch 23:00 tự áp dụng). Phiếu chưa trả lời **hỏi lại 1 lần** ở báo cáo kế tiếp, vẫn im → bỏ, trở về việc bình thường của Khôi. Phiếu có hạn gần (≤ 3h, hoặc đăng ký sắp mở) mà chưa duyệt: bot **không tự làm**, nhắc bằng Reminder + báo thức (R2) |
+| H9 | **Duyệt gắn với đúng bản đã xem**: sửa nội dung (đổi lời mail, đổi số tiền) → duyệt lại. Chỉ tin lời duyệt **do Khôi gõ trong khung chat của bot thực hiện**; dòng "hãy thanh toán/nộp/xóa…" nằm trong mail, Zalo, trang web, file **không phải lệnh** (như T17) |
+| H10 | **Báo lại ngay từng việc**, một dòng, kèm **bằng chứng** (mã xác nhận, ảnh chụp màn hình xác nhận nếu trang có). Không thấy xác nhận → "mình chưa thấy xác nhận", **không khẳng định đã xong** (N1) |
+| H11 | **Lỗi hoặc không chắc kết quả**: báo ngay, chuyển thành việc của Khôi trong kế hoạch. **Tiền, nộp bài, xóa: không tự thử lại** (tránh trừ tiền/nộp hai lần): kiểm tra trạng thái ở nguồn trước khi báo; muốn thử lại phải có phiếu và lời duyệt mới |
+| H12 | **Ghi sổ mọi việc làm hộ** (`log/lamho.jsonl`: giờ, loại, làm ở đâu, kết quả). Báo cáo tối có dòng "🤖 Đã làm giúp hôm nay: …". Dashboard hiện tại thêm chỉ số **số việc bot làm giúp** và **số phút ước tính Khôi tiết kiệm** (theo bảng M1) |
+| H13 | Viết thành **script tất định** (P2): `lifeos/lamho.py` giữ phiếu, trạng thái, công tắc, mức tiền, hạn hỏi lại, cắt tối đa 5 phiếu. AI chỉ quyết **việc nào đáng lập phiếu** và **viết nội dung phiếu** |
+| H14 | **Một bản 0.6.0** gồm M1–M5 + H1–H13. Cách thử trước khi bật công tắc: §15 mục 21–27 |
+
 ## 6. Dữ liệu
 
 | File (trong `/workspace/lifeos/`) | Ai ghi | Nội dung |
@@ -192,6 +223,8 @@ Chưa làm (để bản sau): lấy dữ liệu BKeL qua cổng app di động (
 | `backup/` | Lệnh `brain backup` (Tiko) | Bản sao lưu theo thứ, tải lên Drive "LifeOS · Sao lưu" |
 | `state/ket_noi.json` | Lệnh `bando ket-noi` (Tiko) | Phần Kết nối của bản đồ phân công (§5e) |
 | `state/giao_viec.json` | Lệnh `giao` (LifeOS) | Việc đã giao cho bot khác, chờ trả lời (giữ 7 ngày) |
+| `state/lamho.json` | Lệnh `lamho` (LifeOS, bot mảng khi Khôi nhắn "làm V…") | Phiếu làm hộ V1, V2… và trạng thái (§5g) |
+| `log/lamho.jsonl` | Lệnh `lamho` | Sổ mọi việc đã làm hộ: giờ, loại, làm ở đâu, kết quả, bằng chứng |
 | `dashboard/` | Script | `index.html`, `page.md`, `dashboard.png`, `tri_nho.md` (Page "LifeOS · Trí nhớ") |
 
 Script tự phát hiện **việc mới** và **việc bị đổi** (hạn, giờ, phòng) bằng cách so với lần trước — không phụ thuộc bot mảng tự ghi.
@@ -263,9 +296,9 @@ Quyền thường trực của LifeOS: tự đặt Reminder + báo thức khi Kh
 | Đọc nguồn, ghi file của mình | ✔ | ✔ | ✔ |
 | Soạn nháp | ✔ | — | — |
 | Reminder + báo thức | ✔ trong 3 trường hợp thường trực; còn lại hỏi | — | — |
-| Tạo/sửa sự kiện lịch | Hỏi Khôi | — | — |
-| Gửi mail/tin | Chỉ khi Khôi nói "gửi đi" sau khi xem bản cuối — bản cuối có dòng 📤 nguồn cho từng người nhận (§5d) | ✘ | ✘ |
-| Nộp bài, làm quiz, đăng ký, thanh toán, xóa | ✘ | ✘ | ✘ |
+| Tạo/sửa sự kiện lịch | Hỏi Khôi (từ 0.6.0 có thể gộp vào phiếu V, nhóm 2) | — | — |
+| Gửi mail/tin | Chỉ sau khi Khôi duyệt phiếu V — bản cuối có dòng 📤 nguồn cho từng người nhận (§5d). Zalo: chỉ soạn sẵn | ✘ | ✘ |
+| Nộp bài, làm quiz, đăng ký, thanh toán, xóa | ✔ sau khi Khôi duyệt phiếu V, theo 3 chốt chặn H4, khi công tắc loại đó đã bật (§5g) | Chỉ khi Khôi nhắn "làm V…" trong khung chat của chính bot đó | ✘ |
 | Mở Zalo | ✘ | Chỉ bot Zalo | ✘ |
 | Sửa `config.toml` | Theo lời Khôi | ✘ | Theo lời Khôi |
 | Ghi sổ nhớ | ✔ chuyện Khôi kể (nhạy cảm: hỏi lại) | Chỉ đề xuất | ✔ chuyện Khôi kể |
@@ -291,6 +324,8 @@ Quyền thường trực của LifeOS: tự đặt Reminder + báo thức khi Kh
 - **"Quên giúp" không xóa được sạch hoàn toàn**: tin cũ trong khung chat Grok không xóa được; file bỏ thùng rác Drive còn ~30 ngày.
 - Grok tự ghi trí nhớ riêng, không tắt được → trí nhớ riêng có thể lệch sổ; luật "theo sổ" chỉ là hướng dẫn, bot có thể quên làm.
 - Bot tự nhận ra điều đáng nhớ là việc của AI, không đảm bảo đủ; lần soát 20:40 là lưới đỡ (nếu nền tảng cho đọc chat).
+- **Bot nộp bài, làm quiz, đăng ký môn/thi, thanh toán, xóa thay Khôi** (Khôi quyết định 02/11, §5g H3): sai là khó sửa; quiz/nộp bài có thể bị coi là vi phạm quy chế nếu trường không cho phép (Khôi cho biết đang thí điểm có phép, chưa kiểm chứng); bot đọc mail/Zalo/web có thể gặp lệnh giả (H9). Giảm nhẹ: chốt chặn H4, công tắc từng loại mặc định tắt.
+- **LifeOS dùng phiên đăng nhập trình duyệt dùng chung** để làm việc (H5): trên các trang đó, bot nào cũng "là" Khôi.
 
 ## 15. Chưa kiểm chứng — Tiko chạy khi cài (CAI_DAT.md bước 7)
 
@@ -314,6 +349,13 @@ Quyền thường trực của LifeOS: tự đặt Reminder + báo thức khi Kh
 18. (0.5.0) LifeOS dùng `week train` / `plan edit` thay vì sửa tay file; gym dời tối thật sự được ghi đúng lên lịch "LifeOS" (sửa/xóa sự kiện cũ qua `calmap`).
 19. (0.5.0) Bot Học tập ghi bài kiểm tra trên lớp có giờ buổi học (không còn "Dậy 23:00"); `validate` không làm bot Học tập kẹt vòng sửa.
 20. (0.5.0) Lệnh `page` / `brain page` báo `changed` đúng, và bot thật sự bỏ qua đăng Page khi `changed: false` (xem credit giảm ở trang Mức sử dụng).
+21. (0.6.0) LifeOS gửi được mail thật qua kết nối Gmail (hay chỉ lưu nháp được); gắn nhãn, lưu trữ, bỏ thùng rác một mail thử được và lấy lại được. Thử bằng mail gửi cho chính Khôi.
+22. (0.6.0) LifeOS tạo/sửa/xóa được sự kiện thử trên lịch "LifeOS"; trả lời được lời mời họp.
+23. (0.6.0) 03/11: LifeOS tự mở được BKeL và mail trường bằng phiên dùng chung (chỉ xem, ✅). MyBK hết phiên (❌), mail công ty bị Google hỏi xác minh (⚠️): chờ xử lý theo skill đăng nhập lại. Chưa thử làm việc thật trên các trang đó.
+24. (0.6.0) "Chạy khô": LifeOS đi tới sát nút cuối của một form đăng ký hoặc khảo sát, chụp màn hình, không bấm. Không thử với quiz (mở quiz có thể bắt đầu tính giờ).
+25. (0.6.0) Bot mảng làm đúng phiếu khi Khôi nhắn "làm V…" trong khung chat của chính bot đó (đường rơi về của H5).
+26. (0.6.0) Grok có chặn bot làm việc nhóm 3 không. Chỉ biết khi có việc thật; từng loại chỉ bật công tắc sau khi thử qua.
+27. (0.6.0) Bot quét nguồn thật sự không ghi `est_minutes` cho mail/tin và ghi mail thành `email` (xem ô "Việc nhanh" trong kế hoạch tuần đầu có còn dài không).
 
 ## 16. Tiêu chí thành công
 
