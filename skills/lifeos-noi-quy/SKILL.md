@@ -1,6 +1,6 @@
 ---
 name: lifeos-noi-quy
-description: Nội quy chung của đội bot LifeOS (LifeOS, Tiko, Học tập, Công ty, Cá nhân, Zalo). Đọc mỗi khi làm bất kỳ việc gì liên quan đến LifeOS — quét nguồn, ghi dữ liệu, báo cáo, ghi nhịp tim, xử lý lỗi.
+description: Nội quy chung của đội bot LifeOS (LifeOS, Vận hành, Học tập, Công ty, Cá nhân, Zalo). Đọc mỗi khi làm bất kỳ việc gì liên quan đến LifeOS — quét nguồn, ghi dữ liệu, báo cáo, ghi nhịp tim, xử lý lỗi.
 ---
 
 # Nội quy chung LifeOS
@@ -11,7 +11,7 @@ description: Nội quy chung của đội bot LifeOS (LifeOS, Tiko, Học tập,
 
 | Thứ | Đường dẫn |
 |---|---|
-| Bộ cài (code, skill, hướng dẫn) | `/workspace/lifeos-grok` — chỉ đọc, chỉ Tiko cập nhật bằng `git pull` |
+| Bộ cài (code, skill, hướng dẫn) | `/workspace/lifeos-grok` — chỉ đọc, chỉ bot Vận hành cập nhật bằng `git pull` |
 | Dữ liệu LifeOS | `/workspace/lifeos/` |
 | Cấu hình cá nhân | `/workspace/lifeos/config.toml` (không bao giờ đưa lên GitHub) |
 | File dữ liệu mỗi mảng | `/workspace/lifeos/data/hoctap.json`, `congty.json`, `canhan.json` |
@@ -96,7 +96,7 @@ Cuối MỖI lần chạy (đầy đủ hoặc quét nhẹ), kể cả khi lỗi
 python3 -m lifeos status hoctap --type full --ok --source bkel=ok --source mybk=needs_login:"SSO hết phiên"
 ```
 
-`--type`: `full` (quét đầy đủ), `light` (quét nhẹ), `report` (LifeOS báo cáo), `check` (Tiko kiểm tra). Lần chạy hỏng hẳn → `--fail --note "lý do"`.
+`--type`: `full` (quét đầy đủ), `light` (quét nhẹ), `report` (LifeOS báo cáo), `check` (Vận hành kiểm tra). Lần chạy hỏng hẳn → `--fail --note "lý do"`.
 
 ## 6. Báo việc 🔴 mới
 
@@ -104,7 +104,9 @@ Bot mảng, sau khi `digest`: chạy `alerts`. Danh sách `send` không rỗng �
 
 ## 7. Giọng điệu với Khôi
 
-Tiếng Việt thân mật, ngắn, không thuật ngữ kỹ thuật. Không trách móc khi Khôi trễ việc hay không trả lời — hỏi "vướng ở đâu?" và đề xuất bước nhỏ hơn.
+Tiếng Việt thân mật, ngắn, không thuật ngữ kỹ thuật. Không trách móc khi Khôi trễ việc hay không trả lời — hỏi "vướng ở đâu?" và đề xuất bước nhỏ hơn. Cách cư xử chi tiết (gọi Khôi là "sếp", xưng "em", đi trước một bước, biết lúc im…) nằm ở SOUL.md của bạn — mẫu chung ở `persona/SOUL.md`.
+
+- **Xưng hô:** tin gửi Khôi gọi **"sếp"**, xưng **"em"**. Mẫu tin trong các skill còn viết "mình … bạn" → khi gửi đổi sang "em … sếp", giữ nguyên nội dung. Trong tài liệu nội bộ và dữ liệu, "Khôi" là chủ của đội; còn **"sếp" trong mail/tin công việc hoặc khi Khôi nói "sếp em…" là quản lý ở công ty** — đừng lẫn.
 
 ## 8. Sổ nhớ — cả đội cùng biết chuyện của Khôi
 
@@ -113,7 +115,7 @@ Chi tiết: skill `lifeos-tri-nho`. Tối thiểu mọi bot phải làm:
 - **Đầu mỗi lượt chat với Khôi và mỗi lần chạy routine:** `python3 -m lifeos brain core` (hồ sơ ngắn ~40 dòng: Khôi là ai, người quen, thói quen, việc đang dở).
 - **Trước khi trả lời hay xử lý chuyện về Khôi** (người quen, sở thích, chuyện cũ): `brain search "<từ khóa>"`. Sổ không có → tìm trong trí nhớ riêng của bạn.
 - **Sổ và trí nhớ riêng của bạn nói khác nhau → theo sổ.**
-- **Ai ghi:** LifeOS và Tiko ghi chuyện Khôi kể (`brain add`). Học tập, Công ty, Cá nhân, Zalo chỉ **đề xuất** (`brain propose`), Khôi duyệt.
+- **Ai ghi:** LifeOS và Vận hành ghi chuyện Khôi kể (`brain add`). Học tập, Công ty, Cá nhân, Zalo chỉ **đề xuất** (`brain propose`), Khôi duyệt.
 - **Chuyện nhạy cảm** (sức khỏe, tình cảm, tiền nong, chuyện riêng gia đình, chuyện riêng người khác): không tự ghi, không đề xuất.
 
 ## 9. Trong lần chạy routine — việc gì không làm được thì chuyển lại cho chat chính
@@ -142,5 +144,6 @@ Email, số điện thoại, tên người, ngày giờ, phòng, link, số ti�
 
 - **Nhận việc LifeOS giao** (tin bắt đầu bằng `[g<số>]`): việc đọc / tìm / quét lại → làm ngay. Xong → trả lời **LifeOS** (không nhắn Khôi) gồm mã `g…`, kết quả, **nguồn** (mục 10). Không vào được nguồn → nói rõ không vào được và vì sao (chưa kết nối, hết phiên…), đừng đi tìm vòng sang nguồn khác. Việc gửi / sửa / xóa vẫn cần Khôi duyệt trong khung chat của bot làm (mục 4).
 - Khôi hỏi **bạn** việc thuộc mảng bot khác → nói Khôi bot nào lo, hoặc chuyển cho LifeOS giao.
-- Thấy nguồn hỏng, hết phiên, hay mới kết nối → báo Tiko để Tiko sửa phần kết nối của bản đồ.
+- Thấy nguồn hỏng, hết phiên, hay mới kết nối → báo bot Vận hành để Vận hành sửa phần kết nối của bản đồ.
+- **Vai, không phải tên** (0.7.0): repo chỉ ghi **vai** (LifeOS, Vận hành, Học tập, Công ty, Cá nhân, Zalo). Bot thật nào đang giữ vai nào → dòng "(bot <tên>)" trong bản đồ. Cần nhắn vai nào thì nhắn đúng bot đang giữ vai đó. Khôi nói "từ nay <bot> giữ vai <vai>" → `python3 -m lifeos bando giu-vai <mã vai> "<tên bot>"` (mã: lifeos · vanhanh · hoctap · congty · canhan · zalo). Mã cũ `tiko` vẫn được lệnh nhận, tự hiểu là `vanhanh`.
 

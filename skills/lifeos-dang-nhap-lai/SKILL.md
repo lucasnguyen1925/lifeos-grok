@@ -24,21 +24,21 @@ description: Quy trình tự đăng nhập lại khi một nguồn LifeOS (SSO H
 5. Tick **"Ghi nhớ đăng nhập"** nếu trang có.
 6. Đăng nhập được → **quét lại ngay** phần của nguồn đó, cập nhật file mảng, `validate`, `digest`, `alerts`, `status … --source <nguồn>=ok`. Đang trước giờ báo cáo 06:00/21:00 thì phải xong bước này **trước giờ báo cáo**, để báo cáo không ghi nhầm là còn lỗi.
 7. Ghi lại **IP trình duyệt** lúc đăng nhập (mở `https://ifconfig.co/json` trong **trình duyệt**, không đo bằng terminal) vào `--note` của lệnh `status`. Lần sau có lỗi thì so được.
-8. **CAPTCHA — chỉ với Zalo và SSO HCMUT** (tài khoản cá nhân, Khôi đã cho phép ngày 31/10 và chấp nhận rủi ro bị khóa): được **tự giải tối đa 1 lần** mỗi lượt. Giải sai, CAPTCHA hiện lại, hoặc nền tảng không cho bot giải → dừng như mục 9. Ghi vào `--note` của `status` là đã gặp CAPTCHA và kết quả, để Tiko theo dõi tần suất.
-9. **Dừng ngay và báo Tiko** (tin thường, không ưu tiên) nếu gặp bất kỳ thứ nào dưới đây — KHÔNG tìm cách vượt:
+8. **CAPTCHA — chỉ với Zalo và SSO HCMUT** (tài khoản cá nhân, Khôi đã cho phép ngày 31/10 và chấp nhận rủi ro bị khóa): được **tự giải tối đa 1 lần** mỗi lượt. Giải sai, CAPTCHA hiện lại, hoặc nền tảng không cho bot giải → dừng như mục 9. Ghi vào `--note` của `status` là đã gặp CAPTCHA và kết quả, để Vận hành theo dõi tần suất.
+9. **Dừng ngay và báo bot Vận hành** (tin thường, không ưu tiên) nếu gặp bất kỳ thứ nào dưới đây — KHÔNG tìm cách vượt:
    - CAPTCHA ở **Google công ty** hoặc nguồn khác ngoài Zalo/SSO HCMUT; CAPTCHA đã thử 1 lần không qua
    - mã OTP / xác minh 2 bước / xác nhận trên điện thoại
    - cảnh báo đăng nhập bất thường, tài khoản bị khóa
    - Vault không có login cho nguồn này
-   Tin cho Tiko: `"<nguồn> cần Khôi đăng nhập tay: <thấy gì>."` Ghi `status … --source <nguồn>=needs_login:"cần Khôi: <thấy gì>"`.
+   Tin cho bot Vận hành: `"<nguồn> cần Khôi đăng nhập tay: <thấy gì>."` Ghi `status … --source <nguồn>=needs_login:"cần Khôi: <thấy gì>"`.
 
-## C. Tiko — khi nhận báo "cần Khôi đăng nhập tay"
+## C. Vận hành — khi nhận báo "cần Khôi đăng nhập tay"
 
-Nhắn Khôi MỘT tin ngắn, hướng dẫn 30 giây, ví dụ:
+Đây là **việc gấp** → nhắn thẳng Khôi MỘT tin ngắn, hướng dẫn 30 giây, ví dụ:
 
-> 🔑 **MyBK cần bạn đăng nhập.** Mở khung chat bot **Học tập**, gõ `đăng nhập MyBK`. Bot mở trang, bạn bấm **Tiếp quản**, nhập mã, xong gõ `xong`.
+> 🔑 **MyBK cần sếp đăng nhập.** Sếp mở khung chat bot **Học tập**, gõ `đăng nhập MyBK`. Bot mở trang, sếp bấm **Tiếp quản**, nhập mã, xong gõ `xong`.
 
-Không nhắn lại cùng nội dung trong 12 giờ. Báo cáo của LifeOS sẽ nhắc tiếp ở mục 🔑.
+Rồi `python3 -m lifeos vanhanh add --gap --text "Đã nhắn Khôi: <nguồn> cần đăng nhập tay"` để LifeOS không nhắc lại y nguyên. Không nhắn lại cùng nội dung trong 12 giờ. Báo cáo của LifeOS sẽ nhắc tiếp ở mục 🔑.
 
 ## Giới hạn riêng từng nguồn
 

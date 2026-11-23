@@ -1,5 +1,5 @@
 # LifeOS — file cấu hình MẪU.
-# Khi cài, Tiko chép file này thành /workspace/lifeos/config.toml rồi hỏi Khôi để điền thông tin thật.
+# Khi cài, Vận hành chép file này thành /workspace/lifeos/config.toml rồi hỏi Khôi để điền thông tin thật.
 # File thật nằm trên máy bot, KHÔNG BAO GIỜ đưa lên GitHub. Không ghi mật khẩu vào đây (mật khẩu ở Vault).
 
 [owner]
@@ -95,7 +95,7 @@ run_minutes = { 2 = 75, 4 = 60, 6 = 90 }
 run_start_office_day = "18:15"
 run_start_free_day = "17:00"
 run_latest_end = "21:00"
-group_run_keyword = ""   # tên/địa điểm buổi chạy nhóm (Tiko hỏi Khôi). Có sự kiện chứa chữ này (đã nhận lời) trong ngày chạy → thay buổi chạy đó
+group_run_keyword = ""   # tên/địa điểm buổi chạy nhóm (Vận hành hỏi Khôi). Có sự kiện chứa chữ này (đã nhận lời) trong ngày chạy → thay buổi chạy đó
 
 # ---------- Ôn thi ----------
 [exam_prep]
@@ -117,7 +117,7 @@ form_keywords = ["khảo sát", "khao sat", "form", "biểu mẫu"]
 
 # ---------- LifeOS làm hộ (SPEC §5g H2-H8) ----------
 # Mỗi loại việc có công tắc: chỉ loại nằm trong `bat` mới làm được. Mặc định TẮT hết.
-# Tiko bật từng loại SAU KHI thử qua (SPEC §15 mục 21-27). Nhóm 3 chỉ bật khi Khôi đồng ý đúng loại đó.
+# Vận hành bật từng loại SAU KHI thử qua (SPEC §15 mục 21-27). Nhóm 3 chỉ bật khi Khôi đồng ý đúng loại đó.
 # Loại: nhóm 1 gui_mail, gui_tin, dat_nhac, luu_nhap · nhóm 2 tra_loi_moi_hop, tao_lich, dien_form, dang_ky_mien_phi,
 #       don_mail, sap_xep_drive · nhóm 3 nop_bai, lam_quiz, dang_ky_mon, thanh_toan, xoa
 [lamho]
@@ -127,7 +127,7 @@ toi_da_phieu_moi_lan = 5    # mỗi báo cáo hiện tối đa chừng này phi�
 hoi_lai_toi_da = 2          # hỏi lần đầu + hỏi lại 1 lần, vẫn im lặng thì bỏ
 han_gap_gio = 3             # phiếu có hạn gần hơn chừng này giờ mà chưa duyệt → nhắc bằng Reminder + báo thức, không tự làm
 
-# ---------- Nhịp chạy (Tiko dùng để biết bot nào trễ) ----------
+# ---------- Nhịp chạy (Vận hành dùng để biết bot nào trễ) ----------
 [health]
 grace_minutes = 45
 source_red_hours = 36
@@ -154,7 +154,7 @@ journal_days = 90          # nhật ký chuyện đã nói (sổ nhớ). Sổ nh
 # Mặc định nằm trong lifeos/bando.py. Muốn đổi mảng/nguồn/việc của một bot thì mở khóa dưới đây, ví dụ:
 # [phan_cong.hoctap]
 # nguon = ["Mail trường", "Lịch trường", "Drive trường", "BKeL", "MyBK", "AAO", "Zalo nhóm lớp"]
-# Trạng thái kết nối KHÔNG ghi ở đây: Tiko ghi bằng `python3 -m lifeos bando ket-noi …` (state/ket_noi.json).
+# Trạng thái kết nối KHÔNG ghi ở đây: Vận hành ghi bằng `python3 -m lifeos bando ket-noi …` (state/ket_noi.json).
 
 # ---------- Sổ nhớ (SPEC §5c) ----------
 [brain]
@@ -168,10 +168,10 @@ page_recent_days = 7
 page_kho_items = 10
 
 [dashboard]
-chromium = ""     # để trống = tự tìm. Tiko điền đường dẫn nếu không tự tìm được.
+chromium = ""     # để trống = tự tìm. Vận hành điền đường dẫn nếu không tự tìm được.
 page_title = "LifeOS · Hiệu suất"
 
-# ---------- Nguồn từng mảng (Tiko hỏi Khôi để điền) ----------
+# ---------- Nguồn từng mảng (Vận hành hỏi Khôi để điền) ----------
 [sources.hoctap]
 gmail_account = "Mail trường"
 calendar = "trường"

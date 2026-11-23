@@ -1,16 +1,17 @@
 ---
 name: lifeos-cap-nhat
-description: Cách Tiko cập nhật bộ cài LifeOS từ GitHub (git pull), áp dụng thay đổi cho từng bot, và quay lại bản trước khi lỗi. Dùng khi Khôi nói "cập nhật LifeOS" hoặc "quay lại bản trước".
+description: Cách bot Vận hành cập nhật bộ cài LifeOS từ GitHub (git pull), áp dụng thay đổi cho từng bot, và quay lại bản trước khi lỗi. Dùng khi Khôi nói "cập nhật LifeOS" hoặc "quay lại bản trước".
 ---
 
-# Cập nhật LifeOS (Tiko)
+# Cập nhật LifeOS (Vận hành)
 
-Bộ cài ở `/workspace/lifeos-grok`, lấy từ `https://github.com/lucasnguyen1925/lifeos-grok`.
+Bộ cài ở `/workspace/lifeos-grok` (tên thư mục giữ nguyên), lấy từ `https://github.com/lucasnguyen1925/lifeos` (repo đổi tên từ `lifeos-grok` ở bản 0.7.0; link cũ GitHub vẫn tự chuyển).
 
 ## "Cập nhật LifeOS"
 
 ```bash
 cd /workspace/lifeos-grok
+git remote set-url origin https://github.com/lucasnguyen1925/lifeos.git   # chạy nhiều lần vô hại
 git rev-parse --short HEAD > /workspace/lifeos/state/previous_version.txt
 git pull --ff-only
 git log --oneline <bản cũ>..HEAD        # danh sách thay đổi
@@ -23,6 +24,7 @@ Rồi xem `CHANGELOG.md` mục mới nhất, áp dụng đúng những gì nó g
 |---|---|
 | `skills/<tên>/` | Chép đè vào `/home/box/agent-data/workflows/<tên>/` |
 | `bots/<bot>.md` | Gửi tin ưu tiên cho bot đó: "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/<bot>.md (đọc toàn văn, thay hướng dẫn cũ)". Nếu đổi routine: bot sửa routine của chính nó — Khôi có thể phải bấm duyệt thẻ |
+| `persona/` | Không tự chép vào bot nào. Báo Khôi mẫu tính cách mới đổi gì; Khôi muốn áp thì làm theo `persona/README.md` |
 | `config/config.example.toml` có khóa mới | Thêm khóa mới vào `/workspace/lifeos/config.toml` với giá trị mẫu; **không** ghi đè giá trị Khôi đã điền |
 | Chỉ `lifeos/*.py` | Không phải làm gì thêm |
 

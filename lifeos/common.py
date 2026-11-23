@@ -18,7 +18,37 @@ VN = timezone(timedelta(hours=7))
 WEEKDAYS = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"]
 
 DOMAINS = ("hoctap", "congty", "canhan")
-BOTS = ("lifeos", "tiko", "hoctap", "congty", "canhan", "zalo")
+BOTS = ("lifeos", "vanhanh", "hoctap", "congty", "canhan", "zalo")
+# Tên vai trò (repo không ghi tên riêng của bot: bot thật giữ vai nào ghi ở bản đồ phân công, `bando giu-vai`).
+ROLE_NAMES = {"lifeos": "LifeOS", "vanhanh": "Vận hành", "hoctap": "Học tập", "congty": "Công ty",
+              "canhan": "Cá nhân", "zalo": "Zalo"}
+# Mã cũ trước 0.7.0 → mã mới. Lệnh cũ (`--by tiko`, `status tiko`) và dữ liệu cũ vẫn được nhận.
+OLD_BOT_IDS = {"tiko": "vanhanh"}
+
+
+def bot_id(name: str | None) -> str:
+    """Chuẩn hóa mã bot: viết thường, đổi mã cũ sang mã mới ('Tiko' → 'vanhanh')."""
+    key = (name or "").strip().lower()
+    return OLD_BOT_IDS.get(key, key)
+
+
+def role_name(name: str | None) -> str:
+    """Tên vai trò để hiển thị, kể cả với dữ liệu cũ ghi mã 'tiko'."""
+    return ROLE_NAMES.get(bot_id(name), name or "?")
+
+
+def migrate_old_ids() -> list[str]:
+    """Đổi tên file nhịp tim của mã cũ (_status/tiko.json → _status/vanhanh.json). Chạy nhiều lần vô hại."""
+    moved = []
+    for old, new in OLD_BOT_IDS.items():
+        src, dst = path("_status", f"{old}.json"), path("_status", f"{new}.json")
+        if src.exists() and not dst.exists():
+            data = read_json(src, {}) or {}
+            data["bot"] = new
+            write_json(dst, data)
+            src.unlink()
+            moved.append(f"{src.name} → {dst.name}")
+    return moved
 
 
 def root() -> Path:

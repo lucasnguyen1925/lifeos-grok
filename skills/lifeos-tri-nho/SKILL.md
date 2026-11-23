@@ -1,6 +1,6 @@
 ---
 name: lifeos-tri-nho
-description: Sổ nhớ chung của đội LifeOS — đọc hồ sơ ngắn, tìm, ghi điều đáng nhớ về Khôi, sửa, quên, đề xuất, nhật ký chuyện đã nói, kho "lưu cái này", soát chat 20:40, gộp trùng, sao lưu, chuyển trí nhớ cũ. LifeOS và Tiko đọc toàn bộ; bot Học tập, Công ty, Cá nhân, Zalo đọc mục 0, 1, 2, 6.
+description: Sổ nhớ chung của đội LifeOS — đọc hồ sơ ngắn, tìm, ghi điều đáng nhớ về Khôi, sửa, quên, đề xuất, nhật ký chuyện đã nói, kho "lưu cái này", soát chat 20:40, gộp trùng, sao lưu, chuyển trí nhớ cũ. LifeOS và Vận hành đọc toàn bộ; bot Học tập, Công ty, Cá nhân, Zalo đọc mục 0, 1, 2, 6.
 ---
 
 # Sổ nhớ LifeOS
@@ -19,7 +19,7 @@ Mọi lệnh chạy trong thư mục bộ cài: `cd /workspace/lifeos-grok && py
 |---|---|
 | Đầu **mỗi** lượt chat với Khôi, đầu **mỗi** lần chạy routine | `brain core` → hồ sơ ngắn (~40 dòng) |
 | Câu hỏi/việc đụng chuyện cũ, người quen, sở thích, dự định, "hôm trước nói gì" | `brain search "<từ khóa>"` **trước khi trả lời** (gõ không dấu cũng được). Nhiều kết quả về một người/môn/dự án → `brain show "<tên>"` |
-| Sổ không có | Tìm trong trí nhớ riêng Grok của bạn. Có → trả lời; LifeOS/Tiko ghi luôn vào sổ (`--origin grok`); bot quét nguồn thì `propose` |
+| Sổ không có | Tìm trong trí nhớ riêng Grok của bạn. Có → trả lời; LifeOS/Vận hành ghi luôn vào sổ (`--origin grok`); bot quét nguồn thì `propose` |
 
 Kết quả ghi `trước đây (tới 11/2026)` = chuyện cũ không còn đúng → nói rõ "trước đây…".
 
@@ -27,7 +27,7 @@ Kết quả ghi `trước đây (tới 11/2026)` = chuyện cũ không còn đú
 
 | Bot | Được |
 |---|---|
-| **LifeOS, Tiko** | Ghi thẳng (`brain add`) chuyện **Khôi kể** trong khung chat của mình. Ghi **lặng lẽ** — không báo từng điều; 21:00 LifeOS báo gộp một dòng 🧠 |
+| **LifeOS, Vận hành** | Ghi thẳng (`brain add`) chuyện **Khôi kể** trong khung chat của mình. Ghi **lặng lẽ** — không báo từng điều; 21:00 LifeOS báo gộp một dòng 🧠 |
 | **Học tập, Công ty, Cá nhân, Zalo** | Chỉ **đề xuất** (`brain propose`, mục 6). Khôi duyệt trong báo cáo tối |
 
 **Đáng nhớ:** về Khôi (học gì, làm gì, đang ở đâu…) · mục tiêu · người quen (ai là ai, liên quan tới Khôi thế nào) · thói quen, sở thích làm việc · lời hứa, dự định (có ngày → `--due`) · điều nên tránh.
@@ -50,10 +50,10 @@ Kết quả ghi `trước đây (tới 11/2026)` = chuyện cũ không còn đú
 ```bash
 python3 -m lifeos brain add --by lifeos --section nguoi_quen --subject "bạn A" --core --text "Bạn A là trưởng nhóm BTL môn X"
 python3 -m lifeos brain add --by lifeos --section dang_do --core --due 2026-11-06 --text "Hứa gửi bạn A file BTL"
-python3 -m lifeos brain add --by tiko   --section ve_khoi --replaces m12 --text "Đã nghỉ làm ở chỗ A từ 11/2026"   # m12 thành "trước đây"
+python3 -m lifeos brain add --by vanhanh --section ve_khoi --replaces m12 --text "Đã nghỉ làm ở chỗ A từ 11/2026"   # m12 thành "trước đây"
 ```
 
-## 3. Khôi nói gì → làm gì (LifeOS; Tiko làm như vậy trong khung chat Tiko)
+## 3. Khôi nói gì → làm gì (LifeOS; bot Vận hành làm như vậy trong khung chat của nó)
 
 Trả lời Khôi: **chữ a, b, c… là sổ nhớ**; **số 1, 2, 3… là kế hoạch** ("bỏ 3" = bỏ ô 3 của kế hoạch, "bỏ b" = bỏ đề xuất b).
 
@@ -86,13 +86,13 @@ Nhắc chủ động: chỉ trong dòng 💡 sẵn có của báo cáo (tối đ
 
 1. `search` → tìm đúng mã. Nhiều điều khớp → hỏi lại Khôi điều nào. "Quên hết đi" → hỏi lại từng nhóm, **không** xóa hàng loạt.
 2. `brain forget <mã…>` (xóa hẳn khỏi sổ, kể cả lịch sử của điều đó; sổ chỉ giữ mã + giờ đã quên).
-3. Gửi **tin ưu tiên** nguyên văn `message_for_other_bots` cho **Tiko, Học tập, Công ty, Cá nhân, Zalo**. Chính bạn cũng xóa điều đó trong trí nhớ riêng và phần trí nhớ chung do bạn ghi.
+3. Gửi **tin ưu tiên** nguyên văn `message_for_other_bots` cho **Vận hành, Học tập, Công ty, Cá nhân, Zalo**. Chính bạn cũng xóa điều đó trong trí nhớ riêng và phần trí nhớ chung do bạn ghi.
 4. `drive_to_trash` có link → bỏ file đó vào thùng rác Drive.
 5. Báo Khôi thật: *"Đã xóa trong sổ và trí nhớ các bot. Khung chat cũ thì Grok không cho xóa."* Bot nào không trả lời "đã xóa/không có" sau ~10 phút → nêu tên để Khôi nhắn thẳng bot đó.
 
 Ngoại lệ cho các bot nhận lời nhờ quên: xem nội quy `lifeos-noi-quy` mục 4.
 
-## 5. Nhật ký chuyện đã nói (LifeOS, Tiko)
+## 5. Nhật ký chuyện đã nói (LifeOS, Vận hành)
 
 - Lượt chat có chuyện đáng kể → `brain journal add --by lifeos --text "Bàn chia việc BTL, chốt Khôi làm phần 2"`. Một dòng một chủ đề, tóm tắt, **không chép nguyên văn**.
 - Chuyện nhạy cảm → `brain journal add --by lifeos --private` (chỉ lưu "có nói chuyện riêng").
@@ -128,33 +128,33 @@ python3 -m lifeos brain propose --by hoctap --section nguoi_quen --subject "bạ
 | 21:00 | LifeOS | Báo cáo tối: `brain report` → thêm khối 🧠 vào cuối báo cáo → gửi → `brain report --mark` → `brain page` → **chỉ khi `changed: true`** cập nhật Grok Page "LifeOS · Trí nhớ" từ `dashboard/tri_nho.md`, rồi `brain page --mark` |
 | Chủ nhật 20:00 | LifeOS | `brain dupes` → từng cặp: cùng một ý → `brain merge <giữ> <bỏ>`; khác ý → bỏ qua. **Không hỏi Khôi** (gộp nhầm → `unmerge`) |
 | Ngày cuối tháng 21:00 | LifeOS | `brain report` tự có tối đa 5 câu "Còn đúng không?" · gom nhật ký tháng (mục 5) |
-| 02:15 | Tiko | Sao lưu (mục 10) |
+| 02:15 | Vận hành | Sao lưu (mục 10) |
 
 ## 9. Soát chat cuối ngày (LifeOS, 20:40)
 
 Routine 20:40 không tự làm (routine không đọc được chat): nó chỉ **chuyển lại cho chat chính** câu "Soát chat hôm nay theo skill lifeos-tri-nho mục 9.", chat chính LifeOS tự dậy (nội quy mục 9). Trong chat chính:
 
 1. `brain core` + `brain journal show` → biết hôm nay đã ghi gì.
-2. Mở lại khung chat **hôm nay** giữa Khôi với LifeOS, và giữa Khôi với Tiko (chỉ phần từ 00:00 hôm nay).
+2. Mở lại khung chat **hôm nay** giữa Khôi với LifeOS, và giữa Khôi với bot Vận hành (chỉ phần từ 00:00 hôm nay).
 3. Điều đáng nhớ bị sót → `brain add … --origin soat_chat` (vẫn theo mục 2: nhạy cảm không tự ghi). Nhật ký thiếu → `journal add`; quá 5 dòng → `journal replace`.
-4. **Không đọc được chat** (không có công cụ) → bỏ qua, nhắn Tiko một lần "Soát chat 20:40: không đọc được chat" để Tiko ghi vào `state/yeu_cau_cho_repo.md`.
+4. **Không đọc được chat** (không có công cụ) → bỏ qua, nhắn bot Vận hành một lần "Soát chat 20:40: không đọc được chat" để Vận hành ghi vào `state/yeu_cau_cho_repo.md`.
 5. Không nhắn Khôi.
 
-## 10. Sao lưu và khôi phục (Tiko)
+## 10. Sao lưu và khôi phục (Vận hành)
 
 **02:15** (routine Dọn dẹp đêm), sau `cleanup`:
 1. `brain backup` → gói sổ nhớ + `config.toml` + `done.json` + báo cáo tháng vào **một file** `lifeos_saoluu_<thứ>.json`.
 2. Tải lên Google Drive thư mục **"LifeOS · Sao lưu"** (giữ định dạng `.json`). Công cụ tải **không ghi đè được** → tải **bản mới lên trước**, thấy lên đủ rồi mới bỏ file **cũ** cùng tên vào thùng rác (đừng xóa trước — lỡ tải hỏng còn bản cũ). Mỗi tên `lifeos_saoluu_<thứ>.json` chỉ còn đúng 1 file → luôn có 7 bản xoay vòng theo thứ.
-3. `status tiko --type check --ok --note "sao lưu <tên file> ok"` (lỗi → `--fail --note "sao lưu: <lý do>"`).
+3. `status vanhanh --type check --ok --note "sao lưu <tên file> ok"` (lỗi → `--fail --note "sao lưu: <lý do>"`).
 
-**Khôi: "khôi phục sổ nhớ bản hôm thứ 4"** (trong khung chat Tiko):
+**Khôi: "khôi phục sổ nhớ bản hôm thứ 4"** (trong khung chat bot Vận hành):
 1. Tải `lifeos_saoluu_thu4.json` từ Drive về `/workspace/lifeos/backup/`.
 2. `brain restore <file>` (chỉ xem trước) → báo Khôi bản lúc mấy giờ, gồm những file nào → chờ Khôi "ok".
 3. `brain restore <file> --apply` → báo xong (bản hiện tại đã được tự sao lưu thành `truoc_khoi_phuc_…json` phòng khi lỡ tay).
 
 ## 11. Chuyển trí nhớ cũ vào sổ (một lần, khi cập nhật lên 0.3.0)
 
-LifeOS và Tiko **mỗi bot tự làm với trí nhớ riêng của mình**, khi Khôi nhắn thẳng:
+LifeOS và Vận hành **mỗi bot tự làm với trí nhớ riêng của mình**, khi Khôi nhắn thẳng:
 
 1. Tìm trong trí nhớ riêng **theo từng chủ đề** (mỗi lần tìm tối đa 50 kết quả): học, trường, môn, thi, làm, công ty, sếp, đồng nghiệp, bạn, gia đình, người, thói quen, sở thích, thích, ghét, mục tiêu, kế hoạch, hứa, tập, chạy, gym, tiếng Pháp, ở, nhà, quê, sức khỏe, tiền. Gộp lại, bỏ trùng.
 2. Bỏ chuyện máy móc của bot (đăng nhập, trang web, lỗi…). Chỉ giữ điều nói về Khôi và người quanh Khôi.

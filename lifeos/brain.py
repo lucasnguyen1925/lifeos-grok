@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Any, Iterable, Iterator
 
 from .common import (
-    BOTS, append_jsonl, iso, now, parse_dt, path, read_json, vn_date, vn_datetime, write_json, write_text,
+    BOTS, OLD_BOT_IDS, ROLE_NAMES, append_jsonl, bot_id, iso, now, parse_dt, path, read_json, vn_date, vn_datetime, write_json, write_text,
 )
 
 # Mục của sổ. 6 mục đầu là hồ sơ ngắn; "khac" chỉ nằm trong sổ, không lên hồ sơ.
@@ -43,8 +43,8 @@ SECTIONS: dict[str, tuple[str, str]] = {
 }
 CORE_LIMITS = {"ve_khoi": 8, "muc_tieu": 5, "nguoi_quen": 10, "cach_lam_viec": 7, "dang_do": 6, "tranh": 4}
 SCAN_BOTS = ("hoctap", "congty", "canhan", "zalo")
-BOT_NAMES = {"lifeos": "LifeOS", "tiko": "Tiko", "hoctap": "Học tập", "congty": "Công ty",
-             "canhan": "Cá nhân", "zalo": "Zalo"}
+# Tên hiển thị theo vai; dữ liệu cũ ghi mã "tiko" (trước 0.7.0) hiện là "Vận hành".
+BOT_NAMES = {**ROLE_NAMES, **{old: ROLE_NAMES[new] for old, new in OLD_BOT_IDS.items()}}
 ORIGINS = ("chat", "soat_chat", "grok", "notes", "de_xuat")
 MIGRATED = {"grok", "notes"}          # chuyển từ trí nhớ cũ: không dồn vào dòng 🧠 tối
 KHO_KINDS = ("link", "anh", "video", "file", "ghi_chu")
@@ -153,6 +153,7 @@ def _parse_due(value: str | None) -> str | None:
 
 
 def _check_bot(by: str) -> str:
+    by = bot_id(by)
     if by not in BOTS:
         raise ValueError(f"--by phải là một trong {', '.join(BOTS)}.")
     return by
@@ -586,8 +587,9 @@ def stats() -> dict[str, Any]:
 
 def propose(by: str, text: str, source: str, section: str = "khac", subject: str | None = None,
             t: datetime | None = None) -> dict[str, Any]:
+    by = bot_id(by)
     if by not in SCAN_BOTS:
-        raise ValueError("Chỉ 4 bot Học tập, Công ty, Cá nhân, Zalo đề xuất. LifeOS/Tiko ghi thẳng bằng `brain add`.")
+        raise ValueError("Chỉ 4 bot Học tập, Công ty, Cá nhân, Zalo đề xuất. LifeOS/Vận hành ghi thẳng bằng `brain add`.")
     if section not in SECTIONS:
         raise ValueError(f"--section phải là một trong {', '.join(SECTIONS)}.")
     text, t = _clean_text(text), t or now()
@@ -968,7 +970,7 @@ def _page_text(f: dict[str, Any]) -> str:
     return "🔒 chuyện riêng (hỏi LifeOS trong chat)" if f.get("sensitive") else f["text"]
 
 
-# ---------------------------------------------------------------- sao lưu / khôi phục (Tiko, 02:15)
+# ---------------------------------------------------------------- sao lưu / khôi phục (Vận hành, 02:15)
 
 def _backup_files() -> list[Path]:
     base = path()

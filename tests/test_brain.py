@@ -263,13 +263,13 @@ class JournalKhoPage(Base):
         for i in range(6):
             res = brain.journal_add("lifeos", f"Chuyện số {i}", t=self.t)
         self.assertIsNotNone(res["warning"])
-        p = brain.journal_add("tiko", "Nội dung nhạy cảm không được lưu", private=True, t=self.t)
+        p = brain.journal_add("vanhanh", "Nội dung nhạy cảm không được lưu", private=True, t=self.t)
         day = read_json(self.tmp / "brain" / "nhat_ky" / "2026-11-02.json")
         self.assertNotIn("nhạy cảm", json.dumps(day, ensure_ascii=False))
         self.assertEqual(day["lines"][-1]["id"], p["id"])
-        brain.journal_replace(self.t.date(), ["LifeOS: bàn BTL", "Tiko: đăng nhập lại Zalo"], t=self.t)
+        brain.journal_replace(self.t.date(), ["LifeOS: bàn BTL", "Vận hành: đăng nhập lại Zalo"], t=self.t)
         lines = brain.journal_show(self.t.date(), t=self.t)["days"][0]["lines"]
-        self.assertEqual([x["text"] for x in lines], ["LifeOS: bàn BTL", "Tiko: đăng nhập lại Zalo", brain.PRIVATE_LINE])
+        self.assertEqual([x["text"] for x in lines], ["LifeOS: bàn BTL", "Vận hành: đăng nhập lại Zalo", brain.PRIVATE_LINE])
         self.assertEqual(len(brain.journal_show(month="2026-11", t=self.t)["days"]), 1)
 
         write_json(self.tmp / "brain" / "nhat_ky" / "2026-07-01.json", {"date": "2026-07-01", "lines": []})
@@ -365,8 +365,11 @@ class BrainCli(Base):
         self.assertFalse(out["core"])
         code, out = self.run_cli("forget", "z")
         self.assertEqual(code, 1, "chữ không có trong lần báo gần nhất")
+        # Mã cũ "tiko" (trước 0.7.0) vẫn được nhận và ghi thành vai Vận hành.
         code, out = self.run_cli("journal", "add", "--by", "tiko", "--text", "Đăng nhập lại Zalo")
         self.assertEqual(out["id"], "nk20261102-1")
+        day = read_json(self.tmp / "brain" / "nhat_ky" / "2026-11-02.json")
+        self.assertEqual(day["lines"][-1]["by"], "vanhanh")
 
 
 if __name__ == "__main__":

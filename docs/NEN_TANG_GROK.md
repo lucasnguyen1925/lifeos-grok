@@ -1,6 +1,6 @@
 # Grok Bot — những gì đã kiểm chứng thực tế
 
-Ghi lại kết quả Tiko/các bot **làm thử thật** trên tài khoản của Khôi. Tài liệu trên mạng về Grok Bot (beta, 08/2026) có chỗ không khớp — ưu tiên file này. Phát hiện mới → bổ sung kèm ngày.
+Ghi lại kết quả bot Vận hành/các bot **làm thử thật** trên tài khoản của Khôi. Tài liệu trên mạng về Grok Bot (beta, 08/2026) có chỗ không khớp — ưu tiên file này. Phát hiện mới → bổ sung kèm ngày. (Kết quả trước 0.7.0 ghi "bot Vận hành" là bot khi đó giữ vai này.)
 
 ## Máy và công cụ (29–30/10/2026)
 
@@ -21,17 +21,17 @@ Ghi lại kết quả Tiko/các bot **làm thử thật** trên tài khoản c�
 - (31/10) Chế độ **exact vẫn trễ 1–6 phút**. Một routine thử (exact) **không chạy**, không rõ lý do. Bot tạo routine **cho chính nó** thì không hiện thẻ duyệt.
 - (31/10) Routine **thấy** trí nhớ chung và một phần trí nhớ riêng, tìm trong trí nhớ được; **ghi đè được file trên Google Drive**.
 - (31/10) Routine **không có công cụ đọc lịch sử chat** (cả chat của chính bot lẫn bot khác).
-- (31/10) Routine **không có công cụ nhắn bot khác**, kể cả tự nhắn ưu tiên cho chính bot. Lần chạy **có việc chuyển lại** → **chat chính của chính bot đó tự dậy làm ngay**, không chờ Khôi nhắn (thấy ở Tiko 19:02, Công ty 11:37 và 17:36). Lần chạy không có gì chuyển → chat chỉ hiện một dòng "chạy xong", bot không làm gì thêm. → Mọi việc "routine nhắn bot khác / đăng nhập / đọc chat" phải đi qua chat chính (nội quy mục 9).
+- (31/10) Routine **không có công cụ nhắn bot khác**, kể cả tự nhắn ưu tiên cho chính bot. Lần chạy **có việc chuyển lại** → **chat chính của chính bot đó tự dậy làm ngay**, không chờ Khôi nhắn (thấy ở bot Vận hành 19:02, Công ty 11:37 và 17:36). Lần chạy không có gì chuyển → chat chỉ hiện một dòng "chạy xong", bot không làm gì thêm. → Mọi việc "routine nhắn bot khác / đăng nhập / đọc chat" phải đi qua chat chính (nội quy mục 9).
 - (31/10) Đã chạy thật qua chat chính: **báo 🔴** — routine Công ty chuyển lại → chat chính Công ty nhắn LifeOS "có 4 việc 🔴 mới" → LifeOS báo Khôi ngay (11:37). **Tự đăng nhập lại** — routine Công ty gặp "Verify it's you" → chat chính đăng nhập bằng Vault (không bị hỏi mã/điện thoại) → tự quét lại mail (17:30–17:38). Học tập (29–30/10) và Zalo (31/10) có dấu hiệu tự đăng nhập lại, chưa kiểm tra kỹ.
-- (31/10) Routine kiểm tra sức khỏe của Tiko chưa từng nhắn được bot khác; lần 05:56 chỉ chuyển về để chat chính Tiko báo Khôi.
-- (31/10) Chat chính được routine đánh thức **đọc được chat hôm nay** của Tiko và của LifeOS (3 tin gần nhất mỗi bên).
+- (31/10) Routine kiểm tra sức khỏe của bot Vận hành chưa từng nhắn được bot khác; lần 05:56 chỉ chuyển về để chat chính bot Vận hành báo Khôi.
+- (31/10) Chat chính được routine đánh thức **đọc được chat hôm nay** của bot Vận hành và của LifeOS (3 tin gần nhất mỗi bên).
 
 ## Nhắn tin, phê duyệt
 
 - Bot nhắn bot bằng id (**chỉ từ chat chính**, routine không nhắn được); chế độ **ưu tiên** đánh thức bot kia ngay, chế độ thường chờ lượt sau.
 - Bot nhắn Khôi trong khung chat của bot đó (app Grok Bot). Không gửi email/SMS cho Khôi.
 - **Lời "Khôi đồng ý" do bot khác chuyển lại không được tính** → việc cần duyệt do chính LifeOS làm.
-- (31/10) Bot còn **từ chối cả việc nhỏ khi lời nhờ đi qua bot khác**: Tiko nhờ hộ LifeOS tạo thư mục Drive → LifeOS không làm; Khôi nhắn thẳng LifeOS → làm ngay. Ngược lại, LifeOS nhờ Tiko xóa một điều trong trí nhớ riêng → Tiko xóa, nhưng nói "lẽ ra nên hỏi Khôi trước" → không ổn định; ngoại lệ "quên" được ghi rõ trong nội quy.
+- (31/10) Bot còn **từ chối cả việc nhỏ khi lời nhờ đi qua bot khác**: bot Vận hành nhờ hộ LifeOS tạo thư mục Drive → LifeOS không làm; Khôi nhắn thẳng LifeOS → làm ngay. Ngược lại, LifeOS nhờ bot Vận hành xóa một điều trong trí nhớ riêng → bot Vận hành xóa, nhưng nói "lẽ ra nên hỏi Khôi trước" → không ổn định; ngoại lệ "quên" được ghi rõ trong nội quy.
 
 ## Khung chat (31/10/2026)
 
@@ -43,9 +43,9 @@ Ghi lại kết quả Tiko/các bot **làm thử thật** trên tài khoản c�
 ## Trí nhớ của Grok (31/10/2026)
 
 - Mỗi bot có **trí nhớ riêng** (đang bật) + **một phần trí nhớ chung** cho mọi bot.
-- Bot **tự ghi** vào trí nhớ riêng khi thấy điều đáng nhớ, không cần ai bảo (sau vài ngày Tiko đã có ~50 điều về Khôi). **Chưa tìm thấy cách tắt** cho từng bot.
+- Bot **tự ghi** vào trí nhớ riêng khi thấy điều đáng nhớ, không cần ai bảo (sau vài ngày bot Vận hành đã có ~50 điều về Khôi). **Chưa tìm thấy cách tắt** cho từng bot.
 - Trí nhớ riêng: chỉ một phần tự hiện đầu lượt, còn lại phải tìm. Tìm theo từ khóa, **tối đa 50 kết quả/lần** → không liệt kê đủ được cả danh sách.
-- Trí nhớ chung: bot nào cũng ghi được; mỗi lượt (kể cả routine) mọi bot **thấy sẵn phần mới nhất**, phần cũ hơn phải tìm (thử: Tiko ghi một câu, LifeOS trả lời đúng mà không cần tìm). Mỗi điều là một câu ngắn; sức chứa chưa biết; chưa thấy chỗ cho Khôi xem/xóa trong app.
+- Trí nhớ chung: bot nào cũng ghi được; mỗi lượt (kể cả routine) mọi bot **thấy sẵn phần mới nhất**, phần cũ hơn phải tìm (thử: bot Vận hành ghi một câu, LifeOS trả lời đúng mà không cần tìm). Mỗi điều là một câu ngắn; sức chứa chưa biết; chưa thấy chỗ cho Khôi xem/xóa trong app.
 - **Chỉ bot đã ghi một điều trong trí nhớ chung mới xóa được điều đó**; bot khác chỉ ghi thêm câu mới để thay.
 - → LifeOS **không dùng** trí nhớ Grok cho chuyện của Khôi; dùng sổ nhớ chung (SPEC §5c).
 
@@ -58,7 +58,7 @@ Ghi lại kết quả Tiko/các bot **làm thử thật** trên tài khoản c�
 
 ## Kết nối (31/10/2026)
 
-- Kết nối (Gmail, Drive, Lịch, Slides…) **cài chung cho cả tài khoản Grok**, không gắn riêng bot nào: bấm thẻ kết nối trong chat một bot (LifeOS) là bot khác (Tiko, Học tập) dùng được ngay, không phải bấm lại.
+- Kết nối (Gmail, Drive, Lịch, Slides…) **cài chung cho cả tài khoản Grok**, không gắn riêng bot nào: bấm thẻ kết nối trong chat một bot (LifeOS) là bot khác (bot Vận hành, Học tập) dùng được ngay, không phải bấm lại.
 - Đang có (tối 31/10): 2 Gmail cá nhân, Gmail trường, 2 lịch cá nhân, lịch trường, Drive cá nhân, **Drive trường** (mới kết nối). Chưa cài: Sheets, Docs. Mail/lịch công ty không có kết nối — bot Công ty dùng trình duyệt (SSO công ty).
 - Kết nối **Drive đọc được nội dung Google Sheet** (từng tab, dòng, ô). Muốn **sửa** ô thì mới cần cài kết nối Sheets.
 - Trình duyệt chung (tối 31/10): **không** đăng nhập sẵn tài khoản Google nào; tài khoản công ty đang ở trạng thái đã đăng xuất.
@@ -66,9 +66,9 @@ Ghi lại kết quả Tiko/các bot **làm thử thật** trên tài khoản c�
 
 ## Google Drive cá nhân (31/10/2026)
 
-- LifeOS và Tiko đều dùng kết nối Drive cá nhân của Khôi (kết nối chung của tài khoản).
-- Bot tạo được thư mục, tải file lên. Ghi đè: chiều 31/10 Tiko thử ghi đè một file chữ được (mã file giữ nguyên, cả trong routine); **tối 31/10 Tiko báo công cụ tải file `.json` lại KHÔNG ghi đè được** — mỗi lần tải là thêm một file mới cùng tên. Có thể là hai cách tải khác nhau, chưa rõ → quy trình sao lưu: tải bản mới lên trước, rồi bỏ file cũ cùng tên vào thùng rác.
-- File `.md`, `.json` do Tiko tải lên **giữ nguyên định dạng**, tải về giống từng byte; ảnh JPG giữ nguyên. Một lần LifeOS tải file chữ lên lại thành **Google Docs** → khi tải phải giữ định dạng gốc.
+- LifeOS và bot Vận hành đều dùng kết nối Drive cá nhân của Khôi (kết nối chung của tài khoản).
+- Bot tạo được thư mục, tải file lên. Ghi đè: chiều 31/10 bot Vận hành thử ghi đè một file chữ được (mã file giữ nguyên, cả trong routine); **tối 31/10 bot Vận hành báo công cụ tải file `.json` lại KHÔNG ghi đè được** — mỗi lần tải là thêm một file mới cùng tên. Có thể là hai cách tải khác nhau, chưa rõ → quy trình sao lưu: tải bản mới lên trước, rồi bỏ file cũ cùng tên vào thùng rác.
+- File `.md`, `.json` do bot Vận hành tải lên **giữ nguyên định dạng**, tải về giống từng byte; ảnh JPG giữ nguyên. Một lần LifeOS tải file chữ lên lại thành **Google Docs** → khi tải phải giữ định dạng gốc.
 - Xóa = bỏ vào thùng rác, Drive tự xóa hẳn sau ~30 ngày; bot **không xóa vĩnh viễn** được.
 - GitHub repo riêng tư: hiện **chưa ghi được** (kết nối GitHub không có lệnh ghi file, máy chưa đăng nhập GitHub).
 
@@ -103,7 +103,7 @@ Ghi lại kết quả Tiko/các bot **làm thử thật** trên tài khoản c�
 ## Ảnh, Page, phiên dùng chung (kiểm chứng 02–03/11/2026)
 
 - **Chụp ảnh**: máy có `/usr/bin/google-chrome` (**không có** `chromium`); `dashboard._screenshot` đã tìm cả tên này. Chụp ra PNG rộng 720px scale 2 (1440px) được. Tiếng Việt đủ dấu (ắ ằ ẳ ẵ ặ đ Đ) và 7 emoji thử đều đúng, emoji hiện màu (Noto Color Emoji, font emoji duy nhất). Máy có ~420 font có tiếng Việt, trong đó **Be Vietnam Pro, Inter, Noto Sans** có sẵn; nạp font từ Google Fonts bằng link trong HTML cũng chạy, nạp từ file font cũng chạy (đặt tên font khác đi để máy không dùng nhầm bản có sẵn). Font khác (Plus Jakarta Sans, Space Grotesk, Lexend, IBM Plex…) **chưa chắc có sẵn**: dùng thì phải nạp hoặc đóng gói file font.
-- **Gửi ảnh vào khung chat**: Tiko gửi được PNG 1440×800, 1440×3200 (~200 KB) và 1440×7000 (~440 KB), không bị cắt khi chụp. Trong khung chat trên iPhone, ảnh dài hiển thị **thu nhỏ**: ảnh 7000px thu rất nhỏ, chữ không đọc được; ảnh 3200px đọc được nhưng mép trên/dưới có vẻ bị che ở bản xem trước. → mỗi ảnh nên cao không quá khoảng một màn hình. **Routine gửi ảnh**: chưa có kết quả (Tiko đặt routine thử 00:00 03/11).
-- **Grok Page và ảnh**: Page **không tải được ảnh từ link**; ảnh phải nhúng thẳng vào mã trang dưới dạng chuỗi chữ (ảnh 1440px nặng 24–74 KB → hàng chục nghìn ký tự mỗi lần đăng, đáng ngại về credit). Đưa ảnh lên Drive rồi dùng link công khai thì chia sẻ ra ngoài nên Tiko không làm. **Thay ảnh trong Page lần 2 giữ nguyên link**. Chưa rõ: Page có nhận cả HTML + CSS không (Tiko nói "mã trang"), bảng tiếng Việt có bị vỡ chữ không (kiểu "Má»¥c", nghi thiếu khai báo UTF-8), Page nhận ảnh 1440px không, bot tạo Page từ file được không hay phải gõ cả nội dung.
+- **Gửi ảnh vào khung chat**: bot Vận hành gửi được PNG 1440×800, 1440×3200 (~200 KB) và 1440×7000 (~440 KB), không bị cắt khi chụp. Trong khung chat trên iPhone, ảnh dài hiển thị **thu nhỏ**: ảnh 7000px thu rất nhỏ, chữ không đọc được; ảnh 3200px đọc được nhưng mép trên/dưới có vẻ bị che ở bản xem trước. → mỗi ảnh nên cao không quá khoảng một màn hình. **Routine gửi ảnh**: chưa có kết quả (bot Vận hành đặt routine thử 00:00 03/11).
+- **Grok Page và ảnh**: Page **không tải được ảnh từ link**; ảnh phải nhúng thẳng vào mã trang dưới dạng chuỗi chữ (ảnh 1440px nặng 24–74 KB → hàng chục nghìn ký tự mỗi lần đăng, đáng ngại về credit). Đưa ảnh lên Drive rồi dùng link công khai thì chia sẻ ra ngoài nên bot Vận hành không làm. **Thay ảnh trong Page lần 2 giữ nguyên link**. Chưa rõ: Page có nhận cả HTML + CSS không (bot Vận hành nói "mã trang"), bảng tiếng Việt có bị vỡ chữ không (kiểu "Má»¥c", nghi thiếu khai báo UTF-8), Page nhận ảnh 1440px không, bot tạo Page từ file được không hay phải gõ cả nội dung.
 - **Phiên đăng nhập dùng chung** (LifeOS tự mở trong cửa sổ trình duyệt của nó, chỉ xem, 03/11): BKeL ✅ đã đăng nhập sẵn, mail trường ✅ vào được hộp thư, MyBK ❌ hết phiên (trang chọn Người dùng khách / Tài khoản HCMUT), mail công ty ⚠️ Google bắt "Xác minh danh tính". → các bot **dùng chung phiên**, LifeOS không cần bot mảng mở hộ.
 - Chưa kiểm: gửi mail thật bằng kết nối Gmail, gắn nhãn/lưu trữ/thùng rác, tạo/sửa/xóa lịch từ LifeOS, điền form. Danh sách thử: SPEC §15 mục 21–27.

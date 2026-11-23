@@ -10,7 +10,7 @@
 - Chỉ thư viện chuẩn Python ≥ 3.11. Việc có luật cố định → script (`lifeos/`); việc cần hiểu/diễn đạt → hướng dẫn bot (P2).
 - Test: `python3 -m unittest discover -s tests` phải OK (hiện **82 bài**, chạy sạch ở commit đầu bản này). Thêm test cho logic mới.
 - Làm trên nhánh `claude/lifeos-grok`. Ra bản theo `CLAUDE.md` mục "Quy trình ra bản mới".
-- **Chưa kiểm chứng được trên máy Grok**: phần "làm hộ" thật sự chạy trên Grok (gửi mail, form, nộp…). Đừng khẳng định nó chạy được trong tài liệu; ghi vào SPEC §15 (đã ghi mục 21–27) và `CHANGELOG` mục "Tiko làm".
+- **Chưa kiểm chứng được trên máy Grok**: phần "làm hộ" thật sự chạy trên Grok (gửi mail, form, nộp…). Đừng khẳng định nó chạy được trong tài liệu; ghi vào SPEC §15 (đã ghi mục 21–27) và `CHANGELOG` mục "Vận hành làm".
 
 ## 1. Phần A: thời lượng việc nhanh (M1–M5)
 
@@ -46,7 +46,7 @@ Tạo `lifeos/lamho.py` + lệnh `python3 -m lifeos lamho …` (theo kiểu `gia
 - `lamho show V1` → toàn bộ phiếu (bot mảng dùng khi Khôi nhắn "làm V1" ở khung chat của họ).
 - `lamho approve V1` → ghi `approved_at`, `approved_hash = sha1(noi_dung + số tiền + người nhận + cách)`. Chỉ từ `proposed`.
 - `lamho edit V1 --noi-dung …` → xóa duyệt, về `proposed` (H9).
-- `lamho start V1` → **cổng kiểm tra trước khi làm**; chỉ qua nếu: trạng thái `approved`; hash còn khớp; loại có trong `[lamho] bat` (nếu không: "chưa bật loại này, nhờ Tiko thử rồi bật"); `thanh_toan` có `so_tien` ≤ `toi_da_thanh_toan` (mặc định 0 = không cho); `xoa` có `cach` thuộc `thung_rac`/`luu_tru` (`vinh_vien` bị từ chối); người nhận mail/tin đều có `nguon` (N2); phiếu có hạn đã quá thì từ chối. Qua thì `running`.
+- `lamho start V1` → **cổng kiểm tra trước khi làm**; chỉ qua nếu: trạng thái `approved`; hash còn khớp; loại có trong `[lamho] bat` (nếu không: "chưa bật loại này, nhờ Vận hành thử rồi bật"); `thanh_toan` có `so_tien` ≤ `toi_da_thanh_toan` (mặc định 0 = không cho); `xoa` có `cach` thuộc `thung_rac`/`luu_tru` (`vinh_vien` bị từ chối); người nhận mail/tin đều có `nguon` (N2); phiếu có hạn đã quá thì từ chối. Qua thì `running`.
 - `lamho result V1 --ket-qua ok|loi|khong-chac --bang-chung "…"` → `done`/`failed`/`unknown`. `ok` kèm `item_id` thì gọi `mark_done`. Nhóm 3 và `gui_mail` **không** cho `start` lại từ `failed`/`unknown`: phải `lamho add --thay V1 …` rồi Khôi duyệt phiếu mới (H11).
 - `lamho drop V1`.
 - `lamho tick` (gọi đầu báo cáo 05:30/21:00): phiếu `proposed` hỏi lần 1 → `asks=2`; đã `asks=2` mà vẫn `proposed` → `expired`. Trả `nhac_gap`: phiếu `proposed` có hạn ≤ 3 giờ (LifeOS đặt Reminder + báo thức theo R2, không tự làm, H8).
@@ -56,7 +56,7 @@ Tạo `lifeos/lamho.py` + lệnh `python3 -m lifeos lamho …` (theo kiểu `gia
 **Config** (`config/config.example.toml`, mặc định an toàn):
 ```toml
 [lamho]
-bat = []                 # loại đã bật, ví dụ ["gui_mail", "dat_nhac"]. Tiko bật từng loại sau khi thử qua (SPEC §15 mục 21-27)
+bat = []                 # loại đã bật, ví dụ ["gui_mail", "dat_nhac"]. Vận hành bật từng loại sau khi thử qua (SPEC §15 mục 21-27)
 toi_da_thanh_toan = 0    # đồng/lần. 0 = chưa cho thanh toán. Khôi tự đặt
 toi_da_phieu_moi_lan = 5
 hoi_lai_toi_da = 2
@@ -80,15 +80,15 @@ V1  Trả lời mail xác nhận tham gia buổi họp nhóm   (~7 phút của b
 - `bots/lifeos.md`: thêm dòng vào bảng "Khôi nói gì → làm gì" (làm/bỏ/sửa V…, "việc này mình tự làm", "nhờ bot làm …"); sửa mục "Quyền của bạn" (hiện còn câu **"Không bao giờ: … nộp bài, đăng ký môn/thi, thanh toán, xóa mail/tin…"** mâu thuẫn với bản này); thêm mục ngắn "Làm hộ" trỏ tới skill mới.
 - `bots/hoctap.md`, `bots/congty.md`, `bots/canhan.md`, `bots/zalo.md`: (a) không ghi `est_minutes` cho mail/tin/thông báo, mail luôn `email`, tin luôn `message`; (b) khi Khôi nhắn "làm V…" trong khung chat của bạn: `lamho show V…`, làm đúng phiếu, `lamho start` rồi `lamho result`. Bot Zalo: chỉ soạn, không gửi tin thay Khôi.
 - `config/config.example.toml`: thêm `[estimate]` và `[lamho]` (mục 1 và mục 2).
-- `CAI_DAT.md` bước 7: thêm cách thử các mục SPEC §15 21–27 (tin thử cho Tiko và cho LifeOS; **nhóm 3 không có cách thử vô hại**, nên chỉ "chạy khô" tới sát nút cuối với form đăng ký/khảo sát, không thử với quiz).
+- `CAI_DAT.md` bước 7: thêm cách thử các mục SPEC §15 21–27 (tin thử cho Vận hành và cho LifeOS; **nhóm 3 không có cách thử vô hại**, nên chỉ "chạy khô" tới sát nút cuối với form đăng ký/khảo sát, không thử với quiz).
 - `README.md`: một dòng về tính năng mới.
 
-## 4. CHANGELOG 0.6.0 (mẫu mục "Tiko làm")
+## 4. CHANGELOG 0.6.0 (mẫu mục "Vận hành làm")
 
 Ghi theo khuôn các bản cũ. Gợi ý các bước:
 1. `git pull`, chạy test (ghi đúng số bài).
 2. Chép đè skill: `lifeos-bao-cao`, `lifeos-noi-quy`, `lifeos-chong-tri-hoan`, chép **mới** `lifeos-lam-ho` vào `/home/box/agent-data/workflows/`.
-3. Gửi tin ưu tiên cho **cả 5 bot** (LifeOS, Học tập, Công ty, Cá nhân, Zalo): "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/<bot>.md (đọc toàn văn, thay hướng dẫn cũ)." (Tiko không đổi.)
+3. Gửi tin ưu tiên cho **cả 5 bot** (LifeOS, Học tập, Công ty, Cá nhân, Zalo): "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/<bot>.md (đọc toàn văn, thay hướng dẫn cũ)." (Vận hành không đổi.)
 4. Thêm `[estimate]` và `[lamho]` vào `/workspace/lifeos/config.toml` (mặc định trong file mẫu; **không** ghi đè giá trị Khôi đã điền; `bat = []`, `toi_da_thanh_toan = 0`).
 5. Không có routine mới. LifeOS không đổi giờ routine nào.
 6. Kiểm lại ngay: `python3 -m lifeos plan suggest --for today` thấy ô "Việc nhanh" ngắn lại; `validate` mỗi file mảng vẫn OK.
@@ -100,4 +100,4 @@ Ghi theo khuôn các bản cũ. Gợi ý các bước:
 - Test OK, có test mới cho phần A và `lamho`; `pyflakes` sạch nếu có.
 - SPEC, CHANGELOG, NEN_TANG_GROK cập nhật; không còn câu nào trong hướng dẫn bot nói "không bao giờ nộp bài/thanh toán" trái với bản này.
 - `grep` không thấy thông tin cá nhân; không đổi file nào thuộc giao diện/dashboard ngoài 1–2 dòng chỉ số ở H12.
-- Báo Khôi: bản mới có gì, câu cần nhắn Tiko ("Cập nhật LifeOS lên bản 0.6.0, làm theo CHANGELOG"), Khôi phải làm gì, phần nào **chưa kiểm chứng được** trên máy Grok (cả "làm hộ" thật).
+- Báo Khôi: bản mới có gì, câu cần nhắn Vận hành ("Cập nhật LifeOS lên bản 0.6.0, làm theo CHANGELOG"), Khôi phải làm gì, phần nào **chưa kiểm chứng được** trên máy Grok (cả "làm hộ" thật).

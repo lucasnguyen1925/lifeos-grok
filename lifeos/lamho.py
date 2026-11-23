@@ -106,7 +106,7 @@ def _check_fields(it: dict[str, Any]) -> None:
     for key, label in (("tieu_de", "tiêu đề"), ("noi_dung", "nội dung (đúng thứ sẽ làm)"), ("nguon", "nguồn của dữ kiện (N1)")):
         if not (it.get(key) or "").strip():
             raise ValueError(f"Thiếu {label}.")
-    if it["lam_o"] not in BOTS or it["lam_o"] == "tiko":
+    if it["lam_o"] not in BOTS or it["lam_o"] == "vanhanh":
         raise ValueError("--lam-o phải là lifeos hoặc bot mảng (hoctap, congty, canhan, zalo).")
     if it["loai"] in GUI:
         people = it.get("nguoi_nhan") or []
@@ -142,7 +142,7 @@ def phieu_text(it: dict[str, Any], opts: dict[str, Any] | None = None, asking: b
         d = parse_dt(it["han"])
         lines.append(f"    Hạn: {d:%H:%M %d/%m}")
     if asking and opts and it["asks"] + 1 >= int(opts["hoi_lai_toi_da"]) > 1:
-        lines.append("    (Lần hỏi cuối: không trả lời thì mình bỏ phiếu này, việc về lại danh sách của bạn.)")
+        lines.append("    (Lần hỏi cuối: không trả lời thì phiếu này tự bỏ, việc về lại danh sách việc cần làm.)")
     lines.append(f"    → \"làm {it['id']}\" · \"bỏ {it['id']}\" · \"sửa {it['id']}: …\"")
     return "\n".join(lines)
 
@@ -171,7 +171,7 @@ def add(loai: str, tieu_de: str, noi_dung: str, nguon: str, *, item_id: str | No
         raise ValueError(f"Loại '{loai}' không có. Dùng một trong: {', '.join(LOAI)}.")
     if loai not in o["bat"]:
         raise ValueError(f"Loại '{loai}' chưa bật trong config.toml [lamho] bat nên không lập phiếu. "
-                         "Chuẩn bị sẵn cho Khôi tự làm (ghi vào ▶ bước đầu của ô 📝); nhờ Tiko thử rồi bật.")
+                         "Chuẩn bị sẵn cho Khôi tự làm (ghi vào ▶ bước đầu của ô 📝); nhờ Vận hành thử rồi bật.")
     data = _state()
     if item_id and any(x.get("item_id") == item_id and x["status"] in ACTIVE for x in data["items"]):
         raise ValueError("Việc này đã có phiếu đang chờ hoặc đang làm. Dùng lamho list để xem.")
@@ -261,7 +261,7 @@ def start(vid: str, cfg: dict[str, Any] | None = None, t: datetime | None = None
     if st in CLOSED:
         raise ValueError(f"{it['id']} đã {STATUS_VN[st]}. Muốn làm lại phải lập phiếu mới (`lamho add --thay {it['id']} …`) và Khôi duyệt lại.")
     if it["loai"] not in o["bat"]:
-        raise ValueError(f"Loại '{it['loai']}' đang tắt trong config.toml [lamho] bat. Chuẩn bị sẵn cho Khôi tự làm; nhờ Tiko thử rồi bật.")
+        raise ValueError(f"Loại '{it['loai']}' đang tắt trong config.toml [lamho] bat. Chuẩn bị sẵn cho Khôi tự làm; nhờ Vận hành thử rồi bật.")
     if _hash(it) != it["approved_hash"]:
         it.update(status="proposed", approved_at=None, approved_hash=None)
         _save(data, t)

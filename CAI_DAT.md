@@ -1,7 +1,7 @@
-# Cài đặt LifeOS — hướng dẫn cho Tiko
+# Cài đặt LifeOS — hướng dẫn cho bot giữ vai Vận hành
 
-> Khôi chỉ cần nhắn Tiko: **"Cài LifeOS từ github.com/lucasnguyen1925/lifeos-grok, làm theo file CAI_DAT.md."**
-> Tiko làm lần lượt từng bước, báo Khôi khi cần Khôi trả lời hoặc bấm duyệt. Tổng thời gian khoảng 30–45 phút.
+> Khôi chỉ cần nhắn bot sẽ giữ vai Vận hành: **"Cài LifeOS từ github.com/lucasnguyen1925/lifeos, làm theo file CAI_DAT.md."**
+> Bot đó (gọi tắt là "Vận hành") làm lần lượt từng bước, báo Khôi khi cần Khôi trả lời hoặc bấm duyệt. Tổng thời gian khoảng 30–45 phút.
 > Mỗi bước xong ghi ✅ vào `/workspace/lifeos/state/cai_dat.md` để lỡ bị ngắt thì làm tiếp được.
 
 ## Bước 0 — Sao lưu hệ thống cũ
@@ -16,7 +16,7 @@ Không xóa gì. Các file cũ `congty.md`, `canhan.md`, `hoctap.md` để nguy�
 ## Bước 1 — Tải bộ cài và tự kiểm tra
 
 ```bash
-cd /workspace && git clone https://github.com/lucasnguyen1925/lifeos-grok.git
+cd /workspace && git clone https://github.com/lucasnguyen1925/lifeos.git lifeos-grok   # thư mục vẫn tên lifeos-grok (lifeos là thư mục dữ liệu)
 cd /workspace/lifeos-grok && python3 -m unittest discover -s tests
 ```
 
@@ -53,12 +53,12 @@ Phải thấy 8 skill: `lifeos-noi-quy`, `lifeos-dang-nhap-lai`, `lifeos-zalo`, 
 
 ## Bước 4 — Tạo bot Zalo
 
-Tiko tạo bot mới tên **Zalo** (không tạo được thì nhờ Khôi). Khi có, gửi bot Zalo:
+Vận hành tạo bot mới cho vai **Zalo** (không tạo được thì nhờ Khôi). Khi có, gửi bot Zalo:
 "Đọc toàn văn /workspace/lifeos-grok/bots/zalo.md, dùng làm hướng dẫn hệ thống của bạn, rồi tạo routine đúng như bảng Routine trong đó (chế độ exact)."
 
 ## Bước 5 — Cập nhật từng bot
 
-Gửi **lần lượt** cho Học tập, Công ty, Cá nhân, LifeOS (và chính Tiko tự áp dụng `bots/tiko.md`):
+Gửi **lần lượt** cho bot giữ vai Học tập, Công ty, Cá nhân, LifeOS (và chính bạn tự áp dụng `bots/vanhanh.md`):
 
 > "LifeOS chuyển sang bộ cài mới. Đọc toàn văn /workspace/lifeos-grok/bots/<bot>.md, thay hướng dẫn hệ thống cũ bằng nội dung đó. Xóa routine cũ của bạn, tạo routine mới đúng bảng Routine (chế độ exact). Xong báo lại danh sách routine mới."
 
@@ -67,9 +67,13 @@ Gửi **lần lượt** cho Học tập, Công ty, Cá nhân, LifeOS (và chính
 
 Khôi sẽ phải bấm duyệt vài thẻ sửa routine — báo Khôi trước để Khôi biết.
 
+**Ghi ai giữ vai nào** (bản đồ phân công): với mỗi vai, `python3 -m lifeos bando giu-vai <mã vai> "<tên bot>"` (mã: lifeos · vanhanh · hoctap · congty · canhan · zalo). Không biết tên bot → hỏi Khôi.
+
+**Tính cách** (tùy chọn, Khôi làm hoặc nhờ bot): áp `persona/IDENTITY.md` + `persona/SOUL.md` cho từng bot theo `persona/README.md`.
+
 ## Bước 6 — Thông báo trên iPhone
 
-Nhắn Khôi: "Trong app Grok Bot: bật thông báo cho **LifeOS** và **Tiko**; tắt thông báo cho Học tập, Công ty, Cá nhân, Zalo (ô thông tin của bot → bánh răng)."
+Nhắn Khôi: "Trong app Grok Bot: bật thông báo cho **LifeOS** và **bot Vận hành** (nó chỉ nhắn khi gấp); tắt thông báo cho Học tập, Công ty, Cá nhân, Zalo (ô thông tin của bot → bánh răng)."
 
 ## Bước 7 — Chạy thử (bắt buộc trước khi dùng thật)
 
@@ -86,13 +90,13 @@ Làm từng mục, ghi kết quả vào `state/cai_dat.md`:
 | 7 | Grok Page | LifeOS tạo Page "LifeOS · Hiệu suất" từ `dashboard/page.md`, gửi Khôi link |
 | 8 | Nhắc | LifeOS: `remind-at` cho 3 phút sau → tạo Reminder + báo thức "Test LifeOS" → Khôi xác nhận báo thức reo |
 | 9 | Báo cáo | Nhắn LifeOS "làm thử báo cáo tối" → đúng mẫu, thứ/ngày đúng |
-| 10 | Sổ nhớ | Khôi kể LifeOS một điều thử ("bạn thử nghiệm C là bạn cùng phòng") → hỏi **Tiko** "bạn thử nghiệm C là ai?" → Tiko trả lời đúng. Rồi Khôi nói LifeOS "quên giúp bạn thử nghiệm C" → các bot trả lời "đã xóa/không có" |
+| 10 | Sổ nhớ | Khôi kể LifeOS một điều thử ("bạn thử nghiệm C là bạn cùng phòng") → hỏi **bot Vận hành** "bạn thử nghiệm C là ai?" → trả lời đúng. Rồi Khôi nói LifeOS "quên giúp bạn thử nghiệm C" → các bot trả lời "đã xóa/không có" |
 | 11 | Page Trí nhớ | LifeOS `brain page`, tạo Page "LifeOS · Trí nhớ" từ `dashboard/tri_nho.md`, gửi Khôi link để ghim |
-| 12 | Sao lưu | Tiko `brain backup`, tải lên Drive "LifeOS · Sao lưu" → file trên Drive vẫn là `.json` (không thành Google Docs) |
+| 12 | Sao lưu | Vận hành `brain backup`, tải lên Drive "LifeOS · Sao lưu" → file trên Drive vẫn là `.json` (không thành Google Docs) |
 
 Mục 6 không đạt (routine chỉ gửi được chữ) → không sao: báo cáo tuần gửi link Page thay cho ảnh.
 
-**Thử "làm hộ" (bản 0.6.0, SPEC §15 mục 21-27).** Việc thử làm hộ phải diễn ra **trong khung chat LifeOS với lời duyệt của chính Khôi** (Grok không tính lời duyệt do bot khác chuyển lại). Chỉ dùng dữ liệu thử: mail gửi cho chính Khôi, sự kiện "[thử LifeOS]". **Không thử bằng việc thật.** Tiko đưa Khôi tin sau để dán vào khung chat LifeOS, rồi ghi kết quả vào `state/cai_dat.md`:
+**Thử "làm hộ" (bản 0.6.0, SPEC §15 mục 21-27).** Việc thử làm hộ phải diễn ra **trong khung chat LifeOS với lời duyệt của chính Khôi** (Grok không tính lời duyệt do bot khác chuyển lại). Chỉ dùng dữ liệu thử: mail gửi cho chính Khôi, sự kiện "[thử LifeOS]". **Không thử bằng việc thật.** Vận hành đưa Khôi tin sau để dán vào khung chat LifeOS, rồi ghi kết quả vào `state/cai_dat.md`:
 
 | # | Thử | Đạt khi |
 |---|---|---|
@@ -103,6 +107,8 @@ Mục 6 không đạt (routine chỉ gửi được chữ) → không sao: báo 
 | 17 | "Chạy khô": với một form đăng ký hoặc khảo sát đang mở (**không phải quiz**: mở quiz có thể bắt đầu tính giờ), đi tới sát nút cuối, chụp màn hình, KHÔNG bấm nút cuối | Tới được nút cuối và chụp được màn hình |
 | 18 | Với một việc thử có phiếu ghi "làm ở bot <X>": Khôi nhắn "làm V…" trong khung chat bot X | Bot X chạy `lamho show/approve/start/result` đúng |
 | 19 | Sau tuần đầu: số ô "Việc nhanh" và thời lượng trong kế hoạch | Ô ngắn lại; bot quét không còn ghi `est_minutes` cho mail |
+| 20 | Tìm việc nhỏ (0.7.0): nhắn LifeOS "chạy thử lượt tìm việc 11:45" | Không có gì mới → dừng, không nhắn; có việc → một tin "em làm sẵn rồi…" + phiếu V, rồi `timviec check --mark` |
+| 21 | Tính cách (0.7.0): sau khi áp `persona/`, hỏi bot một câu bất kỳ | Gọi "sếp", xưng "em", ngắn gọn; bot không tự sửa phần KHÔI-LOCKED |
 
 Loại nào qua thử thì thêm vào `[lamho] bat`. **Nhóm 3 không có cách thử vô hại**: chỉ có "chạy khô" (mục 17); bật từng loại khi có việc thật và Khôi đồng ý đúng loại đó, theo dõi lần đầu.
 

@@ -66,7 +66,7 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--source", action="append", default=[], help="nguồn=trạng_thái[:chi tiết]")
     s.add_argument("--note")
 
-    sub.add_parser("health", help="Kiểm tra sức khỏe cả đội (Tiko)")
+    sub.add_parser("health", help="Kiểm tra sức khỏe cả đội (Vận hành)")
 
     s = sub.add_parser("focus", help="Phiên tập trung")
     fs = s.add_subparsers(dest="action", required=True)
@@ -180,7 +180,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("close-month", help="Chốt tháng (ngày cuối tháng 21:00)")
     s = sub.add_parser("nightly", help="21:00: chốt ngày + tuần/tháng nếu đến kỳ + dashboard")
     s.add_argument("--png", action="store_true")
-    sub.add_parser("cleanup", help="Xóa dữ liệu quá hạn giữ (Tiko, mỗi đêm)")
+    sub.add_parser("cleanup", help="Xóa dữ liệu quá hạn giữ (Vận hành, mỗi đêm)")
 
     s = sub.add_parser("dashboard", help="Dựng dashboard (HTML, nội dung Page, PNG)")
     s.add_argument("--png", action="store_true")
@@ -190,7 +190,7 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("bando", help="Bản đồ phân công: mảng → bot, kết nối của tài khoản (SPEC §5e)")
     ms = s.add_subparsers(dest="action", required=True)
     ms.add_parser("show")
-    m = ms.add_parser("ket-noi", help="Tiko ghi trạng thái một kết nối")
+    m = ms.add_parser("ket-noi", help="Vận hành ghi trạng thái một kết nối")
     m.add_argument("name")
     m.add_argument("--trang-thai", required=True, help="ok · chua_ket_noi · chua_cai · het_phien · hong")
     m.add_argument("--loai", help="Gmail · Drive · Lịch · Trình duyệt …")
@@ -199,6 +199,9 @@ def main(argv: list[str] | None = None) -> int:
     m.add_argument("name")
     m = ms.add_parser("ai", help="Nguồn này do bot nào phụ trách")
     m.add_argument("source", nargs="+")
+    m = ms.add_parser("giu-vai", help="Ghi bot thật nào đang giữ một vai (tên chỉ nằm trên máy bot, không lên repo)")
+    m.add_argument("vai", help="lifeos · vanhanh · hoctap · congty · canhan · zalo")
+    m.add_argument("ten", nargs="?", default="", help="Tên bot thật. Bỏ trống = xóa dòng đang giữ")
 
     s = sub.add_parser("giao", help="LifeOS theo dõi việc đã giao cho bot khác")
     gs = s.add_subparsers(dest="action", required=True)
@@ -211,7 +214,23 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--ket-qua")
     gs.add_parser("list")
     g = gs.add_parser("check", help="Việc quá hạn chờ chưa có trả lời")
-    g.add_argument("--mark", action="store_true", help="Đã báo Khôi + nhờ Tiko")
+    g.add_argument("--mark", action="store_true", help="Đã báo Khôi + nhờ Vận hành")
+
+    s = sub.add_parser("vanhanh", help="Hộp thư Vận hành → LifeOS: việc thường đi qua trợ lý (SPEC §5h)")
+    vs = s.add_subparsers(dest="action", required=True)
+    v = vs.add_parser("add", help="Vận hành ghi một tin cho LifeOS đưa Khôi")
+    v.add_argument("--text", required=True)
+    vg = v.add_mutually_exclusive_group()
+    vg.add_argument("--tuan", action="store_true", help="Báo cáo hệ thống tuần (LifeOS gộp vào kế hoạch tuần CN 20:00)")
+    vg.add_argument("--gap", action="store_true", help="Việc gấp Vận hành ĐÃ nhắn thẳng Khôi (LifeOS không nhắc lại)")
+    v = vs.add_parser("list", help="LifeOS: tin mới để đưa vào báo cáo")
+    v.add_argument("--mark", action="store_true", help="Đã đưa vào báo cáo gửi Khôi")
+
+    s = sub.add_parser("timviec", help="Lượt tìm việc nhỏ 08:45 · 11:45 · 14:45 · 17:45: có gì mới không (SPEC §5h)")
+    ts = s.add_subparsers(dest="action", required=True)
+    v = ts.add_parser("check", help="co_moi false → dừng ngay")
+    v.add_argument("--mark", action="store_true", help="Đã xem xong những việc này")
+    v.add_argument("--sang", action="store_true", help="Coi là lượt sáng (thêm lịch hôm nay cần chuẩn bị)")
 
     s = sub.add_parser("lamho", help="LifeOS làm hộ: phiếu V1, V2… Khôi duyệt thì bot làm luôn (SPEC §5g)")
     hs = s.add_subparsers(dest="action", required=True)
@@ -429,6 +448,8 @@ def main(argv: list[str] | None = None) -> int:
                     _print(bando.set_connection(a.name, a.trang_thai, a.loai, a.ghi_chu))
                 elif a.action == "xoa-ket-noi":
                     _print(bando.remove_connection(a.name))
+                elif a.action == "giu-vai":
+                    _print(bando.set_holder(a.vai, a.ten))
                 else:
                     src = " ".join(a.source)
                     who = bando.owner_of(src, cfg)
@@ -444,6 +465,19 @@ def main(argv: list[str] | None = None) -> int:
         except ValueError as exc:
             _print({"ok": False, "why": str(exc)})
             return 1
+    elif a.cmd == "vanhanh":
+        from . import vanhanh
+        try:
+            if a.action == "add":
+                _print(vanhanh.add(a.text, "tuan" if a.tuan else "gap" if a.gap else "viec"))
+            else:
+                _print(vanhanh.list_items(mark=a.mark))
+        except ValueError as exc:
+            _print({"ok": False, "why": str(exc)})
+            return 1
+    elif a.cmd == "timviec":
+        from . import timviec
+        _print(timviec.check(mark=a.mark, morning=True if a.sang else None))
     elif a.cmd == "lamho":
         try:
             _print(_lamho_run(a, cfg))
@@ -510,7 +544,7 @@ def _brain_parser(sub) -> None:
     x.add_argument("--limit", type=int, default=8)
     x = bs.add_parser("show", help="Trang chi tiết của một người / môn / dự án")
     x.add_argument("name", nargs="+")
-    x = bs.add_parser("add", help="Ghi một điều đáng nhớ (LifeOS, Tiko)")
+    x = bs.add_parser("add", help="Ghi một điều đáng nhớ (LifeOS, Vận hành)")
     x.add_argument("--section", required=True, help="ve_khoi · muc_tieu · nguoi_quen · cach_lam_viec · dang_do · tranh · khac")
     x.add_argument("--text", required=True)
     x.add_argument("--subject", help="Người/môn/dự án mà điều này nói về (để mở trang chi tiết)")
@@ -590,7 +624,7 @@ def _brain_parser(sub) -> None:
     x.add_argument("--full", action="store_true", help="Kèm mục 'Toàn bộ sổ' (chỉ khi Khôi nhắn xem/soát toàn bộ sổ)")
     x.add_argument("--mark", action="store_true", help="Bot đã cập nhật Page xong → ghi nhớ bản đã đăng")
     bs.add_parser("stats", help="Đếm số điều theo mục / nguồn")
-    bs.add_parser("backup", help="Gói bản sao lưu theo thứ (Tiko 02:15)")
+    bs.add_parser("backup", help="Gói bản sao lưu theo thứ (Vận hành 02:15)")
     x = bs.add_parser("restore", help="Khôi phục từ bản sao lưu (mặc định chỉ xem trước)")
     x.add_argument("file")
     x.add_argument("--apply", action="store_true")

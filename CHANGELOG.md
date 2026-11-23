@@ -1,6 +1,52 @@
 # Nhật ký thay đổi
 
-Mỗi bản ghi rõ **Tiko phải làm gì** khi cập nhật (skill `lifeos-cap-nhat`).
+Mỗi bản ghi rõ **bot Vận hành phải làm gì** khi cập nhật (skill `lifeos-cap-nhat`). Trước 0.7.0 vai này tên "Tiko", các bản cũ bên dưới giữ nguyên chữ đó.
+
+## 0.7.0 — Vai thay tên bot, tính cách quản gia AI, tự tìm việc nhỏ (23/11)
+
+Chuyện xảy ra: Khôi muốn LifeOS giống một trợ lý AI kiểu quản gia trong phim — một đầu mối, đi trước một bước, tự nhận việc nhỏ — và muốn dùng bộ cài cho **nhiều bot khác nhau**, nên repo không ghi tên riêng của bot nữa (vị trí Tiko thành vai "Vận hành", bot nào giữ cũng được). Repo đổi tên thành `lifeos`. Quyết định: SPEC §5h (V1–V8).
+
+**Khôi làm trước:** đổi tên repo trên GitHub: repo → **Settings** → **Repository name** → `lifeos` → **Rename**. Rồi nhắn bot đang lo cập nhật (bot trước đây tên Tiko): *"Cập nhật LifeOS lên bản 0.7.0, làm theo CHANGELOG"*.
+
+**Vận hành làm:**
+1. Đổi địa chỉ repo rồi tải bản mới (thư mục **giữ nguyên** `/workspace/lifeos-grok`):
+   ```bash
+   cd /workspace/lifeos-grok
+   git remote set-url origin https://github.com/lucasnguyen1925/lifeos.git
+   git rev-parse --short HEAD > /workspace/lifeos/state/previous_version.txt
+   git pull --ff-only
+   python3 -m unittest discover -s tests      # phải OK, 120 bài
+   ```
+   `git pull` báo không thấy repo → Khôi chưa đổi tên: `git remote set-url origin https://github.com/lucasnguyen1925/lifeos-grok.git`, pull lại, nhắc Khôi đổi tên.
+2. Chép đè skill (vòng chép ở CAI_DAT bước 3; đổi: `lifeos-noi-quy`, `lifeos-bao-cao`, `lifeos-lam-ho`, `lifeos-tri-nho`, `lifeos-dang-nhap-lai`, `lifeos-cap-nhat`, `lifeos-zalo`).
+3. **Hỏi Khôi một câu:** *"Vai Vận hành từ nay do bot nào giữ — vẫn là em, hay bot khác? Và tên các bot đang giữ vai LifeOS, Học tập, Công ty, Cá nhân, Zalo?"* Rồi ghi bản đồ, mỗi vai một lệnh:
+   ```bash
+   python3 -m lifeos bando giu-vai vanhanh "<tên bot giữ vai Vận hành>"
+   python3 -m lifeos bando giu-vai lifeos "<tên>"     # tương tự cho hoctap, congty, canhan, zalo
+   python3 -m lifeos bando show                       # mỗi dòng có "(bot <tên>)"
+   ```
+4. **Vai Vận hành:**
+   - **Vẫn là bạn** → đọc toàn văn `/workspace/lifeos-grok/bots/vanhanh.md`, thay hướng dẫn cũ; sửa 4 routine của bạn đúng bảng Routine mới (nội dung đổi sang "hướng dẫn vai Vận hành"; **báo cáo tuần giờ chỉ ghi vào hộp thư, không nhắn Khôi**).
+   - **Bot khác** → gửi bot đó: *"Từ nay bạn giữ vai Vận hành của LifeOS. Đọc toàn văn /workspace/lifeos-grok/bots/vanhanh.md làm hướng dẫn cho phần LifeOS, tạo 4 routine đúng bảng Routine (exact), rồi chạy `python3 -m lifeos bando giu-vai vanhanh \"<tên bạn>\"`. Xong báo lại."* Bot đó báo xong → **bạn xóa 4 routine cũ của mình** (kiểm tra sức khỏe sáng/tối, dọn dẹp đêm, báo cáo tuần) để không chạy trùng, và nhắc Khôi bật thông báo cho bot mới. Từ đó bot mới lo cập nhật bộ cài.
+5. Gửi tin ưu tiên cho bot giữ vai **LifeOS, Học tập, Công ty, Cá nhân, Zalo**: "Cập nhật hướng dẫn theo /workspace/lifeos-grok/bots/<vai>.md (đọc toàn văn, thay hướng dẫn cũ)." Riêng **LifeOS**: thêm routine **"Tìm việc nhỏ"** `45 8,11,14,17 * * *` (exact) đúng bảng Routine; Grok không nhận dấu phẩy thì tạo 4 routine riêng 08:45 · 11:45 · 14:45 · 17:45. **Khôi phải bấm duyệt thẻ.**
+6. Không thêm khóa nào vào `config.toml` (chỉ đổi chữ trong phần chú thích).
+7. Kiểm ngay (chỉ đọc), ghi vào `state/cai_dat.md`:
+   - `python3 -m lifeos status vanhanh --type check --ok` rồi `python3 -m lifeos health`: có `vanhanh`, không còn `tiko` (file `_status/tiko.json` tự đổi tên thành `vanhanh.json`).
+   - `python3 -m lifeos vanhanh list` in `"count": 0`; `python3 -m lifeos timviec check` chạy không lỗi (lần đầu có thể liệt kê nhiều việc — bình thường).
+8. **Tính cách (Khôi quyết, không bắt buộc):** gửi Khôi link `persona/README.md` và nói ngắn: "Có mẫu tính cách quản gia AI cho các bot (gọi sếp, xưng em). Sếp muốn áp cho bot nào thì mở phần IDENTITY/SOUL của bot đó, chép theo hướng dẫn." Không tự chép đè tính cách của bot nào.
+9. Sau 1 tuần: gửi Khôi số lần lượt tìm việc có nhắn / không nhắn, và nhắc Khôi xem trang Mức sử dụng của Grok (tốn quá → giảm còn 2 lượt 11:45 · 17:45).
+
+**Khôi làm:** đổi tên repo (trên); trả lời câu hỏi ở bước 3; bấm duyệt thẻ routine; (tùy) áp `persona/` cho từng bot. Từ giờ bot gọi Khôi là "sếp", xưng "em" (khi đã áp `persona/`).
+
+Thay đổi:
+- **Vai thay tên bot (V2)**: mã `tiko` → `vanhanh` ("Vận hành") trong code, hướng dẫn, skill, SPEC. `common.py`: `ROLE_NAMES`, `bot_id()` (nhận mã cũ `tiko`), `role_name()`, `migrate_old_ids()` (đổi tên `_status/tiko.json`). Lệnh mới `bando giu-vai <vai> "<tên>"` (`state/doi_bot.json`); bản đồ trong `brain core` hiện "(bot <tên>)". `bots/tiko.md` → `bots/vanhanh.md`; các file `bots/*.md` viết theo vai.
+- **Hộp thư Vận hành → LifeOS (V3)**: `lifeos/vanhanh.py`, lệnh `vanhanh add [--tuan|--gap]` / `vanhanh list [--mark]`. Báo cáo sáng/tối có dòng ⚙️, kế hoạch tuần có ≤ 3 dòng 🛠.
+- **Tính cách (V4, V7)**: thư mục mới `persona/` (IDENTITY.md, SOUL.md, README.md). Nội quy mục 7: xưng hô "sếp/em", "sếp" trong dữ liệu công việc = quản lý ở công ty.
+- **Tự tìm việc nhỏ (V5, V6)**: `lifeos/timviec.py`, lệnh `timviec check [--mark] [--sang]`; `bots/lifeos.md` có mục "Tìm việc nhỏ" + routine 4 lượt; skill `lifeos-lam-ho`, `lifeos-bao-cao` thêm lúc chat và 4 lượt.
+- **Repo đổi tên (V1)**: link trong README, CAI_DAT, skill `lifeos-cap-nhat` (thêm `git remote set-url`), CLAUDE.md.
+- Test: `tests/test_vanhanh.py` (8 bài mới) + 2 bài trong `tests/test_bando.py`; tổng 120.
+- Chưa kiểm chứng trên Grok: SPEC §15 mục 28–31.
+
 
 ## 0.6.0 — Việc nhanh tính đúng giờ + LifeOS làm hộ (03/11)
 

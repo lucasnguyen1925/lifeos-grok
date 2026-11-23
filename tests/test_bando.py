@@ -42,7 +42,7 @@ class Map(Base):
     def test_map_in_core_with_connection_status(self):
         text = brain.core(self.cfg, self.t)["text"]
         self.assertIn("🗺️ BẢN ĐỒ PHÂN CÔNG", text)
-        for name in ("Học tập", "Công ty", "Cá nhân", "Zalo", "LifeOS", "Tiko"):
+        for name in ("Học tập", "Công ty", "Cá nhân", "Zalo", "LifeOS", "Vận hành"):
             self.assertIn(f"- {name} · ", text, "bot nào đọc hồ sơ cũng thấy cả bản đồ")
         self.assertIn("Kết nối: chưa ghi", text)
 
@@ -75,6 +75,28 @@ class Map(Base):
         self.assertIn("- Học tập · Mọi thứ của trường", md)
 
 
+class Holders(Base):
+    def test_holder_shown_in_map_and_cli(self):
+        self.assertIn("- Vận hành · ", bando.render(self.cfg), "chưa ghi thì không chèn gì, hồ sơ ngắn gọn")
+        bando.set_holder("vanhanh", "Bot A", t=self.t)
+        bando.set_holder("Tiko", "Bot B", t=self.t)          # mã cũ → vai Vận hành, ghi đè
+        self.assertEqual(bando.holders(), {"vanhanh": "Bot B"})
+        self.assertIn("- Vận hành (bot Bot B) · Giữ LifeOS luôn chạy, chạy đúng giờ", brain.core(self.cfg, self.t)["text"])
+        self.assertEqual(bando.holder_label("vanhanh"), "Vận hành (bot Bot B)")
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            code = main(["bando", "giu-vai", "vanhanh"])          # bỏ trống tên = xóa
+        self.assertEqual((code, json.loads(buf.getvalue())["dang_giu"]), (0, None))
+        self.assertEqual(bando.holders(), {})
+        with self.assertRaises(ValueError):
+            bando.set_holder("ke_toan", "Bot C")
+
+    def test_old_delegation_to_tiko_still_renders(self):
+        bando.delegate("tiko", "Kiểm tra vì sao bot Học tập lỡ giờ", t=self.t)
+        self.assertEqual(bando.open_items()[0]["to"], "vanhanh")
+        self.assertIn("Vận hành:", bando.render_waiting(self.t))
+
+
 class Delegation(Base):
     def test_delegate_wait_and_escalate(self):
         res = bando.delegate("hoctap", "Tìm sheet phân công nhóm X trong Drive trường", t=self.t)
@@ -83,7 +105,7 @@ class Delegation(Base):
         self.assertIn("⏳ ĐANG CHỜ BOT KHÁC TRẢ LỜI", brain.core(self.cfg, self.t)["text"])
         self.assertEqual(bando.overdue(self.t + timedelta(minutes=9))["late"], [])
         late_t = self.t + timedelta(minutes=11)
-        self.assertIn("QUÁ HẠN: báo Khôi + nhờ Tiko", brain.core(self.cfg, late_t)["text"])
+        self.assertIn("QUÁ HẠN: báo Khôi + nhờ Vận hành", brain.core(self.cfg, late_t)["text"])
         self.assertEqual(bando.overdue(late_t, mark=True)["late"][0]["id"], "g1")
         self.assertEqual(bando.overdue(late_t)["late"], [], "báo rồi thì không báo lại")
         self.assertIn("đã báo Khôi", bando.render_waiting(late_t))

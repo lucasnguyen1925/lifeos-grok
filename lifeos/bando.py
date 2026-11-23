@@ -3,11 +3,13 @@
 Hai phần của bản đồ:
     1. Phân công  — mảng nào, nguồn nào, loại việc nào → bot nào phụ trách (config.toml [phan_cong.<bot>],
                     thiếu thì dùng mặc định bên dưới).
-    2. Kết nối    — kết nối của tài khoản Grok (chung cho mọi bot) đang có hay chưa. Tiko ghi bằng lệnh,
+    2. Kết nối    — kết nối của tài khoản Grok (chung cho mọi bot) đang có hay chưa. Vận hành ghi bằng lệnh,
                     lưu ở state/ket_noi.json.
+    Mỗi vai còn ghi bot thật nào đang giữ (state/doi_bot.json) — repo không ghi tên riêng của bot.
 
     python3 -m lifeos bando show
-    python3 -m lifeos bando ket-noi "Drive trường" --trang-thai ok --loai Drive        # Tiko
+    python3 -m lifeos bando ket-noi "Drive trường" --trang-thai ok --loai Drive        # Vận hành
+    python3 -m lifeos bando giu-vai vanhanh "<tên bot>"                                # ai đang giữ vai
     python3 -m lifeos bando xoa-ket-noi "<tên>"
     python3 -m lifeos giao add --to hoctap --viec "Tìm sheet phân công nhóm X trong Drive trường"   # LifeOS
     python3 -m lifeos giao done g3 --ket-qua "…"
@@ -20,7 +22,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
-from .common import BOTS, iso, now, parse_dt, path, read_json, write_json
+from .common import BOTS, ROLE_NAMES, bot_id, iso, now, parse_dt, path, read_json, role_name, write_json
 
 DEFAULT_PHAN_CONG: dict[str, dict[str, Any]] = {
     "hoctap": {"mang": "Mọi thứ của trường",
@@ -39,12 +41,12 @@ DEFAULT_PHAN_CONG: dict[str, dict[str, Any]] = {
     "lifeos": {"mang": "Nói chuyện với Khôi",
                "nguon": ["Drive cá nhân", "Đặt Reminder + báo thức", "Lịch LifeOS", "Sổ nhớ"],
                "viec": ["kế hoạch, nhắc, soạn nháp, nhớ, lưu kho", "giao việc cho đúng bot"]},
-    "tiko": {"mang": "Bộ máy",
-             "nguon": ["Kết nối, đăng nhập", "Sao lưu"],
-             "viec": ["sự cố, kết nối mới, cập nhật bộ cài"]},
+    "vanhanh": {"mang": "Giữ LifeOS luôn chạy, chạy đúng giờ",
+                "nguon": ["Kết nối, đăng nhập", "Sao lưu"],
+                "viec": ["sự cố, bot lỡ giờ, kết nối mới, cập nhật bộ cài"]},
 }
-ORDER = ["hoctap", "congty", "canhan", "zalo", "lifeos", "tiko"]
-NAMES = {"lifeos": "LifeOS", "tiko": "Tiko", "hoctap": "Học tập", "congty": "Công ty", "canhan": "Cá nhân", "zalo": "Zalo"}
+ORDER = ["hoctap", "congty", "canhan", "zalo", "lifeos", "vanhanh"]
+NAMES = ROLE_NAMES
 STATUSES = {"ok": "✅", "chua_ket_noi": "❌ chưa kết nối", "chua_cai": "❌ chưa cài",
             "het_phien": "⚠️ hết phiên đăng nhập", "hong": "⚠️ hỏng"}
 DEFAULT_WAIT_MINUTES = 10
@@ -73,6 +75,40 @@ def owner_of(source: str, cfg: dict[str, Any] | None = None) -> str | None:
         if any(key and (key in _fold(n) or _fold(n) in key) for n in assignments(cfg)[bot]["nguon"]):
             return bot
     return None
+
+
+# ---------------------------------------------------------------- bot nào đang giữ vai
+
+def _holders_path():
+    return path("state", "doi_bot.json")
+
+
+def holders() -> dict[str, str]:
+    """{vai: tên bot thật đang giữ}. Tên thật chỉ nằm trên máy bot, không lên repo."""
+    items = (read_json(_holders_path(), None) or {}).get("items", {})
+    return {bot_id(k): v["ten"] for k, v in items.items() if v.get("ten")}
+
+
+def set_holder(role: str, name: str | None, t: datetime | None = None) -> dict[str, Any]:
+    """Ghi bot nào đang giữ vai. name rỗng/None = bỏ ghi."""
+    role = bot_id(role)
+    if role not in BOTS:
+        raise ValueError(f"Vai phải là một trong {', '.join(BOTS)}.")
+    name = " ".join((name or "").split())
+    data = read_json(_holders_path(), None) or {"items": {}}
+    if name:
+        data["items"][role] = {"ten": name, "updated_at": iso(t or now())}
+    else:
+        data["items"].pop(role, None)
+    write_json(_holders_path(), data)
+    return {"ok": True, "vai": NAMES[role], "dang_giu": name or None}
+
+
+def holder_label(role: str) -> str:
+    """'Vận hành (bot <tên>)' nếu đã ghi, không thì 'Vận hành'."""
+    role = bot_id(role)
+    who = holders().get(role)
+    return f"{NAMES[role]} (bot {who})" if who else NAMES[role]
 
 
 # ---------------------------------------------------------------- kết nối
@@ -126,24 +162,26 @@ def render(cfg: dict[str, Any] | None = None) -> str:
         c = bad.get(_fold(src))
         return f"{src} ({STATUSES[c['status']]})" if c else src
 
+    who = holders()
     lines = ["🗺️ BẢN ĐỒ PHÂN CÔNG — việc thuộc mảng nào thì giao đúng bot đó, đừng tự lục nguồn của bot khác"]
     for bot in ORDER:
         a = assignments(cfg)[bot]
-        lines.append(f"- {NAMES[bot]} · {a['mang']}: {', '.join(mark(s) for s in a['nguon'])} → {'; '.join(a['viec'])}")
+        held = f" (bot {who[bot]})" if bot in who else ""
+        lines.append(f"- {NAMES[bot]}{held} · {a['mang']}: {', '.join(mark(s) for s in a['nguon'])} → {'; '.join(a['viec'])}")
     if conns:
         parts = []
         for c in conns:
             note = f" — {c['note']}" if c.get("note") else ""
             parts.append(f"{STATUSES[c['status']]} {c['name']}{note}" if c["status"] == "ok"
                          else f"{c['name']}: {STATUSES[c['status']]}{note}")
-        lines.append("🔌 Kết nối (chung cho mọi bot, Tiko cập nhật): " + " · ".join(parts))
+        lines.append("🔌 Kết nối (chung cho mọi bot, Vận hành cập nhật): " + " · ".join(parts))
     else:
-        lines.append("🔌 Kết nối: chưa ghi — Tiko ghi bằng `python3 -m lifeos bando ket-noi …`")
+        lines.append("🔌 Kết nối: chưa ghi — Vận hành ghi bằng `python3 -m lifeos bando ket-noi …`")
     return "\n".join(lines)
 
 
 def show(cfg: dict[str, Any] | None = None) -> dict[str, Any]:
-    return {"text": render(cfg), "assignments": assignments(cfg), "connections": connections()}
+    return {"text": render(cfg), "assignments": assignments(cfg), "holders": holders(), "connections": connections()}
 
 
 # ---------------------------------------------------------------- việc đã giao (LifeOS)
@@ -157,6 +195,7 @@ def _giao() -> dict[str, Any]:
 
 
 def delegate(to: str, task: str, minutes: int = DEFAULT_WAIT_MINUTES, t: datetime | None = None) -> dict[str, Any]:
+    to = bot_id(to)
     if to not in BOTS or to == "lifeos":
         raise ValueError(f"--to phải là một trong {', '.join(b for b in BOTS if b != 'lifeos')}.")
     task = " ".join((task or "").split())
@@ -192,7 +231,7 @@ def open_items() -> list[dict[str, Any]]:
 
 
 def overdue(t: datetime | None = None, mark: bool = False) -> dict[str, Any]:
-    """Việc quá hạn chờ (mặc định 10 phút) chưa có trả lời. --mark sau khi đã báo Khôi + nhờ Tiko."""
+    """Việc quá hạn chờ (mặc định 10 phút) chưa có trả lời. --mark sau khi đã báo Khôi + nhờ Vận hành."""
     t = t or now()
     data = _giao()
     late = [x for x in data["items"] if x["status"] == "open" and parse_dt(x["due_at"]) <= t]
@@ -200,7 +239,7 @@ def overdue(t: datetime | None = None, mark: bool = False) -> dict[str, Any]:
         for x in late:
             x.update(status="escalated", escalated_at=iso(t))
         write_json(_giao_path(), data)
-    return {"late": [{"id": x["id"], "to": NAMES[x["to"]], "task": x["task"],
+    return {"late": [{"id": x["id"], "to": role_name(x["to"]), "task": x["task"],
                       "since": f"{parse_dt(x['created_at']):%H:%M %d/%m}"} for x in late], "marked": mark}
 
 
@@ -210,6 +249,6 @@ def render_waiting(t: datetime | None = None) -> str:
     rows = []
     for x in open_items():
         late = parse_dt(x["due_at"]) <= t
-        flag = " — QUÁ HẠN, đã báo Khôi" if x["status"] == "escalated" else (" — QUÁ HẠN: báo Khôi + nhờ Tiko" if late else "")
-        rows.append(f"- {x['id']} {NAMES[x['to']]}: {x['task']} (giao {parse_dt(x['created_at']):%H:%M}){flag}")
+        flag = " — QUÁ HẠN, đã báo Khôi" if x["status"] == "escalated" else (" — QUÁ HẠN: báo Khôi + nhờ Vận hành" if late else "")
+        rows.append(f"- {x['id']} {role_name(x['to'])}: {x['task']} (giao {parse_dt(x['created_at']):%H:%M}){flag}")
     return "\n".join(["⏳ ĐANG CHỜ BOT KHÁC TRẢ LỜI"] + rows) if rows else ""

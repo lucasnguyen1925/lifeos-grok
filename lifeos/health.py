@@ -1,8 +1,8 @@
-"""Nhịp tim và kiểm tra sức khỏe cả đội bot (việc của Tiko).
+"""Nhịp tim và kiểm tra sức khỏe cả đội bot (việc của bot giữ vai Vận hành).
 
 Mỗi bot chạy xong ghi nhịp tim:
     python3 -m lifeos status hoctap --type full --ok --source mybk=ok --source bkel=needs_login:"SSO hết phiên"
-Tiko kiểm tra:
+Vận hành kiểm tra:
     python3 -m lifeos health
 """
 from __future__ import annotations
@@ -10,13 +10,15 @@ from __future__ import annotations
 from datetime import datetime, time, timedelta
 from typing import Any
 
-from .common import BOTS, VN, iso, now, parse_dt, path, read_json, vn_datetime, write_json
+from .common import BOTS, VN, bot_id, iso, migrate_old_ids, now, parse_dt, path, read_json, vn_datetime, write_json
 
 SOURCE_STATES = {"ok", "needs_login", "error", "skipped"}
 
 
 def write_status(bot: str, run_type: str, ok: bool, sources: dict[str, tuple[str, str | None]],
                  note: str | None = None, t: datetime | None = None) -> dict[str, Any]:
+    bot = bot_id(bot)
+    migrate_old_ids()
     if bot not in BOTS:
         raise ValueError(f"bot phải là một trong {BOTS}.")
     if run_type not in {"full", "light", "report", "check"}:
@@ -64,6 +66,7 @@ def _last_expected(times: list[str], t: datetime) -> datetime | None:
 
 def check(cfg: dict[str, Any], t: datetime | None = None) -> dict[str, Any]:
     t = t or now()
+    migrate_old_ids()
     grace = timedelta(minutes=cfg.get("health", {}).get("grace_minutes", 45))
     source_red = timedelta(hours=cfg.get("health", {}).get("source_red_hours", 36))
     schedules = cfg.get("health", {}).get("expected", {})

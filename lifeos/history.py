@@ -3,7 +3,7 @@
     python3 -m lifeos close-day      # 21:00 mỗi ngày
     python3 -m lifeos close-week     # 21:00 Chủ nhật (sau close-day)
     python3 -m lifeos close-month    # 21:00 ngày cuối tháng (sau close-day)
-    python3 -m lifeos cleanup        # mỗi đêm (Tiko)
+    python3 -m lifeos cleanup        # mỗi đêm (Vận hành)
 
 Giữ lại: dữ liệu ngày + tóm tắt tuần 90 ngày; Zalo thô 7 ngày; tóm tắt tháng giữ lâu dài.
 """

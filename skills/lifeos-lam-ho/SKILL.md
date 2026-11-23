@@ -42,7 +42,7 @@ python3 -m lifeos lamho add --loai gui_mail --tieu-de "Trả lời mail xác nh�
 
 ## 3. Đưa phiếu cho Khôi
 
-Ba chỗ, **không thêm lượt dậy nào**: báo cáo 05:30, báo cáo 21:00, tin 🔴 giữa ngày (mẫu và thứ tự: skill `lifeos-bao-cao`, mục "Phiếu làm hộ").
+Báo cáo 05:30, báo cáo 21:00, tin 🔴 giữa ngày (mẫu và thứ tự: skill `lifeos-bao-cao`, mục "Phiếu làm hộ"), **lúc đang chat** (thấy việc nhận được thì mời ngay) và **4 lượt tìm việc** 08:45 · 11:45 · 14:45 · 17:45 (`bots/lifeos.md` mục Tìm việc nhỏ; chỉ khi `timviec check` báo có việc mới). Việc chỉ đọc/tra cứu/soạn (không gửi gì ra ngoài) thì không cần phiếu: làm luôn rồi báo "em làm sẵn rồi" (SPEC §5h).
 - Đầu báo cáo: `lamho tick` (phiếu đã hỏi đủ lần mà Khôi im lặng thì hết hạn; `nhac_gap` = phiếu có hạn gần: đặt Reminder + báo thức theo R2, **không tự làm**).
 - Sau khi lập phiếu mới: `lamho list --de-xuat --mark` → chép **nguyên văn** `text` (tối đa 5 phiếu; `ghi_chu` "…và N việc khác" thì chép luôn).
 
